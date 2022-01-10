@@ -11,31 +11,31 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://dl.dropbox.com/s/z7nea5h55rorsx9/Uema.ipa</string>
+					<string>https://www.dropbox.com/s/mtonp33q153auas/VNAWalletTest.ipa</string>
 				</dict>
-				<dict>
+				<!-- <dict>
 					<key>kind</key>
 					<string>display-image</string>
 					<key>url</key>
 					<string>https://dl.dropbox.com/s/22d3r1ofckkarow/57.png</string>
-				</dict>
-				<dict>
+				</dict> -->
+				<!-- <dict>
 					<key>kind</key>
 					<string>full-size-image</string>
 					<key>url</key>
 					<string>https://dl.dropbox.com/s/qc1b91hhwyzpuam/512.png</string>
-				</dict>
+				</dict> -->
 			</array>
 			<key>metadata</key>
 			<dict>
 				<key>bundle-identifier</key>
-				<string>com.uemabento</string>
+				<string>com.mbmobile.uat</string>
 				<key>bundle-version</key>
-				<string>1.0.0</string>
+				<string>1.0</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
-				<string>UEMA POS</string>
+				<string>VNA Test</string>
 			</dict>
 		</dict>
 	</array>
