@@ -63,18 +63,31 @@
 
         <button onclick="myFunction()">myFunction</button>
         <button onclick="myFunction1()">myFunction1</button>
+        <button onclick="myFunction2()">myFunction1</button>
+        <button onclick="myFunction3()">myFunction1</button>
     </body>
 
     <script>
         function myFunction() {
             console.log('myFunction')
-            window.postMessage({data: 'hello'});
+            window.postMessage('exit');
         }
 
         function myFunction1() {
             console.log('myFunction 1')
-            window.ReactNativeWebView.postMessage({data: 'hello1'});
+            window.ReactNativeWebView.postMessage({name: 'hoang'});
         }
+
+        function myFunction2() {
+            console.log('myFunction 2')
+            window.ReactNativeWebView.postMessage(`{name: 'hoang'}`);
+        }
+
+        function myFunction3() {
+            console.log('myFunction 3')
+            window.ReactNativeWebView.postMessage("{name: 'hoang'}");
+        }
+
     </script> 
 
 </html>
