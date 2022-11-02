@@ -6,6 +6,11 @@
         <style>
             
         </style>
+        <script>
+            function myFunction() {
+                window.ReactNativeWebView.postMessage("exit");
+            }
+        </script> 
     </head>
     <body>
         <a href="mbbank://?af_deeplink=true&af_dp=mbbank%3A%2F%2F&af_force_deeplink=true&af_web_id=88305c52-c3a8-4d57-a31b-9574b7035e59-o&campaign=SF_Email_WarmUP_AppInstall&media_source=SF%20Email%20Warmup&referral_code=5DTF62C0F6F9UWRQYTKT">5DTF62C0F6F9UWRQYTKT</a>
@@ -60,6 +65,7 @@
         <a href="mbbank://&af_force_deeplink=true&ad_dp=at_cash_back">Mua sắm hoàn tiền</a><br/>
         
 
+        <button onclick="myFunction()">Click me</button>
     </body>
 </html>
 
