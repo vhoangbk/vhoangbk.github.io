@@ -68,12 +68,12 @@
     <script>
         function myFunction() {
             console.log('myFunction')
-            window.postMessage("exit");
+            window.postMessage({data: 'hello'});
         }
 
         function myFunction1() {
             console.log('myFunction 1')
-            window.ReactNativeWebView.postMessage("exit");
+            window.ReactNativeWebView.postMessage({data: 'hello1'});
         }
     </script> 
 
