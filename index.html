@@ -63,8 +63,8 @@
 
         <button onclick="myFunction()">myFunction</button>
         <button onclick="myFunction1()">myFunction1</button>
-        <button onclick="myFunction2()">myFunction1</button>
-        <button onclick="myFunction3()">myFunction1</button>
+        <button onclick="myFunction2()">myFunction2</button>
+        <button onclick="myFunction3()">myFunction3</button>
     </body>
 
     <script>
@@ -75,17 +75,17 @@
 
         function myFunction1() {
             console.log('myFunction 1')
-            window.ReactNativeWebView.postMessage({name: 'hoang'});
+            window.postMessage({name: 'hoang'});
         }
 
         function myFunction2() {
             console.log('myFunction 2')
-            window.ReactNativeWebView.postMessage(`{name: 'hoang'}`);
+            window.postMessage(`{name: 'hoang'}`);
         }
 
         function myFunction3() {
             console.log('myFunction 3')
-            window.ReactNativeWebView.postMessage("{name: 'hoang'}");
+            window.postMessage("{name: 'hoang'}");
         }
 
     </script> 
