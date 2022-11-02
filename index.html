@@ -64,7 +64,6 @@
         <button onclick="myFunction()">myFunction</button>
         <button onclick="myFunction1()">myFunction1</button>
         <button onclick="myFunction2()">myFunction2</button>
-        <button onclick="myFunction3()">myFunction3</button>
     </body>
 
     <script>
@@ -80,14 +79,8 @@
 
         function myFunction2() {
             console.log('myFunction 2')
-            window.postMessage(`{name: 'hoang'}`);
+            window.postMessage(`{"name": "hoang"}`);
         }
-
-        function myFunction3() {
-            console.log('myFunction 3')
-            window.postMessage("{name: 'hoang'}");
-        }
-
     </script> 
 
 </html>
