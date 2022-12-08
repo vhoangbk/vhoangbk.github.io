@@ -43,6 +43,7 @@
         <a href="mbbank://?af_deeplink=true&af_dp=mbbank://&af_force_deeplink=true&ad_dp=mb_capital">Quản lý quỹ đầu tư MB Capital</a> <br/>
         <a href="mbbank://?af_deeplink=true&af_dp=mbbank://&af_force_deeplink=true&ad_dp=service_card">Dịch vụ thẻ</a><br/>
         <a href="mbbank://?af_deeplink=true&af_dp=mbbank://&af_force_deeplink=true&ad_dp=at_cash_back">Mua sắm hoàn tiền</a><br/>
+        <a href="mbbank://?af_deeplink=true&af_dp=mbbank://&af_force_deeplink=true&ad_dp=af_share_bdsd">Biến động số dư</a><br/>
 
 
         <hr/>
@@ -59,27 +60,15 @@
         <a href="mbbank://&af_force_deeplink=true&ad_dp=mb_capital">Quản lý quỹ đầu tư MB Capital</a> <br/>
         <a href="mbbank://&af_force_deeplink=true&ad_dp=service_card">Dịch vụ thẻ</a><br/>
         <a href="mbbank://&af_force_deeplink=true&ad_dp=at_cash_back">Mua sắm hoàn tiền</a><br/>
-        
+        <a href="mbbank://&af_force_deeplink=true&ad_dp=af_share_bdsd">Biến động số dư</a><br/>
 
         <button onclick="myFunction()">myFunction</button>
-        <button onclick="myFunction1()">myFunction1</button>
-        <button onclick="myFunction2()">myFunction2</button>
+
     </body>
 
     <script>
         function myFunction() {
-            console.log('myFunction')
             window.postMessage('exit');
-        }
-
-        function myFunction1() {
-            console.log('myFunction 1')
-            window.postMessage({name: 'hoang'});
-        }
-
-        function myFunction2() {
-            console.log('myFunction 2')
-            window.postMessage(`{"name": "hoang"}`);
         }
     </script> 
 
