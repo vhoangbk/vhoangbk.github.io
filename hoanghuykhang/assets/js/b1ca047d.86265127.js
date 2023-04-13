@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkhoanghuykhang=self.webpackChunkhoanghuykhang||[]).push([[2612],{7371:a=>{a.exports=JSON.parse('{"label":"facebook","permalink":"/hoanghuykhang/blog/tags/facebook","allTagsPath":"/hoanghuykhang/blog/tags","count":1}')}}]);
