@@ -12,7 +12,7 @@
 
         <hr/>
         <h3>Schoolup Teacher</h3>
-        <a href="paralineteacher://?type=1&id=123">Test</a> <br/>
+        <a href="paralineteacher://?type=1&id=123">open teacher</a> <br/>
         <hr/>
 
         <hr/>
@@ -60,7 +60,11 @@
 
     <script>
         function myFunction() {
-            window.webkit.messageHandlers.postMessageListener.postMessage(JSON.stringify({name: "hoangnv"}))
+            window.webkit.messageHandlers.postMessageListener.postMessage(JSON.stringify({"bg_color":"#00f"}))
+
+            setTimeout(() => {
+                window.webkit.messageHandlers.postMessageListener.postMessage(JSON.stringify({"bg_color":"#ff0000"}))
+            }, 2000)
         }
     </script> 
 
