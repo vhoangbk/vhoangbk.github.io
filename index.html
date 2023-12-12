@@ -58,11 +58,11 @@
 
     </body>
 
-    <!-- <script>
+    <script>
         function myFunction() {
-            window.postMessage('exit');
+            window.webkit.messageHandlers.postMessageListener.postMessage(JSON.stringify({name: "hoangnv"}))
         }
-    </script>  -->
+    </script> 
 
 </html>
 
