@@ -63,10 +63,6 @@
     <script>
         function myFunction() {
             window.webkit.messageHandlers.postMessageListener.postMessage(JSON.stringify({"bg_color":"#00f"}))
-
-            setTimeout(() => {
-                window.webkit.messageHandlers.postMessageListener.postMessage(JSON.stringify({"bg_color":"#ff0000"}))
-            }, 2000)
         }
     </script> 
 
