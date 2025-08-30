@@ -25,6 +25,11 @@
   <body>
     <h3>Rocket Converter</h3>
     <!-- <button onclick="genereateContent()">myFunction</button> -->
+    <img
+      width="150"
+      height="80"
+      src="/Users/hoangnv/Library/Developer/CoreSimulator/Devices/5E06EBD5-CAE5-47B4-8EAE-A1914EE23FCF/data/Containers/Data/Application/1A453468-D82D-4723-B329-673F1CF5ED4F/Documents/exported.jpg"
+    />
     <div id="content"></div>
     <div></div>
   </body>
@@ -49,67 +54,10 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       requestAllImage();
-      //   receiveFromiOS(
-      //     JSON.stringify({
-      //       action: actions.list_images,
-      //       data: [
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 1",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 2",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 3",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 4",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 5",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 6",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 7",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 8",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 9",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 10",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 11",
-      //         },
-      //         {
-      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
-      //           name: "Image 12",
-      //         },
-      //       ],
-      //     })
-      //   );
     });
 
     function receiveFromiOS(dataReceived) {
-      sendLog("receiveFromiOS: " + dataReceived);
       const jsonData = JSON.parse(dataReceived);
-      sendLog("1======");
       let action = jsonData.action;
       sendLog(action);
       switch (action) {
