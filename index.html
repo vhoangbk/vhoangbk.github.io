@@ -32,11 +32,18 @@
   <script>
     const actions = {
       list_images: "list_images",
+      log: "log",
     };
 
     function requestAllImage() {
       window.webkit.messageHandlers.rocketMessageListener.postMessage(
         JSON.stringify({ action: actions.list_images })
+      );
+    }
+
+    function sendLog(msg) {
+      window.webkit.messageHandlers.rocketMessageListener.postMessage(
+        JSON.stringify({ action: actions.log, data: msg })
       );
     }
 
@@ -100,8 +107,11 @@
     });
 
     function receiveFromiOS(dataReceived) {
+      sendLog("receiveFromiOS: " + dataReceived);
       const jsonData = JSON.parse(dataReceived);
+      sendLog("1======");
       let action = jsonData.action;
+      sendLog(action);
       switch (action) {
         case actions.list_images:
           genereateContent(jsonData.data);
