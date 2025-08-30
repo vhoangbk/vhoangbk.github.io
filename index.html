@@ -13,13 +13,15 @@
 
   <script>
     function myFunction() {
-      window.webkit.messageHandlers.rocketMessageListener.postMessage(
-        JSON.stringify({ bg_color: "#00f" })
-      );
+      //   window.webkit.messageHandlers.rocketMessageListener.postMessage(
+      //     JSON.stringify({ bg_color: "#00f" })
+      //   );
+
+      receiveFromiOS("Hello from JavaScript!");
     }
     function receiveFromiOS(msg) {
-      console.log("📩 From iOS: " + msg);
-      alert("📩 From iOS: " + msg);
+      console.log("From iOS: " + msg);
+      alert("From iOS: " + msg);
     }
   </script>
 </html>
