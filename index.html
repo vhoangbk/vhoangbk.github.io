@@ -69,7 +69,7 @@
       contentDiv.innerHTML = "";
       for (var i = 0; i < data.length; i++) {
         var cell = createCell();
-        var img = createCellImage(data[i].url);
+        var img = createCellImage(data[i].thumbnailUrl);
         var name = createCellName(data[i].name);
         cell.appendChild(img);
         cell.appendChild(name);
