@@ -7,7 +7,6 @@
   <body>
     <h3>Rocket Converter</h3>
     <br />
-
     <button onclick="myFunction()">myFunction</button>
   </body>
 
@@ -28,8 +27,16 @@
     function receiveFromiOS(msg) {
       console.log("From iOS: " + msg);
       var color = getRandomColor();
-      console.log("Color: " + color);
       document.body.style.backgroundColor = color;
+      //https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg
+      const img = document.createElement("img");
+      img.src = msg;
+      img.alt = "Random Image";
+      img.style.width = "300px";
+      img.style.borderRadius = "12px";
+
+      // Append vào body
+      document.body.appendChild(img);
     }
   </script>
 </html>
