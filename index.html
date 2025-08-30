@@ -2,41 +2,146 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <style></style>
+    <style>
+      .cell {
+        padding: 10 0 10 0;
+        display: flex;
+        flex-direction: row;
+      }
+      .cell-image {
+        width: 150px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      .cell-name {
+        font-size: 16px;
+        margin-left: 20;
+        align-self: center;
+        flex: 1;
+      }
+    </style>
   </head>
   <body>
     <h3>Rocket Converter</h3>
-    <br />
-    <button onclick="myFunction()">myFunction</button>
+    <!-- <button onclick="genereateContent()">myFunction</button> -->
+    <div id="content"></div>
+    <div></div>
   </body>
 
   <script>
-    function myFunction() {
+    const actions = {
+      list_images: "list_images",
+    };
+
+    function requestAllImage() {
       window.webkit.messageHandlers.rocketMessageListener.postMessage(
-        JSON.stringify({ bg_color: "#00f" })
+        JSON.stringify({ action: actions.list_images })
       );
     }
 
-    function getRandomColor() {
-      const r = Math.floor(Math.random() * 256);
-      const g = Math.floor(Math.random() * 256);
-      const b = Math.floor(Math.random() * 256);
-      return `rgb(${r}, ${g}, ${b})`;
+    document.addEventListener("DOMContentLoaded", function () {
+      requestAllImage();
+      //   receiveFromiOS(
+      //     JSON.stringify({
+      //       action: actions.list_images,
+      //       data: [
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 1",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 2",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 3",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 4",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 5",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 6",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 7",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 8",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 9",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 10",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 11",
+      //         },
+      //         {
+      //           url: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+      //           name: "Image 12",
+      //         },
+      //       ],
+      //     })
+      //   );
+    });
+
+    function receiveFromiOS(dataReceived) {
+      const jsonData = JSON.parse(dataReceived);
+      let action = jsonData.action;
+      switch (action) {
+        case actions.list_images:
+          genereateContent(jsonData.data);
+          break;
+        default:
+          console.log("Unknown action: " + action);
+      }
     }
 
-    function receiveFromiOS(msg) {
-      console.log("From iOS: " + msg);
-      var color = getRandomColor();
-      document.body.style.backgroundColor = color;
-      //https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg
-      const img = document.createElement("img");
-      img.src = msg;
-      img.alt = "Random Image";
-      img.style.width = "300px";
-      img.style.borderRadius = "12px";
+    function genereateContent(data) {
+      var contentDiv = document.getElementById("content");
+      contentDiv.innerHTML = "";
+      for (var i = 0; i < data.length; i++) {
+        var cell = createCell();
+        var img = createCellImage(data[i].url);
+        var name = createCellName(data[i].name);
+        cell.appendChild(img);
+        cell.appendChild(name);
+        contentDiv.appendChild(cell);
+      }
+    }
 
-      // Append vào body
-      document.body.appendChild(img);
+    function createCellImage(url) {
+      var img = document.createElement("img");
+      img.src = url;
+      img.className = "cell-image";
+      return img;
+    }
+
+    function createCell() {
+      var rowDiv = document.createElement("div");
+      rowDiv.className = "cell";
+      return rowDiv;
+    }
+
+    function createCellName(name) {
+      var rowDiv = document.createElement("h2");
+      rowDiv.className = "cell-name";
+      rowDiv.innerText = name;
+      return rowDiv;
     }
   </script>
 </html>
