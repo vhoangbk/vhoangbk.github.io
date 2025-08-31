@@ -50,30 +50,29 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      // requestAllImage();
-      console.log("DOM loaded");
-      receiveFromiOS(
-        JSON.stringify({
-          action: actions.list_images,
-          data: [
-            {
-              name: "Rocket https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg?w=2000 https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg?w=20001",
-              thumbnailUrl:
-                "https://i.pinimg.com/736x/b5/86/57/b5865794cb7161b2ea29b26075a6a4db.jpg",
-            },
-            {
-              name: "Rocket 2",
-              thumbnailUrl:
-                "https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg",
-            },
-            {
-              name: "Rocket 3",
-              thumbnailUrl:
-                "https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg",
-            },
-          ],
-        })
-      );
+      requestAllImage();
+      // receiveFromiOS(
+      //   JSON.stringify({
+      //     action: actions.list_images,
+      //     data: [
+      //       {
+      //         name: "Rocket https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg?w=2000 https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg?w=20001",
+      //         thumbnailUrl:
+      //           "https://i.pinimg.com/736x/b5/86/57/b5865794cb7161b2ea29b26075a6a4db.jpg",
+      //       },
+      //       {
+      //         name: "Rocket 2",
+      //         thumbnailUrl:
+      //           "https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg",
+      //       },
+      //       {
+      //         name: "Rocket 3",
+      //         thumbnailUrl:
+      //           "https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg",
+      //       },
+      //     ],
+      //   })
+      // );
     });
 
     function receiveFromiOS(dataReceived) {
