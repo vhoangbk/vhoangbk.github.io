@@ -1,124 +1,206 @@
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <style>
-      .cell {
-        padding: 10 0 10 0;
-        display: flex;
-        flex-direction: row;
-      }
-      .cell-image {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-      }
-      .cell-name {
-        font-size: 16px;
-        margin-left: 20;
-        align-self: center;
-        flex: 1;
-      }
-    </style>
-  </head>
-  <body>
-    <h3>Rocket Converter</h3>
-    <input id="pick" type="file" accept="video/*" />
-    <!-- <button onclick="genereateContent()">myFunction</button> -->
-    <div id="content"></div>
-    <div></div>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
 
-  <script>
-    const actions = {
-      list_images: "list_images",
-      log: "log",
-    };
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bee Converter</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    function requestAllImage() {
-      window.webkit.messageHandlers.rocketMessageListener.postMessage(
-        JSON.stringify({ action: actions.list_images })
-      );
-    }
+  <link rel="stylesheet" href="/css/common.css?v=1760089414510">
+  <link rel="stylesheet" href="/css/home.css?v=1760089414510">
+  <link rel="stylesheet" href="/css/up-load-home.css?v=1760089414510">
+  <link rel="stylesheet" href="/css/form-config-convert-video.css?v=1760089414510">
 
-    function sendLog(msg) {
-      window.webkit.messageHandlers.rocketMessageListener.postMessage(
-        JSON.stringify({ action: actions.log, data: msg })
-      );
-    }
+  <link rel="stylesheet" href="/components/info-dialog/info-dialog.css?v=1760089414507">
+  <link rel="stylesheet" href="/components/number-input/number-input.css?v=1760089414508">
+  <link rel="stylesheet" href="/components/loading/loading.css?v=1760089414507">
+  <link rel="stylesheet" href="/components/progress/progress.css?v=1760089414509">
+  <link rel="stylesheet" href="/components/video-complete/video-complete.css?v=1760089414509">
+  <link rel="stylesheet" href="/components/video-player/video-player.css?v=1760089414510">
+  <link rel="stylesheet" href="/components/about/about.css?v=1760089414506">
 
-    document.addEventListener("DOMContentLoaded", function () {
-      requestAllImage();
-      // receiveFromiOS(
-      //   JSON.stringify({
-      //     action: actions.list_images,
-      //     data: [
-      //       {
-      //         name: "Rocket https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg?w=2000 https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg?w=20001",
-      //         thumbnailUrl:
-      //           "https://i.pinimg.com/736x/b5/86/57/b5865794cb7161b2ea29b26075a6a4db.jpg",
-      //       },
-      //       {
-      //         name: "Rocket 2",
-      //         thumbnailUrl:
-      //           "https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg",
-      //       },
-      //       {
-      //         name: "Rocket 3",
-      //         thumbnailUrl:
-      //           "https://img.freepik.com/free-photo/rocket-launch-space_1150-12345.jpg",
-      //       },
-      //     ],
-      //   })
-      // );
-    });
+  <link rel="stylesheet" href="/components/modal-trim-crop-video/mtcv.css?v=1760089414508">
+  <link rel="stylesheet" href="/components/modal-trim-crop-video/mtcv-timeline.css?v=1760089414508">
+</head>
 
-    function receiveFromiOS(dataReceived) {
-      const jsonData = JSON.parse(dataReceived);
-      let action = jsonData.action;
-      // sendLog(action);
-      switch (action) {
-        case actions.list_images:
-          genereateContent(jsonData.data);
-          break;
-        default:
-          console.log("Unknown action: " + action);
-      }
-    }
+<body>
+  <header class="top-banner-container">
+    <img src="https://nguyencongpc.vn/media/banner/27_Maydf4e66449b333a029b08038347c6199e.jpg" alt="Top Banner"
+      class="top-banner">
+  </header>
 
-    function genereateContent(data) {
-      var contentDiv = document.getElementById("content");
-      contentDiv.innerHTML = "";
-      for (var i = 0; i < data.length; i++) {
-        var cell = createCell();
-        var img = createCellImage(data[i].thumbnailUrl);
-        var name = createCellName(data[i].name);
-        cell.appendChild(img);
-        cell.appendChild(name);
-        contentDiv.appendChild(cell);
-      }
-    }
+  <div class="main-wrapper">
+    <aside class="left-banner-container">
+      <img src="https://nguyencongpc.vn/media/banner/05_Jul16f179b6a4611d58790bb648850ac4af.jpg" alt="Left Banner"
+        class="left-banner">
+    </aside>
 
-    function createCellImage(url) {
-      var img = document.createElement("img");
-      img.src = url;
-      img.className = "cell-image";
-      return img;
-    }
+    <main class="content-container" id="mainContainer">
+      <div class="scalable-content">
+        <header class="header-converter-box">
+          <img src="/images/icon-bee.webp" alt="Icon Bee Converter" class="icon-bee">
+          <h4>Converter</h4>
+        </header>
+        <div class="converter-box">
+          <div class="upload-section" onclick="uploadFile()" id="uploadFileConvert">
+            <input type="file" id="inputFile" accept=".mp4,.h264,.h265,.mov,.avi" onchange="handleFileChange(this)"
+              style="display: none;">
+            <div class="upload-icon">
+              <img src="./images/cloud-arrow-up.svg" alt="Upload Icon" loading="lazy">
+            </div>
+            <div class="upload-text">Drag & Drop or Click to Upload</div>
+          </div>
 
-    function createCell() {
-      var rowDiv = document.createElement("div");
-      rowDiv.className = "cell";
-      return rowDiv;
-    }
+          <div class="video-preview" id="videoPreview">
+            <button class="video-preview-close" onclick="onCloseVideoPreview()" aria-label="Close">&times;</button>
+            <div class="video-thumbnail">
+              <span></span>
+            </div>
+            <div class="video-info">
+              <div class="video-title">Click to upload video222</div>
+              <div class="video-details"></div>
+            </div>
+          </div>
 
-    function createCellName(name) {
-      var rowDiv = document.createElement("h2");
-      rowDiv.className = "cell-name";
-      rowDiv.innerText = name;
-      return rowDiv;
-    }
-  </script>
+          <!-- test convert video from url -->
+          <div style="display: flex; flex-direction: row; width: 100%; height: 40px; gap: 10px; margin: 10px 0px;">
+            <select id="select-video-url"
+              style="height: 40px; width: 100%; background-color: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px;">
+              <option value="">None</option>
+              <option value="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4">For
+                Bigger Blazes</option>
+              <option value="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4">Big Buck
+                Bunny</option>
+              <option value="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4">
+                Elephants Dream</option>
+              <option value="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4">For
+                Bigger Escapes</option>
+              <option value="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4">Sintel
+              </option>
+            </select>
+            <button onclick="clickSelectVideoUrl()"
+              style="padding: 10px; background-color: #fff; border-radius: 5px; border: 1px solid #ccc;">OK</button>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="config-title-field" for="format">Format</label>
+              <select id="formatSelect" class="config-select" onchange="updateResolutionOptions()">
+                <option value="" disabled selected>Select Format...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Target Size</label>
+              <select id="targetSize" convert-option name-option="target_size" class="config-select"
+                onchange="showCustomInput(this)">
+                <option value="0">None</option>
+                <option value="custom">Custom</option>
+                <option value="1">1MB</option>
+                <option value="2">2MB</option>
+                <option value="5">5MB</option>
+                <option value="8">8MB</option>
+                <option value="10">10MB</option>
+                <option value="20">20MB</option>
+                <option value="25">25MB</option>
+                <option value="50">50MB</option>
+                <option value="100">100MB</option>
+                <option value="200">200MB</option>
+                <option value="300">300MB</option>
+                <option value="400">400MB</option>
+                <option value="500">500MB</option>
+                <option value="600">600MB</option>
+                <option value="700">700MB</option>
+                <option value="800">800MB</option>
+                <option value="900">900MB</option>
+                <option value="1000">1GB</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Resolution</label>
+              <select id="resolutionSelect" class="config-select"></select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Quality</label>
+              <select id="qualitySelect" class="config-select">
+                <option>Auto</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">FPS</label>
+              <select id="fpsSelect" class="config-select">
+                <option value="original">Original</option>
+                <option value="60">60</option>
+                <option value="30">30</option>
+                <option value="24">24</option>
+                <option value="15">15</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Volume</label>
+              <div class="volume-control">
+                <input class="volume-control-slider" type="range" id="volume" min="0" max="300" value="100"
+                  oninput="updateVolume(value)">
+                <div class="volume-config-value">100%</div>
+              </div>
+            </div>
+
+            <div class="advanced-section">
+              <div class="config-advenced-about-us">
+                <button class="config-advenced-button" onclick="openModalAdvancedConfig()">
+                  <img src="/images/config-icon.svg" alt="advanced" loading="lazy">
+                  <span class="config-advanced-text">Advanced</span>
+                </button>
+                <button class="about-us-button" onclick="showAboutDialog()">
+                  <img src="/images/about-icon.svg" alt="about us" loading="lazy">
+                  <span class="about-us-text">About Us</span>
+                </button>
+              </div>
+            </div>
+            <button class="convert-button" onclick="clickStartConvert()" aria-label="Convert" disabled>CONVERT</button>
+          </div>
+        </div>
+        <div class="mtcv-container" id="modalTrimCropVideoContainer"></div>
+      </div>
+    </main>
+
+    <aside class="right-banner-container">
+      <img src="https://nguyencongpc.vn/media/banner/14_Aug6097e242c275340dc87c88b47997d295.jpg" alt="Right Banner"
+        class="right-banner">
+    </aside>
+  </div>
+
+  <script src="js/main.js?v=1760089414515"></script>
+  <script src="js/common.js?v=1760089414514"></script>
+
+  <script src="js/utils.js?v=1760089414515"></script>
+  <script src="js/preview-video.js?v=1760089414515"></script>
+  <script src="js/convert.js?v=1760089414514"></script>
+
+
+  <script src="libs/videos-convert-libs/browser-settings-helper.js?v=1760089414515"></script>
+  <script src="libs/videos-convert-libs/convert-utils.js?v=1760089414516"></script>
+  <script src="libs/videos-convert-libs/external-function.js?v=1760089414517"></script>
+  <script src="libs/videos-convert-libs/command-helper.js?v=1760089414516"></script>
+  <script src="libs/videos-convert-libs/constant.js?v=1760091567282"></script>
+  <script src="libs/videos-convert-libs/codec-helper.js?v=1760089414515"></script>
+  <script src="js/upload-file.js?v=1760089414515"></script>
+  <script src="js/form-config-convert-video.js?v=1760089414515"></script>
+
+  <script src="components/dialog/dialog.js?v=1760089414507"></script>
+  <script src="components/progress/ProgressDialog.js?v=1760089414509"></script>
+  <script src="components/video-complete/VideoCompleteDialog.js?v=1760089414509"></script>
+  <script src="components/loading/LoadingDialog.js?v=1760089414507"></script>
+  <script src="components/number-input/NumberInputDialog.js?v=1760089414508"></script>
+  <script src="components/video-player/VideoPlayerDialog.js?v=1760089414510"></script>
+  <script src="components/info-dialog/InfoDialog.js?v=1760089414507"></script>
+  <script src="components/about/AboutDialog.js?v=1760089414506"></script>
+
+  <script src="components/modal-trim-crop-video/mtcv.js?v=1760089414508"></script>
+  <script src="components/modal-trim-crop-video/mtcv-timeline.js?v=1760089414508"></script>
+</body>
+
 </html>

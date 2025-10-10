@@ -1,0 +1,104 @@
+<div class="mtcv-content" id="modalTrimCropVideoContent">
+  <header class="mtcv-header">
+    <h2 class="mtcv-title">Trim, Crop, Flip</h2>
+    <button class="mtcv-close-btn" onclick="cancelTrimCropModal()" aria-label="Close">×</button>
+  </header>
+
+  <section class="mtcv-info-panel">
+    <div class="mtcv-dimensions">
+      <div class="mtcv-dimension-item">
+        <label>W:</label>
+        <span class="mtcv-dimension-value" data-dimension="width">0</span>
+      </div>
+      <div class="mtcv-dimension-item">
+        <label>H:</label>
+        <span class="mtcv-dimension-value" data-dimension="height">0</span>
+      </div>
+      <div class="mtcv-dimension-item">
+        <label>X:</label>
+        <span class="mtcv-dimension-value" data-dimension="x">0</span>
+      </div>
+      <div class="mtcv-dimension-item">
+        <label>Y:</label>
+        <span class="mtcv-dimension-value" data-dimension="y">0</span>
+      </div>
+    </div>
+    <button class="mtcv-done-btn" onclick="saveTrimCrop()">Done</button>
+  </section>
+
+  <div class="mtcv-stage" id="mtcvStage">
+    <div class="mtcv-media-container" id="mtcvMediaContainer">
+      <video id="mtcvDisplayedVideo" class="mtcv-displayed-video" playsinline preload="metadata"></video>
+    </div>
+    <div id="mtcvOverlayTop" class="mtcv-overlay-part"></div>
+    <div id="mtcvOverlayLeft" class="mtcv-overlay-part"></div>
+    <div id="mtcvOverlayRight" class="mtcv-overlay-part"></div>
+    <div id="mtcvOverlayBottom" class="mtcv-overlay-part"></div>
+    <div id="mtcvCropBox" class="mtcv-crop-box">
+      <div class="mtcv-handle tl" data-handle="tl"></div>
+      <div class="mtcv-handle tr" data-handle="tr"></div>
+      <div class="mtcv-handle bl" data-handle="bl"></div>
+      <div class="mtcv-handle br" data-handle="br"></div>
+    </div>
+  </div>
+
+  <section class="mtcv-timeline">
+    <button class="mtcv-btn-playpause">
+      <img id="mtcv-play" src="/images/play.svg" alt="mtcv play" loading="lazy" style="display: block;">
+      <img id="mtcv-pause" src="/images/pause.svg" alt="mtcvpause" loading="lazy" style="display: none;">
+    </button>
+
+    <div class="mtcv-timeline-track">
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-bar"></div>
+        <div class="selected-range" id="selectedRange"></div>
+        <div class="current-time-line" id="currentTimeLine"></div>
+        <div class="progress-handle">
+          <div class="progress-handle-icon start-handle" id="startHandle"></div>
+          <div class="current-time-marker" id="currentTimeMarker"></div>
+          <div class="progress-handle-icon end-handle" id="endHandle"></div>
+        </div>
+      </div>
+
+      <div class="time-labels">
+        <div class="time-label" id="startTimeLabel">00:00</div>
+        <div class="time-label" id="endTimeLabel">00:00</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mtcv-crop-ratios">
+    <button class="mtcv-ratio-btn" data-ratio="custom">
+      <img src="./images/icon-custom.svg" alt="Custom">
+      <span>Free</span>
+    </button>
+    <button class="mtcv-ratio-btn" data-ratio="1:1">
+      <img src="./images/instagram-icon.svg" alt="1:1">
+      <span>1:1</span>
+    </button>
+    <button class="mtcv-ratio-btn" data-ratio="9:16">
+      <img src="./images/tiktok-icon.svg" alt="9:16">
+      <span>9:16</span>
+    </button>
+    <button class="mtcv-ratio-btn" data-ratio="16:9">
+      <img src="./images/youtube-icon.svg" alt="16:9">
+      <span>16:9</span>
+    </button>
+    <button class="mtcv-ratio-btn" data-ratio="4:3">
+      <img src="./images/youtube-icon.svg" alt="4:3">
+      <span>4:3</span>
+    </button>
+  </section>
+
+  <section class="mtcv-flip-controls">
+    <button class="mtcv-flip-btn" data-flip="vertical">
+      <img src="./images/vertical-icon.svg" alt="Vertical">
+      <span>Vertical</span>
+    </button>
+    <button class="mtcv-flip-btn" data-flip="horizontal">
+      <img src="./images/horizontal-icon.svg" alt="Horizontal">
+      <span>Horizontal</span>
+    </button>
+  </section>
+
+</div>
