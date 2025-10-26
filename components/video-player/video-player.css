@@ -1,0 +1,37 @@
+.dialog-video-player-overlay {
+  position: absolute;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 23, 23, 0.4);
+  z-index: 9999;
+}
+.dialog-video-player-overlay.active {
+  display: flex;
+}
+.dialog-video-player-box {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 30px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.25s ease;
+  border-radius: 8px;
+  overflow: hidden;
+  position: absolute;
+}
+
+.dialog-video-player-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.dialog-video-player-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}

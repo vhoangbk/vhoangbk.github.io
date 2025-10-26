@@ -1,0 +1,53 @@
+.dialog-loading-overlay {
+  position: absolute;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 23, 23, 0.4);
+  z-index: 9999;
+}
+
+.dialog-loading-overlay.active {
+  display: flex;
+}
+
+.dialog-loading-box {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 30px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.25s ease;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-loading-message {
+  color: #939393;
+  font-size: 0.8em;
+  margin-bottom: 10px;
+}
+
+.dialog-loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 10px auto 10px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Bee Convert</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <link href="https://fonts.googleapis.com/css2?family=Monda&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css?v=1760893539370">
+  <link rel="stylesheet" href="css/home.css?v=1760893539371">
+  <link rel="stylesheet" href="css/up-load-home.css?v=1760893539371">
+  <link rel="stylesheet" href="css/form-config-convert-video.css?v=1760893539370">
+
+  <link rel="stylesheet" href="components/info-dialog/info-dialog.css?v=1760893539365">
+  <link rel="stylesheet" href="components/number-input/number-input.css?v=1760893539368">
+  <link rel="stylesheet" href="components/loading/loading.css?v=1760893539365">
+  <link rel="stylesheet" href="components/progress/progress.css?v=1760893539368">
+  <link rel="stylesheet" href="components/video-complete/video-complete.css?v=1760893539369">
+  <link rel="stylesheet" href="components/video-player/video-player.css?v=1760893539370">
+  <link rel="stylesheet" href="components/about/about.css?v=1760893539364">
+
+  <link rel="stylesheet" href="components/modal-trim-crop-video/mtcv.css?v=1760893539367">
+  <link rel="stylesheet" href="components/modal-trim-crop-video/mtcv-timeline.css?v=1760893539367">
+</head>
+
+<body>
+  <header class="top-banner-container">
+    <!-- <img src="" alt="Top Banner"
+      class="top-banner"> -->
+    <!-- ====>>> Thêm vào để test -->
+    <select id="corner-select">
+      <option value="" selected>-- Select a video --</option>
+      <option value="./videos/4k_60fps.mp4">4K 60FPS video</option>
+      <option value="./videos/black_4k_60fps.mp4">Black 4K 60FPS video</option>
+      <option value="./videos/full_hd.mp4">Full HD video</option>
+      <option value="./videos/hd_25fps.mp4">HD 25FPS video</option>
+      <option value="./videos/low_quality.mp4">Low quality video</option>
+    </select>
+  </header>
+
+  <div class="main-wrapper">
+    <aside class="banner-container left-banner-container">
+      <img src="https://nguyencongpc.vn/media/banner/05_Jul16f179b6a4611d58790bb648850ac4af.jpg" alt="Left Banner"
+        class="left-banner">
+    </aside>
+
+    <main class="content-container" id="mainContainer">
+      <div class="convert-container">
+        <header class="header-converter-box">
+          <!-- <img src="/images/icon-bee.gif" alt="Icon Bee Converter" class="icon-bee"> -->
+          <video autoplay loop muted playsinline class="icon-bee">
+            <source src="/images/icon-bee.webm" type="video/webm" />
+          </video>
+          <h4>Convert</h4>
+        </header>
+        <div class="converter-box">
+          <div class="upload-section" onclick="uploadFile()" id="uploadFileConvert">
+            <input type="file" id="inputFile" accept="video/*" onchange="handleFileChange(this)" style="display: none;">
+            <div class="upload-icon">
+              <img src="./images/cloud-arrow-up.svg" alt="Upload Icon" loading="lazy">
+            </div>
+            <div class="upload-text">Drag & Drop or Click to Upload</div>
+          </div>
+
+          <div class="video-preview" id="videoPreview">
+            <button class="video-preview-close" onclick="onCloseVideoPreview()" aria-label="Close">
+              <svg width="0.8rem" height="0.8rem" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M15.4238 13.8329C15.6352 14.0442 15.7539 14.3309 15.7539 14.6298C15.7539 14.9286 15.6352 15.2153 15.4238 15.4266C15.2125 15.638 14.9258 15.7567 14.627 15.7567C14.3281 15.7567 14.0414 15.638 13.8301 15.4266L7.87789 9.47258L1.92383 15.4248C1.71248 15.6361 1.42584 15.7548 1.12695 15.7548C0.828065 15.7548 0.541421 15.6361 0.330077 15.4248C0.118732 15.2134 4.45375e-09 14.9268 0 14.6279C-4.45375e-09 14.329 0.118732 14.0424 0.330077 13.831L6.28414 7.87883L0.331951 1.92476C0.120607 1.71342 0.00187504 1.42677 0.00187504 1.12789C0.00187505 0.829003 0.120607 0.542358 0.331951 0.331014C0.543296 0.11967 0.82994 0.000937346 1.12883 0.000937343C1.42771 0.00093734 1.71436 0.11967 1.9257 0.331014L7.87789 6.28508L13.832 0.330076C14.0433 0.118732 14.3299 -4.97944e-09 14.6288 0C14.9277 4.97944e-09 15.2144 0.118732 15.4257 0.330076C15.637 0.541421 15.7558 0.828065 15.7558 1.12695C15.7558 1.42584 15.637 1.71248 15.4257 1.92383L9.47164 7.87883L15.4238 13.8329Z"
+                  fill="#939393" />
+              </svg>
+            </button>
+            <div class="video-thumbnail" onclick="openVideoPlayerDialog()">
+              <span></span>
+            </div>
+            <div class="video-info">
+              <div class="video-title">Click to upload video</div>
+              <div class="video-details"></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="config-title-field" for="format">Format</label>
+              <select id="formatSelect" class="config-select" onchange="updateResolutionOptions()">
+                <option value="" disabled selected>Select Format...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Target size</label>
+              <select id="targetSize" convert-option name-option="target_size" class="config-select"
+                onchange="showCustomInput(this)">
+                <option value="">None</option>
+                <option value="custom">Custom</option>
+                <option value="1">1MB</option>
+                <option value="2">2MB</option>
+                <option value="5">5MB</option>
+                <option value="8">8MB</option>
+                <option value="10">10MB</option>
+                <option value="15">15MB</option>
+                <option value="20">20MB</option>
+                <option value="50">50MB</option>
+                <option value="100">100MB</option>
+                <option value="200">200MB</option>
+                <option value="500">500MB</option>
+                <option value="800">800MB</option>
+                <option value="1000">1GB</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Resolution</label>
+              <div class="resolution-wrapper">
+                <select id="resolutionSelect" class="config-select" onchange="selectedResolutionOptions()">
+                  <option value="">None</option>
+                </select>
+                <div class="overlay" id="overlayResolution"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">Quality</label>
+              <div class="quality-wrapper">
+                <select id="qualitySelect" class="config-select" onchange="selectedQualityOptions()">
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                </select>
+                <div class="overlay" id="overlayQuality"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="config-title-field">FPS</label>
+              <div class="fps-wrapper">
+                <select id="fpsSelect" class="config-select" onchange="selectedFpsOptions()">
+                  <option value="original">Original</option>
+                  <option value="15">15</option>
+                  <option value="24">24</option>
+                  <option value="25">25</option>
+                  <option value="30">30</option>
+                  <option value="60">60</option>
+                </select>
+                <div class="overlay" id="overlayFps"></div>
+              </div>
+            </div>
+            <div class="form-group volume-control-group">
+              <label class="config-title-field">Volume</label>
+              <div class="volume-control">
+                <input class="volume-control-slider" type="range" id="volume" min="0" max="300" value="100"
+                  oninput="updateVolume(value)">
+                <div class="volume-config-value">100%</div>
+              </div>
+            </div>
+
+            <div class="advanced-section">
+              <div class="config-advenced-about-us">
+                <button class="config-advenced-button" onclick="openModalAdvancedConfig()">
+                  <img src="images/config-icon.svg" alt="advanced" loading="lazy">
+                  <span class="config-advanced-text">Advanced</span>
+                </button>
+                <button class="config-advenced-button" onclick="showAboutDialog()">
+                  <img src="images/about-icon.svg" alt="about us" loading="lazy">
+                  <span class="about-us-text">About Us</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <footer class="footer-converter-box">
+          <button class="convert-button" onclick="clickStartConvert()" aria-label="Convert" disabled>CONVERT</button>
+        </footer>
+      </div>
+      <div class="mtcv-container" id="modalTrimCropVideoContainer"></div>
+    </main>
+
+    <aside class="banner-container right-banner-container">
+      <img src="https://nguyencongpc.vn/media/banner/14_Aug6097e242c275340dc87c88b47997d295.jpg" alt="Right Banner"
+        class="right-banner">
+    </aside>
+  </div>
+
+  <script src="js/main.js?v=1760893539377"></script>
+  <script src="js/common.js?v=1760893539377"></script>
+
+  <script src="js/utils.js?v=1760893539378"></script>
+  <script src="js/preview-video.js?v=1760893539378"></script>
+  <script src="js/convert.js?v=1760893539377"></script>
+
+
+  <script src="libs/convert-lib/constant.js?v=1760926285312"></script>
+  <script src="libs/convert-lib/browser-settings-helper.js?v=1760893539379"></script>
+  <script src="libs/convert-lib/main-function.js?v=1760893539494"></script>
+  <script src="libs/convert-lib/coder-config-utils.js?v=1760893539379"></script>
+  <script src="libs/convert-lib/options-to-command-func.js"></script>
+  <script src="libs/convert-lib/common-utils.js?v=1760893539379"></script>
+  <script src="libs/convert-lib/file-system-utils.js?v=1760893539494"></script>
+
+  <script src="js/upload-file.js?v=1760893539378"></script>
+  <script src="js/form-config-convert-video.js?v=1760893539377"></script>
+
+  <script src="components/dialog/dialog.js?v=1760893539364"></script>
+  <script src="components/progress/ProgressDialog.js?v=1760893539368"></script>
+  <script src="components/video-complete/VideoCompleteDialog.js?v=1760893539369"></script>
+  <script src="components/loading/LoadingDialog.js?v=1760893539365"></script>
+  <script src="components/number-input/NumberInputDialog.js?v=1760893539368"></script>
+  <script src="components/video-player/VideoPlayerDialog.js?v=1760893539369"></script>
+  <script src="components/info-dialog/InfoDialog.js?v=1760893539365"></script>
+  <script src="components/about/AboutDialog.js?v=1760893539364"></script>
+
+  <script src="components/modal-trim-crop-video/contanst.js?v=1760893539366"></script>
+  <script src="components/modal-trim-crop-video/common.js?v=1760893539366"></script>
+  <script src="components/modal-trim-crop-video/mtcv-core.js?v=1760893539366"></script>
+  <script src="components/modal-trim-crop-video/mtcv-timeline.js?v=1760925928977"></script>
+  <script src="js/test-video.js"></script>
+  <script src="js/drag-video.js"></script>
+  <script src="js/save-file.js"></script>
+</body>
+
+</html>
+
+<!-- 
+ffmpeg -i /Users/hung/video-test/count_3s.mp4 -r 30 -c:v libx264 -preset veryfast -crf 23 -c:a aac -b:a 128k /Users/hung/video-test/output_count_3s_h264_30fps.mp4
+ffmpeg -i /Users/hung/video-test/count_3s.mp4 -r 30 -c:v libx265 -preset veryfast -crf 23 -c:a aac -b:a 128k /Users/hung/video-test/output_count_3s_h265_30fps.mp4 -->

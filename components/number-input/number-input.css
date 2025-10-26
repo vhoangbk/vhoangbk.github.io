@@ -1,0 +1,132 @@
+.dialog-number-input-overlay {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 23, 23, 0.4);
+  z-index: 9999;
+}
+.dialog-number-input-overlay.active {
+  display: flex;
+}
+.dialog-number-input-box {
+  background: #fff;
+  border-radius: 0.48rem;
+  box-shadow: 0 1.2rem 1.2rem rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+  max-height: 80vh;
+  max-width: 90vw;
+  overflow-y: auto;
+}
+.dialog-number-input-header {
+  display: flex;
+  font-size: 1em;
+  color: #010101;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  font-weight: 700;
+  padding: 0.8rem;
+  border-bottom: 1px solid #F2F0F0;
+  position: relative;
+}
+.dialog-number-input-body {
+  flex: 1;
+  flex-direction: column;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dialog-number-input-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.dialog-number-input-input{
+  height: 1.6rem;
+  padding: 0.625rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--black);
+  font-size: 1rem;
+  max-width: 40%;
+}
+.hidden {
+    visibility: hidden;
+}
+.dialog-number-input-row{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem
+}
+.dialog-number-input-mb{
+  font-size: 1rem;
+  margin-left: 0.2rem;
+  color: #939393;
+}
+.dialog-number-input-error{
+    color: #ea4335;
+    font-size: 0.8rem;
+    margin: 0.2rem 0;
+}
+.dialog-number-input-footer {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: space-between;
+  height: 2.64rem;
+}
+.dialog-number-input-save {
+  width: 48%;
+  border-radius: 0.24rem;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  color: #fff;
+  padding: 0.5em 1.3em;
+  height: 100%;
+}
+.dialog-number-input-cancel {
+  width: 48%;
+  border-radius: 0.24rem;
+  border: 1px solid #d0cfcf;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #8d8d8d;
+  padding: 0.5em 1.3em;
+  height: 100%;
+
+}
+
+body.keyboard-open {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@media (max-height: 500px) {
+  .dialog-number-input-overlay {
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+  
+  .dialog-number-input-box {
+    max-height: calc(100vh - 40px);
+  }
+}

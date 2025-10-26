@@ -1,0 +1,82 @@
+:root {
+  --spacing: 1rem;
+  --aside-width: 15rem;
+  --max-content-width: 60rem;
+  --primary-color: #667eea;
+  --black: #000;
+  --white: #FFF;
+  --gray-50: #fafafa;
+  --gray-100: #f8f9fa;
+  --gray-200: rgba(248, 245, 245, 1);
+  --gray-300: rgba(192, 192, 192, 1);
+  --gray-400: #ced4da;
+  --gray-500: rgba(147, 147, 147, 1);
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+  --gray-900: #212529;
+  --primary-color-hover: #764ba2;
+  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
+  --secondary-color: rgba(56, 200, 104, 1);
+  --background-color: #F2F4F7;
+  --text-color-button: #939393;
+  --border-color: rgba(226, 226, 226, 1);
+  --border-gray: 1px solid rgba(208, 207, 207, 1);
+  --border-radius: 0.3rem;
+  --border-radius-lg: 25px;
+  --border-radius-md: 12px;
+  --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --box-shadow-hover: 0 12px 35px rgba(102, 126, 234, 0.4);
+  --transition: all 0.3s ease;
+  --border-button: 1px solid rgba(208, 207, 207, 1);
+  --border-dotted: 1px dotted #93939380;
+  --controls-gap: 8px;
+  --bg-active: #E7F0FF;
+  --border-active: 1px solid #8db7ff;
+  --track-height: 3px;
+  --handle-size: 20px;
+  --playhead-size: 20px;
+  --timeline-segment-color: #C0C0C0;
+}
+
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Monda', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--black);
+  background-color: var(--gray-200);
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  z-index: 10000;
+  font-weight: 600;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification.hide {
+  transform: translateX(100%);
+}
