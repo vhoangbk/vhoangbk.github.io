@@ -1,0 +1,30 @@
+/*!*****************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./src/style.css ***!
+  \*****************************************************************/
+@font-face {
+  font-family: "Poppins";
+  src: url(fonts/35d26b781dc5fda684cc.ttf) format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url(fonts/cdb29a5d7ccf57ff05a3.ttf) format("truetype");
+  font-weight: 700;
+}
+
+body {
+  font-family: "Poppins";
+  background: #f0f0f0;
+}
+
+h1 {
+  color: red;
+  font-weight: 500;
+}
+
+.img-free {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #333;
+}

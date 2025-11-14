@@ -1,0 +1,28 @@
+@font-face {
+  font-family: "Poppins";
+  src: url("./fonts/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./fonts/Poppins-Regular.ttf") format("truetype");
+  font-style: normal;
+}
+
+body {
+  font-family: "Poppins";
+  font-weight: 400;
+  background: #f0f0f0;
+}
+
+h1 {
+  color: red;
+}
+
+.img-free {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #333;
+}
