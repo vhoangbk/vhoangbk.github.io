@@ -9,7 +9,7 @@ module.exports = {
   devtool: 'inline-source-map',
 
   devServer: {
-    static: './dist',
+    static: './public',
     open: true,
   },
 
@@ -19,7 +19,7 @@ module.exports = {
 
   output: {
     filename: "bundle.js",
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "public"),
     clean: true,
     assetModuleFilename: "assets/[hash][ext][query]",
   },
