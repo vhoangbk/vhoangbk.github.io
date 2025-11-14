@@ -4,7 +4,18 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/index.ts",
+
+  devtool: 'inline-source-map',
+
+  devServer: {
+    static: './dist',
+    open: true,
+  },
+
+  resolve: {
+    extensions: ['.ts', '.js'],
+  },
 
   output: {
     filename: "bundle.js",
@@ -28,7 +39,7 @@ module.exports = {
         implementation: ImageMinimizerPlugin.imageminGenerate,
         options: {
           plugins: [
-            ["mozjpeg", { quality: 75 }],
+            ["imagemin-jpeg-recompress", { quality: "medium" }],
             ["pngquant", { quality: [0.6, 0.8] }],
           ],
         },
@@ -59,9 +70,14 @@ module.exports = {
       {
         test: /\.html$/,
         use: ["html-loader"]
+      },
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
       }
     ]
   },
 
-  mode: "development",
+  mode: "development", // 'production'
 };
