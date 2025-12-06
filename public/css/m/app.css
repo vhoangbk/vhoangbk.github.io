@@ -1,0 +1,1687 @@
+@import url('m-mtcv.css');
+
+:root {
+  --color: #333;
+  --color-gray: rgba(147, 147, 147, 1);
+  --background-color: rgba(102, 126, 234, 0.06);
+  --background-border-color: rgba(239, 239, 239, 0.5);
+  --border-color-line: rgba(217, 217, 217, 1);
+  --theme-color: rgba(255, 209, 52, 1);
+  --theme-color-line: rgba(247, 175, 26, 1);
+  
+  /* Responsive units - Tối ưu theo height viewport */
+  --header-height: clamp(3.5rem, 5.5vh, 5rem);
+  --footer-height: clamp(3.8rem, 6vh, 5.5rem);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  
+  /* Spacing theo height viewport */
+  --section-padding-v: clamp(0.5rem, 1.5vh, 1rem);
+  --common-padding: clamp(0.5rem, 1.5vh, 1rem);
+  --section-padding-h: clamp(0.75rem, 2.5vw, 1rem);
+  --form-gap: clamp(0.75rem, 2vh, 1.5rem);
+  --form-group-height: clamp(2.75rem, 3.5vh, 3.5rem);
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden !important; /* ✅ Prevent scroll ngang */
+  overflow-y: auto; /* ✅ Cho phép scroll dọc */
+  display: flex;
+  flex-direction: column;
+  touch-action: pan-y; /* ✅ Chỉ cho phép scroll dọc */
+  -ms-touch-action: pan-y;
+  /* ✅ Smooth scrolling cho mobile */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto; /* ✅ auto thay vì smooth để performance tốt hơn */
+  overscroll-behavior-y: contain; /* ✅ Prevent overscroll bounce */
+  
+  @media (min-width: 768px) and (max-height: 650px) {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* ✅ Lock scroll khi có dialog */
+html.dialog-open,
+body.dialog-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-width: 100vw !important;
+}
+
+/* ✅ Global: Cho phép scroll trên tất cả interactive elements */
+/* ✅ Quan trọng: Cho phép pan-y (scroll dọc) trên tất cả elements */
+* {
+  /* ✅ Cho phép scroll dọc trên mọi element */
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+}
+
+/* ✅ Đặc biệt cho interactive elements: Cho phép cả scroll và click */
+.app-config-select,
+.app-config-select *,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select,
+button,
+.app-config-advenced-button,
+.footer-btn-convert,
+.btn-buy-premium-container button,
+.app-menu-toggle,
+.header-logo--container .logo {
+  /* ✅ Cho phép scroll dọc (pan-y) và click (manipulation) */
+  touch-action: pan-y pinch-zoom; /* ✅ Cho phép scroll dọc và pinch zoom */
+  -ms-touch-action: pan-y pinch-zoom;
+  /* ✅ Tránh highlight khi scroll (nhưng vẫn có khi tap) */
+  -webkit-tap-highlight-color: transparent;
+  /* ✅ Prevent text selection khi scroll */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* ✅ Input và textarea: Cho phép text selection khi cần */
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* ✅ Select: Cho phép scroll khi mở dropdown */
+.app-config-select {
+  background: var(--white) url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0H0L6 8L12 0Z' fill='%23939393'/%3E%3C/svg%3E") no-repeat;
+  padding: clamp(0.1rem, 0.3vh, 0.2rem) clamp(0.8rem, 2.5vw, 1.2rem);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-position: right clamp(0.5rem, 1.5vw, 0.8rem) center;
+  background-size: clamp(10px, 2.8vw, 14px) clamp(7px, 2vw, 10px);
+  color: var(--black);
+  min-width: 7.16rem;
+  cursor: pointer;
+  font-weight: 400;
+  width: 60%;
+  height: var(--form-group-height);
+  font-size: clamp(0.9rem, 2.5vh, 1.1rem);
+  appearance: none;
+  /* ✅ Cho phép scroll dọc */
+  touch-action: pan-y pinch-zoom;
+  -ms-touch-action: pan-y pinch-zoom;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ✅ Buttons: Cho phép scroll nhưng vẫn click được */
+button,
+.app-config-advenced-button,
+.footer-btn-convert,
+.btn-buy-premium-container button {
+  /* ✅ Cho phép scroll dọc */
+  touch-action: pan-y pinch-zoom;
+  -ms-touch-action: pan-y pinch-zoom;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ✅ Volume slider: Giữ touch-action: none vì cần drag */
+.app-volume-control-slider {
+  margin: 0;
+  width: 100%;
+  height: clamp(0.2rem, 0.4vh, 0.3rem);
+  background: linear-gradient(to right, var(--theme-color) var(--volume-percentage, 33.33%), #D9D9D9 var(--volume-percentage, 33.33%), #D9D9D9 100%);
+  border-radius: clamp(0.06rem, 0.15vw, 0.1rem);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: none;
+  touch-action: none; /* ✅ Giữ none cho slider vì cần drag */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ✅ Labels: Cho phép scroll */
+label,
+.app-form-label {
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ✅ Main content: Đảm bảo scroll mượt */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--white);
+  min-height: 0;
+  padding-bottom: calc(var(--footer-height) + var(--safe-area-bottom) + clamp(0.2rem, 0.5vh, 0.5rem));
+  touch-action: pan-y;
+  /* ✅ Smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior-y: contain;
+  /* ✅ Optimize performance */
+  will-change: scroll-position;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* ✅ App container: Cho phép scroll */
+.app--container {
+  width: 100vw;
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden !important;
+  overflow-y: auto;
+  max-width: 100vw;
+  /* ✅ Smooth scrolling cho mobile */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior-y: contain;
+  /* ✅ Optimize scroll performance */
+  will-change: scroll-position;
+  /* ✅ Cho phép scroll dọc */
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+  
+  /* Nest Hub và màn hình landscape có height thấp - cho phép scroll */
+  @media (min-width: 768px) and (max-height: 650px) {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* ============================================
+   HEADER - FIXED TOP
+   ============================================ */
+
+.header--container {
+  height: var(--header-height);
+  min-height: 3.5rem;
+  max-height: 5rem;
+  background: var(--theme-color);
+  border-bottom: 1px solid var(--theme-color-line);
+  display: flex;
+  align-items: center;
+  padding-left: var(--section-padding-h);
+  flex-shrink: 0;
+  
+}
+
+.app-menu-toggle {
+  width: 10%;
+  margin: auto 0;
+  cursor: pointer;
+  z-index: 1000;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.app-menu__icon {
+  width: clamp(1.1rem, 3vw, 1.4rem);
+  height: clamp(0.9rem, 2.5vw, 1.2rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.2rem, 0.5vh, 0.3rem);
+  position: relative;
+}
+
+.app-menu__icon span {
+  width: 100%;
+  height: clamp(0.15rem, 0.4vh, 0.25rem);
+  border-radius: 0.1rem;
+  background-color: var(--color);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.app-menu__icon.active {
+  display: none;
+}
+
+.header-logo--container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.5vw, 0.8rem);
+  width: 75%;
+}
+
+.header-logo--container .logo {
+  height: clamp(3rem, 5vh, 3.2rem);
+  width: clamp(3rem, 5vh, 3.2rem);
+  border-radius: 50%;
+  background: #FFF;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.header-logo--container .img-logo {
+  width: clamp(2rem, 2.7vh, 2.6rem);
+  height: auto;
+  margin: 0 auto;
+}
+
+.header-logo--container .title {
+  margin: 0;
+  font-size: clamp(1rem, 3.5vh, 1.5rem);
+}
+
+/* ============================================
+   MAIN CONTENT - FLEX: 1 (GIÃN RA)
+   ============================================ */
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--white);
+  min-height: 0;
+  /* Padding bottom để không bị che bởi footer - Giảm xuống để không còn khoảng trống */
+  padding-bottom: calc(var(--footer-height) + var(--safe-area-bottom) + clamp(0.2rem, 0.5vh, 0.5rem));
+  touch-action: pan-y;
+  overflow-y: hidden;
+  /* ✅ Smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior-y: contain;
+  /* ✅ Optimize performance */
+  will-change: scroll-position;
+  transform: translateZ(0); /* ✅ Force GPU acceleration */
+  -webkit-transform: translateZ(0);
+}
+
+/* ============================================
+   UPLOAD SECTION
+   ============================================ */
+
+.app-upload-section {
+  padding: var(--section-padding-h);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-upload-area {
+  aspect-ratio: 16 / 9;
+  border: 2px dashed var(--theme-color);
+  background-color: var(--background-color);
+  border-radius: clamp(0.6rem, 1.2vw, 1rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1vh, 0.8rem);
+  cursor: pointer;
+  transition: all 0.3s 
+ease;
+}
+
+.app-upload-section .video-preview {
+  aspect-ratio: 16 / 9;
+  /* border: 2px dashed var(--theme-color); */
+  background-color: var(--background-color);
+  border-radius: clamp(0.4rem, 1vw, 0.6rem);
+  position: relative;
+  display: none;
+  /* Đảm bảo không bị flex override */
+  flex-direction: unset;
+}
+
+.app-upload-section .video-preview.show {
+  display: block !important; /* Override inline style */
+}
+
+.app-upload-section .video-thumb-small-height {
+  display: none;
+}
+
+.app-upload-section .video-thumb-big-height {
+  display: none;
+}
+
+.app-upload-section .video-thumbnail {
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: cover !important;
+  background-repeat: no-repeat;
+  border-radius: clamp(0.4rem, 1vw, 0.6rem);
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-upload-section .video-thumbnail-play-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  z-index: 5;
+  opacity: 0.9;
+}
+
+.app-upload-section .video-thumbnail-play-btn:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.app-upload-section .video-thumbnail-play-btn:active {
+  transform: scale(0.95);
+}
+
+.app-upload-section .video-thumbnail-play-btn svg {
+  width: clamp(2rem, 8vw, 3rem);
+  height: clamp(2rem, 8vw, 3rem);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.app-upload-section .video-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: clamp(0.4rem, 0.2vh, 1rem);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  border-radius: 0 0 clamp(0.4rem, 1vw, 0.6rem) clamp(0.4rem, 1vw, 0.6rem);
+  margin-top: 0;
+}
+
+.app-upload-section .video-title {
+  color: white;
+  font-size: clamp(1rem, 2vh, 1.3rem); /* Tăng font-size giống desktop */
+  font-weight: 600;
+  margin-bottom: 0.5rem; /* Tăng margin-bottom giống desktop */
+  width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-upload-section .video-details {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(0.85rem, 1.8vh, 1.1rem);
+  line-height: 1.2;
+  width: 100%;
+}
+
+/* Thêm CSS cho container-list-selected-info và container-selected-info */
+.app-upload-section .video-details .container-list-selected-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.app-upload-section .video-details .container-selected-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.app-upload-section .video-details .container-selected-info span {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(0.75rem, 1.5vh, 0.9rem);
+  white-space: nowrap;
+}
+
+.app-upload-section .video-preview-close {
+  position: absolute;
+  top: clamp(0.5rem, 1vh, 0.8rem);
+  right: clamp(0.5rem, 1vh, 0.8rem);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: clamp(1.5rem, 6vw, 2.5rem);
+  height: clamp(1.5rem, 6vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.app-upload-section .video-preview-close::before {
+  content: '';
+  position: absolute;
+  top: -0.5rem;
+  bottom: -0.5rem;
+  left: -0.5rem;
+  right: -0.5rem;
+  background: transparent;
+  z-index: -1;
+}
+
+.app-upload-section .video-preview-close:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.app-upload-area__icon {
+  width: clamp(2.8rem, 4.5vw, 2.5rem);
+  height: clamp(2.3rem, 3.5vw, 2rem);
+  display: flex;
+  justify-content: center;
+}
+
+.app-upload-area__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.app-upload-area__text {
+  color: var(--color-gray);
+  font-size: clamp(0.875rem, 2.5vh, 1.125rem);
+  font-weight: 400;
+  text-align: center;
+}
+
+/* ============================================
+   FORM SECTION
+   ============================================ */
+
+.app-form-section {
+  margin: var(--section-padding-h) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-padding-h);
+  flex: 1;
+  min-height: 0;
+}
+
+.app-form-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: clamp(0.4rem, 1.2vw, 0.7rem);
+  min-height: var(--form-group-height);
+}
+
+.app-form-label {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.3rem, 0.9vw, 0.5rem);
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.app-form-label img {
+  width: clamp(1rem, 2.8vw, 1.2rem);
+  height: auto;
+}
+
+.app-config-title-field {
+  font-size: clamp(0.8rem, 2.2vh, 1rem);
+  white-space: nowrap;
+}
+
+.app-config-select {
+  background: var(--white) url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0H0L6 8L12 0Z' fill='%23939393'/%3E%3C/svg%3E") no-repeat;
+  padding: clamp(0.1rem, 0.3vh, 0.2rem) clamp(0.8rem, 2.5vw, 1.2rem);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-position: right clamp(0.5rem, 1.5vw, 0.8rem) center;
+  background-size: clamp(10px, 2.8vw, 14px) clamp(7px, 2vw, 10px);
+  color: var(--black);
+  min-width: 7.16rem;
+  cursor: pointer;
+  font-weight: 400;
+  width: 60%;
+  height: var(--form-group-height);
+  font-size: clamp(0.9rem, 2.5vh, 1.1rem);
+  appearance: none;
+}
+
+.app-config-select .option {
+  font-size: clamp(0.9rem, 2.5vh, 1.1rem);
+}
+
+.app-resolution-wrapper,
+.app-quality-wrapper,
+.app-fps-wrapper,
+.app-volume-control {
+  width: 60%;
+  position: relative;
+}
+
+.app-resolution-wrapper .app-config-select,
+.app-quality-wrapper .app-config-select,
+.app-fps-wrapper .app-config-select {
+  width: 100%;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(200, 200, 200, 0.2);
+  border-radius: var(--border-radius, 5px);
+  pointer-events: all;
+  cursor: not-allowed;
+  display: none;
+  z-index: 2;
+  color: var(--color);
+}
+
+.app-volume-control-group .app-form-label {
+  margin-top: clamp(-0.7rem, -1.8vh, -0.5rem);
+}
+
+.app-volume-config-value {
+  text-align: right;
+  font-size: clamp(0.8rem, 2vh, 0.95rem);
+  color: var(--color-gray);
+}
+
+.app-volume-control-slider {
+  margin: 0;
+  width: 100%;
+  height: clamp(0.2rem, 0.4vh, 0.3rem);
+  background: linear-gradient(to right, var(--theme-color) var(--volume-percentage, 33.33%), #D9D9D9 var(--volume-percentage, 33.33%), #D9D9D9 100%);
+  border-radius: clamp(0.06rem, 0.15vw, 0.1rem);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: none;
+  touch-action: none;
+}
+
+.app-volume-control-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: clamp(1.2rem, 3.2vw, 1.6rem);
+  height: clamp(1.2rem, 3.2vw, 1.6rem);
+  background: var(--theme-color);
+  border: 1px solid var(--theme-color-line);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.app-config-advenced-button {
+  background: transparent;
+  border: none;
+  display: flex;
+  gap: clamp(0.4rem, 1.2vw, 0.6rem);
+  align-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.app-config-advenced-button img {
+  width: clamp(1rem, 2.8vw, 1.2rem);
+}
+
+.app-config-advanced-text {
+  font-size: clamp(0.8rem, 2.2vh, 1rem);
+  font-weight: 600;
+  color: var(--color);
+}
+
+.app-advanced-section {
+  /* margin-top: clamp(0.5rem, 1.2vh, 0.9rem); */
+  flex-shrink: 0;
+}
+
+.app-advanced-info {
+  display: none;
+  padding-left: clamp(1.4rem, 4vw, 1.8rem);
+  padding-right: clamp(1.4rem, 4vw, 1.8rem);
+  margin-top: clamp(-1rem, -1.3vh, -0.5rem);
+}
+
+.app-advanced-info-text {
+   color: var(--color-gray);
+   font-size: 0.8rem;
+}
+
+/* ============================================
+   FOOTER - FIXED BOTTOM
+   ============================================ */
+
+.footer-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: var(--footer-height);
+  background: var(--white);
+  border-top: 1px solid var(--border-color-line);
+  z-index: 100;
+  flex-shrink: 0;
+  padding-bottom: var(--safe-area-bottom);
+  box-sizing: border-box;
+}
+
+.app--container:has(.mtcv-container.mtcv-show) .footer-container {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.app--container:has(.mtcv-container.mtcv-show) .header--container {
+  pointer-events: none !important;
+  background-color: #00000078 !important; /* ✅ Trùng màu với overlay modal */
+  border-bottom: none !important; /* ✅ Ẩn đường line màu cam */
+  z-index: 1; /* ✅ Đảm bảo header nằm dưới modal (modal có z-index: 10002) */
+}
+
+.app--container:has(.mtcv-container.mtcv-show) .app-menu-toggle {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.app--container:has(.mtcv-container.mtcv-show) .header-logo--container {
+  pointer-events: none !important;
+}
+
+.btn-container {
+  padding: clamp(0.6rem, 1.5vh, 0.9rem);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  max-height: calc(100% - var(--safe-area-bottom));
+}
+
+input.footer-btn-convert {
+  all: unset;
+  color: var(--color);
+  width: 100%;
+  height: 100%;
+  min-height: clamp(2.8rem, 4.5vh, 3.5rem);
+  max-height: calc(100% - 0.3rem);
+  background-color: var(--theme-color);
+  border: none;
+  border-radius: clamp(0.4rem, 1.1vw, 0.6rem);
+  font-size: clamp(1rem, 3vh, 1.3rem);
+  text-transform: uppercase;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+
+input.footer-btn-convert:disabled {
+  cursor: not-allowed;
+  background: var(--background-color);
+  color: var(--gray-400);
+}
+
+/* ============================================
+   MENU COMPONENTS
+   ============================================ */
+
+.menu-toggle {
+  display: block;
+  cursor: pointer;
+  z-index: 2999;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.menu-toggle__icon {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.2rem, 0.6vw, 0.3rem);
+  width: clamp(1.3rem, 3.5vw, 1.6rem);
+  height: clamp(1rem, 2.8vw, 1.3rem);
+  position: relative;
+}
+
+.menu-toggle__icon span {
+  width: 100%;
+  height: clamp(2px, 0.6vh, 3px);
+  background: var(--color);
+  border-radius: clamp(0.08rem, 0.2vw, 0.12rem);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.menu-toggle__icon.active span:nth-child(1) {
+  transform: rotate(45deg) translate(clamp(4px, 1.2vw, 6px), clamp(5px, 1.4vw, 7px));
+}
+
+.menu-toggle__icon.active span:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.menu-toggle__icon.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(clamp(1px, 0.3vw, 2px), clamp(-2px, -0.5vw, -1px));
+}
+
+.menu-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  z-index: 3000;
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+              visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.menu-modal.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menu-modal.closing {
+  visibility: visible;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.menu-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-modal.active .menu-modal__overlay {
+  opacity: 1;
+}
+
+.menu-modal.closing .menu-modal__overlay {
+  opacity: 0;
+}
+
+.menu-modal__content {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
+  will-change: transform;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.menu-modal__content--left {
+  left: 0;
+  width: 85%;
+}
+
+.menu-modal.active:not(.closing) .menu-modal__content--left {
+  transform: translateX(0);
+}
+
+.menu-modal.active.closing .menu-modal__content--left {
+  transform: translateX(-100%);
+}
+
+.app-menu-modal__header {
+  text-align: right;
+  padding: clamp(0.5rem, 1.5vh, 0.8rem) clamp(1rem, 2.7vw, 1.5rem);
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.app-logo-icon {
+  width: clamp(5rem, 14vw, 6.5rem);
+  height: clamp(5rem, 14vw, 6.5rem);
+}
+
+.app-logo-title {
+  padding: 0;
+  margin: 0;
+  margin-top: clamp(0.4rem, 1.2vh, 0.7rem);
+  font-size: clamp(1.1rem, 3.8vh, 1.7rem);
+  font-weight: 400;
+}
+
+.container-menu-left {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.app-logo-container {
+  text-align: center;
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: clamp(0.2rem, 0.6vh, 0.4rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  margin-left: auto;
+  -webkit-tap-highlight-color: transparent; /* Thêm dòng này */
+  outline: none; /* Thêm dòng này */
+}
+
+.mobile-menu-close-text {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: #939393;
+  font-weight: 300;
+}
+
+.menu-modal__items {
+  flex: 1;
+  overflow-y: auto;
+  padding: clamp(1.5rem, 4.5vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.2vh, 0.7rem);
+  min-height: 0;
+}
+
+.menu-modal__item {
+  display: flex;
+  padding: 0;
+  color: var(--gray-700);
+  text-decoration: none;
+  border-bottom: none;
+  font-size: clamp(0.85rem, 2.5vh, 1.1rem);
+  align-items: flex-end;
+  gap: clamp(0.7rem, 2vw, 1rem);
+  height: clamp(2.5rem, 6vh, 3.5rem);
+  min-height: 2.5rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.menu-modal__item:hover,
+.menu-modal__item:active,
+.menu-modal__item:focus {
+  background: transparent;
+  color: var(--gray-700);
+  padding-left: 0;
+}
+
+.menu-modal__item span {
+  color: inherit;
+  text-decoration: none;
+  font-size: clamp(1.3rem, 3.5vw, 3.6rem);
+  line-height: clamp(1.3rem, 3.5vw, 3.6rem);
+}
+
+.menu-modal__item img {
+  width: clamp(1.3rem, 5vw, 3.6rem);
+  height: clamp(1.3rem, 5vw, 3.6rem);
+}
+
+.menu-modal__item a {
+  text-decoration: none;
+  color: var(--color);
+  font-size: clamp(0.85rem, 2.5vh, 1.1rem);
+  width: 100%;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ============================================
+   PREMIUM COMPONENTS
+   ============================================ */
+
+.app-buy-premium-account {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: clamp(0.8rem, 2.5vh, 1.3rem);
+  gap: clamp(0.25rem, 0.7vh, 0.4rem);
+  padding: 0 clamp(1.5rem, 4.5vw, 2.5rem);
+  flex-shrink: 0;
+}
+
+.btn-buy-premium-container {
+  width: 100%;
+}
+
+.btn-buy-premium-container button {
+  border: none;
+  background: var(--theme-color);
+  border-radius: clamp(0.35rem, 0.9vw, 0.5rem);
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1.5vw, 0.8rem);
+  padding: clamp(0.65rem, 1.8vh, 0.9rem) clamp(1.4rem, 4vw, 2rem);
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-buy-premium-container span {
+  font-size: clamp(0.95rem, 3vh, 1.3rem);
+}
+
+.description-buy-premium {
+  font-size: clamp(0.65rem, 1.9vh, 0.9rem);
+  text-align: center;
+  width: 80%;
+}
+
+.premium-overlay, .about-overlay, .policy-overlay, .history-overlay, .terms-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  background: #fff;
+  z-index: 10001;
+  transform: translateX(100%);
+  transition: transform 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  visibility: hidden;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.premium-overlay.is-open, .about-overlay.is-open, .policy-overlay.is-open, .history-overlay.is-open, .terms-overlay.is-open {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.about-overlay.is-closing,
+.policy-overlay.is-closing,
+.history-overlay.is-closing,
+.terms-overlay.is-closing {
+  transform: translateX(100%);
+}
+
+.about-overlay:not(.is-open):not(.is-closing) {
+  transform: translateX(100%);
+  transition: transform 0.35s ease-in-out, visibility 0.35s ease-in-out;
+}
+
+.about-overlay.is-closing {
+  visibility: visible;
+}
+
+.premium-overlay__close {
+  position: absolute;
+  top: clamp(0.6rem, 1.8vh, 0.9rem);
+  right: clamp(0.6rem, 1.8vh, 0.9rem);
+  width: clamp(2rem, 5.5vw, 2.5rem);
+  height: clamp(2rem, 5.5vw, 2.5rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.premium-overlay__close:active {
+  opacity: 0.8;
+}
+
+.premium-overlay__close svg {
+  width: 100%;
+  height: 100%;
+}
+
+.buy-premium--container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(1.5rem, 4.5vh, 2.5rem);
+  font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+/* About container - riêng biệt */
+.about--container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Thay đổi từ min-height: 100vh */
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* Đảm bảo container không scroll */
+}
+
+/* Policy container - riêng biệt */
+.policy--container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Thay đổi từ min-height: 100vh */
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* Đảm bảo container không scroll */
+}
+
+/* History container - thêm nếu chưa có */
+.history--container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* Đảm bảo container không scroll */
+}
+
+.subscriptions--container {
+  margin-top: clamp(2rem, 5.5vh, 3.5rem);
+  width: 100%;
+}
+
+.subscriptions-titile {
+  font-size: clamp(1rem, 3.2vh, 1.5rem);
+  font-weight: 300;
+}
+
+.subscriptions-item {
+  width: 100%;
+  position: relative;
+}
+
+.subscriptions-list-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.9rem, 2.5vh, 1.4rem);
+  margin-top: clamp(0.3rem, 0.9vh, 0.5rem);
+}
+
+.sub-popular {
+  position: absolute;
+  left: 40%;
+  top: clamp(-0.3rem, -0.8vh, -0.1rem);
+  width: clamp(3.5rem, 9.5vw, 4.5rem);
+  height: auto;
+}
+
+.daimond-months-container img {
+  width: clamp(1.3rem, 3.5vw, 1.7rem);
+  height: auto;
+}
+
+.btn-buy-premium-price--container {
+  width: 100%;
+  border-radius: clamp(2.5rem, 7vw, 3.5rem);
+  border: none;
+  padding: clamp(0.85rem, 2.3vh, 1.2rem) clamp(2rem, 5.5vw, 2.8rem);
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--theme-color);
+}
+
+.price-months {
+  font-size: clamp(0.95rem, 3vh, 1.4rem);
+  font-weight: 400;
+  color: var(--black);
+}
+
+.daimond-months-container {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.25rem, 0.7vh, 0.4rem);
+  height: inherit;
+}
+
+.price-number {
+  font-size: clamp(1.2rem, 3.8vh, 1.8rem);
+  font-weight: 700;
+  width: 20%;
+  text-align: right;
+  padding-left: clamp(0.85rem, 2.3vh, 1.2rem);
+  border-left: 1px dashed var(--gray-500);
+  color: var(--black);
+}
+
+.footer-buy-premium {
+  position: fixed;
+  bottom: clamp(0.5rem, 1.5vh, 0.8rem);
+  width: 100%;
+  text-align: center;
+  color: var(--gray-500);
+  font-size: clamp(0.7rem, 2vh, 0.9rem);
+}
+
+.footer-buy-premium .footer-title {
+  text-decoration: underline;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS THEO HEIGHT
+   ============================================ */
+
+/* iPhone SE / iPhone 8 (≤700px height) */
+@media (max-height: 700px) {
+  :root {
+    --header-height: 3.5rem;
+    --footer-height: 3.8rem;
+    --form-gap: clamp(0.6rem, 1.5vh, 0.9rem);
+    --form-group-height: clamp(2.5rem, 3vh, 3rem);
+  }
+  
+  .app-main {
+    padding-bottom: calc(var(--footer-height) + var(--safe-area-bottom) + clamp(0.2rem, 0.5vh, 0.5rem));
+  }
+}
+
+/* iPhone 12 / iPhone 13 (701-850px height) */
+@media (min-height: 701px) and (max-height: 850px) {
+  :root {
+    --header-height: clamp(3.8rem, 5vh, 4.5rem);
+    --footer-height: clamp(4rem, 5.5vh, 4.8rem);
+    --form-gap: clamp(0.8rem, 1.8vh, 1.2rem);
+    --form-group-height: clamp(2.8rem, 3.2vh, 3.2rem);
+  }
+}
+
+@media (width: 320px) and (height: 600px) {
+  .app-upload-area,
+  .app-upload-section .video-preview {
+    aspect-ratio: 25 / 8;
+  }
+  .app-upload-section .video-details {
+    line-height: 0.7;
+  }
+  .app-upload-section .video-title {
+    font-size: clamp(0.75rem, 1.5vh, 0.9rem);
+  }
+  .app-advanced-info-text {
+    font-size: 0.4rem;
+  }
+}
+
+@media (width: 375px) and (height: 667px) {
+  .app-upload-area,
+  .app-upload-section .video-preview {
+    aspect-ratio: 23 / 9;
+  }
+}
+
+@media (width: 360px) and (height: 740px) {
+  .app-upload-area,
+  .app-upload-section .video-preview {
+    aspect-ratio: 21 / 9;
+  }
+}
+
+/* iPhone 14 Pro Max / iPhone 15 Pro Max (851-950px height) */
+@media (min-height: 851px) and (max-height: 950px) {
+  :root {
+    --header-height: clamp(4.2rem, 5.2vh, 4.8rem);
+    --footer-height: clamp(4.5rem, 5.8vh, 5.2rem);
+    --form-gap: clamp(1rem, 2vh, 1.4rem);
+    --form-group-height: clamp(3rem, 3.5vh, 3.5rem);
+  }
+}
+
+/* iPad / Tablet (≥951px height) */
+@media (min-height: 951px) {
+  :root {
+    --header-height: clamp(4.5rem, 5.5vh, 5.5rem);
+    --footer-height: clamp(4.8rem, 6vh, 5.8rem);
+    --form-gap: clamp(1.2rem, 2.2vh, 1.8rem);
+    --form-group-height: clamp(3.2rem, 3.8vh, 4rem);
+  }
+  .app-upload-area,
+  .app-upload-section .video-preview {
+    aspect-ratio: 21 / 9;
+  }
+  .container-list-selected-info {
+    gap: 2vh;
+    justify-content: space-between;
+  }
+  .container-selected-info {
+    gap: 2vh;
+    flex-direction: row;
+  }
+}
+
+/* iPad / Tablet (≥1180px height) */
+@media (min-height: 1180px) {
+  .app-upload-area,
+  .app-upload-section .video-preview {
+    aspect-ratio: 17 / 9;
+  }
+}
+
+/* iPad / Tablet (≥1180px height) */
+@media (min-height: 1368px) {
+  .app-upload-area,
+  .app-upload-section .video-preview {
+    aspect-ratio: 14 / 9;
+  }
+}
+
+/* Landscape mode - Tối ưu riêng */
+@media (orientation: landscape) {
+  :root {
+    --common-padding: clamp(0.4rem, 1vh, 0.7rem);
+    --form-gap: clamp(0.6rem, 1.2vh, 0.9rem);
+    --form-group-height: clamp(2.6rem, 2.8vh, 3rem);
+  }
+  
+  .app-main {
+    padding-bottom: calc(var(--footer-height) + var(--safe-area-bottom) + clamp(0.3rem, 0.8vh, 0.8rem));
+  }
+  
+  .app-upload-section {
+    padding: var(--common-padding) var(--common-padding);
+  }
+  
+  /* Landscape với height rất thấp - Nest Hub 1024x600 */
+  @media (max-height: 650px) {
+    :root {
+      --header-height: clamp(3.2rem, 5.5vh, 3.8rem);
+      --footer-height: clamp(3.5rem, 6vh, 4.2rem);
+      --form-gap: clamp(0.5rem, 1vh, 0.7rem);
+      --form-group-height: clamp(2.5rem, 4.5vh, 3rem);
+    }
+    
+    body {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    .app--container {
+      height: auto;
+      min-height: 100vh;
+      overflow: visible;
+    }
+    
+    .app-main {
+      padding-bottom: calc(var(--footer-height) + var(--safe-area-bottom) + clamp(0.5rem, 1vh, 0.8rem));
+    }
+  }
+  
+  /* Landscape với height rất thấp */
+  @media (max-height: 500px) {
+    :root {
+      --header-height: 3.2rem;
+      --footer-height: 3.5rem;
+      --form-gap: 0.5rem;
+      --form-group-height: 2.5rem;
+    }
+    
+    .app-main {
+      padding-bottom: calc(var(--footer-height) + var(--safe-area-bottom) + clamp(0.3rem, 0.8vh, 0.8rem));
+    }
+  }
+  
+  /* iPad landscape - xử lý riêng cho màn hình lớn xoay ngang */
+  @media (min-width: 768px) and (orientation: landscape) {
+    .app-upload-area,
+    .app-upload-section .video-preview {
+      aspect-ratio: 8.5 / 2;
+    }
+    
+    /* Nest Hub và màn hình tương tự (1024x600) - điều chỉnh cho phù hợp */
+    @media (max-height: 650px) {
+      .app-upload-area,
+      .app-upload-section .video-preview {
+        aspect-ratio: 9 / 3;
+      }
+    }
+    
+    /* iPad Pro landscape (1024x1366 xoay ngang = 1366x1024) */
+    @media (min-height: 900px) {
+      .app-upload-area,
+      .app-upload-section .video-preview {
+        aspect-ratio: 9 / 2.8;
+      }
+    }
+  }
+}
+
+/* Fix cho iOS safe area */
+@supports (padding: max(0px)) {
+  .footer-container {
+    padding-bottom: max(var(--safe-area-bottom), 0px);
+  }
+  
+  .app-main {
+    padding-bottom: calc(var(--footer-height) + max(var(--safe-area-bottom), clamp(0.2rem, 0.5vh, 0.5rem)) + clamp(0.2rem, 0.5vh, 0.5rem));
+  }
+  
+  @media (orientation: landscape) {
+    .app-main {
+      overflow-y: scroll;
+      padding-bottom: calc(var(--footer-height) + max(var(--safe-area-bottom), clamp(0.3rem, 0.8vh, 0.8rem)) + clamp(0.3rem, 0.8vh, 0.8rem));
+    }
+  }
+}
+
+ons-toast {
+  z-index: 10002 !important;
+}
+
+/* Terms content container */
+.terms--container .app-terms-content {
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3vh, 2rem);
+  padding: clamp(1rem, 3vh, 1.5rem);
+}
+
+/* Terms section */
+.terms--container .app-terms-section {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.8rem, 1.5vh, 1rem);
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.terms--container .app-terms-section:last-child {
+  border-bottom: none;
+}
+
+/* Terms section title - với màu theme */
+.terms--container .app-terms-section-title {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.5vh, 1.6rem);
+  font-weight: 600;
+  color: var(--color);
+  border-bottom: 3px solid var(--theme-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: clamp(0.8rem, 1.5vh, 1rem);
+  position: relative;
+}
+
+/* Thêm accent màu vàng cho title */
+.terms--container .app-terms-section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 60px;
+  height: 3px;
+  background: var(--theme-color-line);
+  border-radius: 2px;
+}
+
+/* Terms subtitle - với màu theme */
+.terms--container .app-terms-subtitle {
+  margin: 0;
+  font-size: clamp(1.1rem, 2vh, 1.3rem);
+  font-weight: 600;
+  color: var(--color);
+  border-bottom: 2px solid var(--theme-color);
+  padding-bottom: 0.5rem;
+  margin: clamp(0.8rem, 1.5vh, 1rem) 0 clamp(0.5rem, 1vh, 0.75rem) 0;
+  position: relative;
+  padding-left: 0.5rem;
+  border-left: 4px solid var(--theme-color);
+}
+
+/* Terms text */
+.terms--container .app-terms-section p {
+  margin: 0;
+  font-size: clamp(1rem, 2vh, 1.15rem);
+  line-height: 1.7;
+  color: var(--color);
+}
+
+/* Terms list - với background màu vàng nhạt */
+.terms--container .app-terms-list {
+  margin: clamp(0.5rem, 1vh, 0.75rem) 0;
+  padding: clamp(0.8rem, 1.5vh, 1rem) clamp(1rem, 2vw, 1.25rem);
+  padding-left: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-size: clamp(1rem, 2vh, 1.15rem);
+  line-height: 1.8;
+  color: var(--color);
+  background: linear-gradient(to right, rgba(255, 209, 52, 0.1) 0%, rgba(255, 209, 52, 0.05) 100%);
+  border-radius: clamp(0.4rem, 0.8vw, 0.6rem);
+  border-left: 4px solid var(--theme-color);
+  border-right: 1px solid var(--border-color-line);
+  border-top: 1px solid var(--border-color-line);
+  border-bottom: 1px solid var(--border-color-line);
+}
+
+.terms--container .app-terms-list li {
+  margin-bottom: clamp(0.5rem, 1vh, 0.75rem);
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+/* Thêm icon màu vàng cho list items */
+.terms--container .app-terms-list li::marker {
+  color: var(--theme-color-line);
+  font-weight: bold;
+}
+
+.terms--container .app-terms-list li:last-child {
+  margin-bottom: 0;
+}
+
+.terms--container .app-terms-list strong {
+  font-weight: 600;
+  color: var(--theme-color-line);
+}
+
+/* Terms contact info - với background màu vàng */
+.terms--container .app-terms-contact-info {
+  margin-top: clamp(0.75rem, 1.5vh, 1rem);
+  padding: clamp(0.8rem, 1.5vh, 1rem);
+  background: linear-gradient(135deg, rgba(255, 209, 52, 0.15) 0%, rgba(247, 175, 26, 0.1) 100%);
+  border-radius: clamp(0.4rem, 0.8vw, 0.6rem);
+  border: 2px solid var(--theme-color);
+  box-shadow: 0 2px 8px rgba(255, 209, 52, 0.2);
+}
+
+.terms--container .app-terms-contact-info p {
+  margin: clamp(0.5rem, 1vh, 0.75rem) 0;
+  font-size: clamp(0.95rem, 1.8vh, 1.1rem);
+  line-height: 1.6;
+  color: var(--color);
+}
+
+.terms--container .app-terms-contact-info p:first-child {
+  margin-top: 0;
+}
+
+.terms--container .app-terms-contact-info p:last-child {
+  margin-bottom: 0;
+}
+
+.terms--container .app-terms-contact-info strong {
+  font-weight: 600;
+  color: var(--theme-color-line);
+}
+
+/* Terms container - riêng biệt */
+.terms--container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Responsive for larger screens */
+@media (min-width: 768px) {
+  .terms--container .app-terms-content {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+
+/* Scroll to Top Button - với màu theme */
+.terms-scroll-to-top {
+  position: fixed;
+  bottom: clamp(1.5rem, 4vh, 2.5rem);
+  right: clamp(1rem, 3vw, 1.5rem);
+  width: clamp(2.5rem, 7vw, 3.5rem);
+  height: clamp(2.5rem, 7vw, 3.5rem);
+  background: var(--theme-color);
+  border: 2px solid var(--theme-color-line);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 209, 52, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background-color 0.2s ease;
+  z-index: 4000;
+  padding: 0;
+  outline: none;
+}
+
+.terms-scroll-to-top:hover,
+.terms-scroll-to-top:active {
+  background: var(--theme-color-line);
+  transform: translateY(0) scale(1.05);
+  box-shadow: 0 6px 16px rgba(247, 175, 26, 0.4);
+}
+
+.terms-scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.terms-scroll-to-top svg {
+  width: 50%;
+  height: 50%;
+  color: #333;
+  stroke-width: 2.5;
+}
+
+.terms-scroll-to-top:active svg {
+  transform: scale(0.95);
+}
+
+option[disabled] {
+  pointer-events: none;
+}
+
+.app-progress__message-warning {
+  background-color: #FFFBEB;
+  border: 1px solid #FEF3C7;
+  color: #B45309;
+  padding: 12px;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: -10px;
+  margin-bottom: -6px;
+  box-sizing: border-box;
+}
+
+.app-progress__message-warning .warning-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: -5px;
+}

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bee Convert</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Monda&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css?v=1764993244524">
+  <link rel="stylesheet" href="/css/m/app.css?v=1764993244524">
+  <link rel="stylesheet" href="/css/m/m-dialog-common.css?v=1764993244524">
+  <link rel="stylesheet" href="/css/m/m-about.css?v=1764993244524">
+  <link rel="stylesheet" href="/css/m/m-policy.css?v=1764993244524">
+</head>
+
+<body>
+  <div class="app--container" id="appContainer">
+    <!-- Header -->
+    <header class="header--container">
+      <div class="app-menu-toggle menu-toggle menu-toggle--mobile" onclick="toggleMobileMenu()">
+        <div class="app-menu__icon menu-toggle__icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <div class="header-logo--container">
+        <div class="logo">
+          <img class="img-logo" src="images/icon-bee.webp" alt="Logo beeconvert">
+        </div>
+        <h2 class="title">Convert</h2>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="app-main">
+      <section class="app-upload-section">
+        <div class="app-upload-area" onclick="uploadFile('inputFileApp')" id="upload-trigger-app">
+          <input type="file" id="inputFileApp" accept="video/*" onchange="handleFileChange(this, 'upload-trigger-app')"
+            style="display: none;">
+          <div class="app-upload-area__icon">
+            <img src="images/cloud-arrow-up.svg" alt="Upload Icon" loading="lazy">
+          </div>
+          <div class="app-upload-area__text">Choose a file to convert</div>
+        </div>
+
+        <div class="video-preview" id="videoPreviewApp">
+          <button class="video-preview-close" onclick="onCloseVideoPreview()" aria-label="Close">
+            <svg width="0.8rem" height="0.8rem" viewBox="0 0 16 16" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L15 15M15 1L1 15" stroke="#939393" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </button>
+          <div class="video-thumbnail" onclick="openVideoPlayerDialog()">
+            <button class="video-thumbnail-play-btn" aria-label="Play video">
+              <svg width="4rem" height="4rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="11" fill="rgba(255, 255, 255, 0.8)" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1"/>
+                <path d="M9 7L17 12L9 17V7Z" fill="rgba(0, 0, 0, 0.7)"/>
+              </svg>
+            </button>
+          </div>
+          <div class="video-info">
+            <div class="video-title">Click to choose a video</div>
+            <div class="video-details"></div>
+          </div>
+        </div>
+
+        <div class="app-form-section">
+          <div class="app-form-group">
+            <div class="app-form-label">
+              <img src="images/m/format.svg" alt="Format">
+              <label class="app-config-title-field" for="format">Format</label>
+            </div>
+            <select id="formatSelectApp" class="app-config-select" onchange="updateResolutionOptions()">
+              <option value="" disabled selected>Select Format...</option>
+            </select>
+          </div>
+          <div class="app-form-group">
+            <div class="app-form-label">
+              <img src="images/m/target-size.svg" alt="Format">
+              <label class="app-config-title-field">Target size</label>
+            </div>
+            <select id="targetSizeApp" convert-option name-option="target_size" class="app-config-select"
+              onchange="showCustomInput(this)">
+              <option value="">None</option>
+              <option value="custom">Custom</option>
+              <option value="1">1MB</option>
+              <option value="2">2MB</option>
+              <option value="5">5MB</option>
+              <option value="8">8MB</option>
+              <option value="10">10MB</option>
+              <option value="15">15MB</option>
+              <option value="20">20MB</option>
+              <option value="50">50MB</option>
+              <option value="100">100MB</option>
+              <option value="200">200MB</option>
+              <option value="500">500MB</option>
+              <option value="800">800MB</option>
+              <option value="1000">1GB</option>
+            </select>
+          </div>
+          <div class="app-form-group">
+            <div class="app-form-label">
+              <img src="images/m/resolution.svg" alt="Format">
+              <label class="app-config-title-field">Resolution</label>
+            </div>
+            <div class="app-resolution-wrapper">
+              <select id="resolutionSelectApp" class="app-config-select" onchange="selectedResolutionOptions()">
+                <option value="">None</option>
+              </select>
+              <div class="overlay" id="overlayResolution"></div>
+            </div>
+          </div>
+          <div class="app-form-group">
+            <div class="app-form-label">
+              <img src="images/m/quality.svg" alt="Format">
+              <label class="app-config-title-field">Quality</label>
+            </div>
+            <div class="app-quality-wrapper">
+              <select id="qualitySelectApp" class="app-config-select" onchange="selectedQualityOptions()">
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+              <div class="overlay" id="overlayQuality"></div>
+            </div>
+          </div>
+          <div class="app-form-group">
+            <div class="app-form-label">
+              <img src="images/m/fps.svg" alt="Format">
+              <label class="app-config-title-field">FPS</label>
+            </div>
+            <div class="app-fps-wrapper">
+              <select id="fpsSelectApp" class="app-config-select" onchange="selectedFpsOptions()">
+                <option value="original">Original</option>
+                <option value="15">15</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+              </select>
+              <div class="overlay" id="overlayFps"></div>
+            </div>
+          </div>
+          <div class="app-form-group app-volume-control-group">
+            <div class="app-form-label">
+              <img src="images/m/volume.svg" alt="Format">
+              <label class="app-config-title-field">Volume</label>
+            </div>
+            <div class="app-volume-control">
+              <input class="app-volume-control-slider volume-control-slider-setup" type="range" id="volumeApp" min="0" max="300" value="100"
+                oninput="updateVolume(value)">
+              <div class="app-volume-config-value volume-value-setup">100%</div>
+            </div>
+          </div>
+
+          <div class="app-advanced-section">
+            <div class="app-config-advenced-about-us">
+              <button class="app-config-advenced-button" onclick="openModalAdvancedConfig()">
+                <img src="images/config-icon.svg" alt="advanced" loading="lazy">
+                <span class="app-config-advanced-text">Advanced</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="app-advanced-info" id="AdvancedInfoApp">
+            <span class="app-advanced-info-text" id="AdvancedInfoTextApp">...</span>
+          </div>
+        </div>
+
+      </section>
+      <div class="mtcv-container" id="modalTrimCropVideoContainer"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-container">
+      <div class="btn-container">
+        <input type="button" value="Convert" title="Convert" class="footer-btn-convert" disabled onclick="clickStartConvert()">
+      </div>
+    </footer>
+
+    <div id="mobileMenuModal" class="menu-modal">
+      <div class="menu-modal__overlay" onclick="toggleMobileMenu();"></div>
+      <div class="menu-modal__content menu-modal__content--left">
+        <div class="app-menu-modal__header">
+          <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close">
+            <span class="mobile-menu-close-text">×</span>
+          </button>
+        </div>
+        <div class="container-menu-left">
+          <div class="app-logo-container">
+            <img class="app-logo-icon" src="images/logo.svg" alt="BeeConvert" />
+            <h1 class="app-logo-title">Bee Convert</h1>
+          </div>
+          <div class="app-buy-premium-account">
+            <div class="btn-buy-premium-container">
+              <button class="btn-buy-premium" onclick="event.preventDefault(); event.stopPropagation(); buyPremium(); closeMobileMenu();">
+                <img src="images/diamond.svg" alt="icon Buy premium">
+                <span>BUY PREMIUM</span>
+              </button>
+            </div>
+            <span class="description-buy-premium">Buy in bundles to get special offers from Beeconver</span>
+          </div>
+          <nav class="menu-modal__items">
+            <a href="/m-index.html" class="menu-modal__item" onclick="return handleHomeClick(event)">
+              <img src="images/m/home.svg" alt="icon Home Bee Convert">
+              <span>Home</span>
+            </a>
+            <span class="menu-modal__item" onclick="event.preventDefault(); event.stopPropagation(); historyPage(); closeMobileMenu();">
+              <img src="images/m/history.svg" alt="icon History Bee Convert">
+              <span>History</span>
+            </span>
+            <span class="menu-modal__item" onclick="event.preventDefault(); event.stopPropagation(); policyPage(); closeMobileMenu();">
+              <img src="images/m/policy.svg" alt="icon Policy Bee Convert">
+              <span>Policy</span>
+            </span>
+            <span class="menu-modal__item" onclick="event.preventDefault(); event.stopPropagation(); openAboutOverlay(); closeMobileMenu();">
+              <img src="images/about-icon.svg" alt="icon About Bee Convert">
+              <span>About</span>
+            </span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Overlay -->
+  <div id="premiumOverlay" class="premium-overlay" aria-hidden="true">
+    <button class="premium-overlay__close" aria-label="Close" onclick="closePremiumOverlay()">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 1L15 15M15 1L1 15" stroke="#000" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <section class="buy-premium--container">
+      <div class="app-logo-container">
+        <img class="app-logo-icon" src="images/logo.svg" alt="BeeConvert" />
+        <h1 class="app-logo-title">Upgrade to Premium</h1>
+      </div>
+      <div class="subscriptions--container">
+        <span class="subscriptions-titile">Subscriptions</span>
+        <div class="subscriptions-list-content">
+          <div class="subscriptions-item">
+            <button class="btn-buy-premium-price--container">
+              <span class="daimond-months-container">
+                <img src="images/diamond.svg" alt="icon Buy premium">
+                <span class="price-months">3 MONTHS</span>
+              </span>
+              <span class="price-number">$6</span>
+            </button>
+          </div>
+
+          <div class="subscriptions-item">
+            <img src="images/m/popular.svg" alt="" class="sub-popular">
+            <button class="btn-buy-premium-price--container">
+              <span class="daimond-months-container">
+                <img src="images/diamond.svg" alt="icon Buy premium">
+                <span class="price-months">6 MONTHS</span>
+              </span>
+              <span class="price-number">$9</span>
+            </button>
+          </div>
+
+          <div class="subscriptions-item">
+            <button class="btn-buy-premium-price--container">
+              <span class="daimond-months-container">
+                <img src="images/diamond.svg" alt="icon Buy premium">
+                <span class="price-months">FOREVER</span>
+              </span>
+              <span class="price-number">$18</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-buy-premium">
+        <span class="footer-title" onclick="event.preventDefault(); event.stopPropagation(); termsPage(); closeMobileMenu();">Terms of Service</span>
+        <span>|</span>
+        <span class="footer-title" onclick="event.preventDefault(); event.stopPropagation(); policyPage(); closeMobileMenu();"> Privacy Policy</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- About Overlay -->
+  <div id="aboutOverlay" class="about-overlay" aria-hidden="true">
+    <section class="about--container">
+      <header class="dialog-overlay-header">
+        <div class="dialog-overlay-logo-container" onclick="closeAboutOverlay()">
+          <img src="images/m/back.svg" alt="icon back" class="dialog-overlay-logo">
+        </div>
+        <div class="dialog-overlay-title-container">
+          <span class="dialog-overlay-title">About</span>
+        </div>
+      </header>
+      <main class="dialog-overlay-main">
+        <div class="app-about-content">
+          <section class="app-about-section">
+            <p class="app-about-text">
+              Beeconvert.com is a SaaS platform specializing in video conversion and
+              compression. We are a software development team in Vietnam with a global
+              network. Whether you are a regular user or a developer integrating our API,
+              we are always ready to support you. In addition to the conversion and
+              compression features, Beeconvert also allows you to trim, crop, flip
+              videos and more specifically, beeconvert.com allows you to choose the video
+              capacity according to your wishes.
+            </p>
+          </section>
+
+          <section class="app-about-section">
+            <h3 class="app-about-subtitle">Feedback</h3>
+            <p class="app-about-text">
+              Any comments or feedback about the product please send to email address:
+            </p>
+            <div class="app-about-contact-item">
+              <img src="images/email.svg" alt="email-icon" class="app-about-contact-icon" loading="lazy" />
+              <span class="app-about-contact-text">support@beeconvert.com</span>
+            </div>
+          </section>
+
+          <section class="app-about-section">
+            <h3 class="app-about-subtitle">We are on social media</h3>
+            <p class="app-about-text">
+              Follow us on the most popular social media platforms today.
+            </p>
+            <div class="app-about-social-links">
+              <div class="app-about-social-link">
+                <img src="images/fb.svg" alt="facebook-icon" class="app-about-social-icon" loading="lazy" />
+                <span class="app-about-social-text">facebook/beeconvert.com</span>
+              </div>
+              <div class="app-about-social-link">
+                <img src="images/ins.svg" alt="instagram-icon" class="app-about-social-icon" loading="lazy" />
+                <span class="app-about-social-text">instagram/beeconvert.com</span>
+              </div>
+              <div class="app-about-social-link">
+                <img src="images/like.svg" alt="linkedin-icon" class="app-about-social-icon" loading="lazy" />
+                <span class="app-about-social-text">linkedin/beeconvert.com</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <!-- Policy Overlay -->
+  <div id="policyOverlay" class="policy-overlay" aria-hidden="true">
+    <section class="policy--container">
+      <header class="dialog-overlay-header">
+        <div class="dialog-overlay-logo-container" onclick="closePolicyOverlay()">
+          <img src="images/m/back.svg" alt="icon back" class="dialog-overlay-logo">
+        </div>
+        <div class="dialog-overlay-title-container">
+          <span class="dialog-overlay-title">Privacy Policy</span>
+        </div>
+      </header>
+      <main class="dialog-overlay-main">
+        <div class="app-policy-content">
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">1. Introduction</h2>
+            <p>Bee Convert ("we", "us", or "our") is committed to protecting your privacy. This privacy policy explains what information we collect, how we use it, and the rights you have when using our video conversion service at beeconvert.com ("Service").</p>
+            <p>By accessing or using the service, you agree to the terms described in this privacy policy.</p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">2. Company information</h2>
+            <p>BeeConvert Vietnam, based in Ha Noi, operates and manages this service in full compliance with applicable laws.</p>
+            <p><strong>Operator:</strong> BeeConvert Vietnam  
+              <br><strong>Location:</strong> Ha Noi, Vietnam  
+              <br><strong>Email:</strong> support@beeconvert.com  
+            </p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">3. Information you provide</h2>
+            
+            <h3 class="app-policy-subtitle">3.1 Private and confidential processing</h3>
+            <ul class="app-policy-list">
+              <li><strong>Video files:</strong> Files are processed directly using your device's hardware.</li>
+              <li><strong>Conversion settings:</strong> Preferences are stored temporarily during the session.</li>
+            </ul>
+
+            <h3 class="app-policy-subtitle">3.2 Information collected automatically</h3>
+            <ul class="app-policy-list">
+              <li><strong>Usage data:</strong> Anonymous data like pages visited may be collected to improve functionality.</li>
+              <li><strong>Device infomation:</strong> Browser and operating system details are used locally to optimize the service.</li>
+              <li><strong>Support infomation:</strong> Contact details provided for support are used only for communication.</li>
+            </ul>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">4. How we use your information</h2>
+            <p>We use collected information to:</p>
+            <ul class="app-policy-list">
+              <li>Provide and operate the video conversion service</li>
+              <li>Process uploaded files as requested</li>
+              <li>Improve service performance and stability</li>
+              <li>Respond to support inquiries</li>
+              <li>Maintain security and detect misuse</li>
+              <li>Comply with legal obligations</li>
+            </ul>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">5. Data storage and retention</h2>
+            <ul class="app-policy-list">
+              <li>Support messages are retained for up to 1 year.</li>
+              <li>Analytics data is anonymized and retained for up to 2 years.</li>
+            </ul>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">6. Data security</h2>
+            <p>Since the processing is done on your device, your data is absolutely secure.</p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">7. Third-party services</h2>
+            <p>We may use trusted third-party providers to operate the service, including:</p>
+            <ul class="app-policy-list">
+              <li><strong>CDN providers:</strong> Faster page and file delivery</li>
+              <li><strong>Advertising partners:</strong> Show ads based on your interests when you use our service.</li>
+            </ul>
+            <p>These third parties operate under their own privacy policies.</p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">8. Your rights</h2>
+            <p>Since the entire processing takes place on your device, you have full control over your data. You can:</p>
+            <ul class="app-policy-list">
+              <li>Manage and delete video files on your device</li>
+              <li>Select conversion options according to your personal needs</li>
+              <li>Ensure that no data is shared with third parties</li>
+            </ul>
+            <p>If you have any questions about your rights, please contact us at support@beeconvert.com.</p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">9. Children's privacy</h2>
+            <p>The service is not intended for children under 13. We do not knowingly collect personal data from children. If you believe a child has provided personal information, please contact us immediately.</p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">10. Changes to this privacy policy</h2>
+            <p>We may update this privacy policy when necessary. The revised version will be posted here with an updated "Last updated" date.</p>
+          </section>
+
+          <section class="app-policy-section">
+            <h2 class="app-policy-section-title">11. Contact us</h2>
+            <p>If you have questions about this privacy policy, you may contact us:</p>
+            <div class="app-policy-contact-info">
+              <p><strong>Support:</strong> support@beeconvert.com</p>
+              <p><strong>Website:</strong> beeconvert.com</p>
+            </div>
+          </section>
+        </div>
+      </main>
+      
+      <!-- Scroll to Top Button -->
+      <button id="policyScrollToTop" class="policy-scroll-to-top" aria-label="Scroll to top" onclick="scrollPolicyToTop()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </section>
+  </div>
+
+  <!-- Terms of Service Overlay -->
+  <div id="termsOverlay" class="terms-overlay" aria-hidden="true">
+    <section class="terms--container">
+      <header class="dialog-overlay-header">
+        <div class="dialog-overlay-logo-container" onclick="closeTermsOverlay()">
+          <img src="images/m/back.svg" alt="icon back" class="dialog-overlay-logo">
+        </div>
+        <div class="dialog-overlay-title-container">
+          <span class="dialog-overlay-title">Terms of Service</span>
+        </div>
+      </header>
+      <main class="dialog-overlay-main">
+        <div class="app-terms-content">
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">1. Acceptance of Terms</h2>
+            <p>By accessing and using Bee Convert ("we," "our," or "us"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+            <p>These Terms of Service ("Terms") govern your use of our video conversion service at beeconvert.com and our mobile applications (the "Service").</p>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">2. Description of Service</h2>
+            <p>Bee Convert is a Software as a Service (SaaS) platform that provides video conversion, compression, editing, and processing services. Our Service allows you to:</p>
+            <ul class="app-terms-list">
+              <li>Convert videos between different formats</li>
+              <li>Compress video files to reduce file size</li>
+              <li>Trim and crop videos</li>
+              <li>Adjust video quality, resolution, frame rate, and other parameters</li>
+              <li>Set custom target file sizes</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">3. User Accounts and Registration</h2>
+            <h3 class="app-terms-subtitle">3.1 Account Creation</h3>
+            <p>Some features of our Service may require you to create an account. When creating an account, you agree to:</p>
+            <ul class="app-terms-list">
+              <li>Provide accurate, current, and complete information</li>
+              <li>Maintain and update your information to keep it accurate</li>
+              <li>Maintain the security of your account credentials</li>
+              <li>Accept responsibility for all activities under your account</li>
+            </ul>
+
+            <h3 class="app-terms-subtitle">3.2 Premium Subscriptions</h3>
+            <p>We offer premium subscription plans with enhanced features and benefits. By purchasing a subscription, you agree to:</p>
+            <ul class="app-terms-list">
+              <li>Pay all fees associated with your subscription</li>
+              <li>Automatic renewal unless cancelled before the renewal date</li>
+              <li>Refund policies as stated at the time of purchase</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">4. Acceptable Use</h2>
+            <p>You agree to use our Service only for lawful purposes and in accordance with these Terms. You agree NOT to:</p>
+            <ul class="app-terms-list">
+              <li>Upload, convert, or process any content that is illegal, harmful, threatening, abusive, or violates any laws</li>
+              <li>Upload content that infringes on intellectual property rights, privacy rights, or other rights of third parties</li>
+              <li>Upload content containing malware, viruses, or other harmful code</li>
+              <li>Use the Service to process content for illegal activities</li>
+              <li>Attempt to reverse engineer, decompile, or hack the Service</li>
+              <li>Use automated systems or bots to access the Service without permission</li>
+              <li>Overload or disrupt the Service or servers</li>
+              <li>Share your account credentials with others</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">5. Content and Intellectual Property</h2>
+            <h3 class="app-terms-subtitle">5.1 Your Content</h3>
+            <p>You retain all ownership rights to the videos and content you upload. By uploading content, you grant us a limited, non-exclusive license to:</p>
+            <ul class="app-terms-list">
+              <li>Process and convert your videos according to your specifications</li>
+              <li>Temporarily store your files on our servers for processing</li>
+              <li>Delete your files after the retention period expires</li>
+            </ul>
+            <p>We do not claim ownership of your content and will not use it for any purpose other than providing the Service.</p>
+
+            <h3 class="app-terms-subtitle">5.2 Our Intellectual Property</h3>
+            <p>All aspects of the Service, including but not limited to design, text, graphics, logos, software, and code, are owned by Bee Convert or our licensors and are protected by copyright, trademark, and other intellectual property laws.</p>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">6. File Storage and Deletion</h2>
+            <p>Our Service processes files temporarily. You understand and agree that:</p>
+            <ul class="app-terms-list">
+              <li>Original uploaded files are automatically deleted within 24 hours after conversion</li>
+              <li>Converted files are available for download for 7 days, then automatically deleted</li>
+              <li>We are not responsible for any loss of data if you fail to download your converted files within the retention period</li>
+              <li>You should maintain your own backups of important files</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">7. Service Availability and Modifications</h2>
+            <p>We strive to provide reliable service but do not guarantee:</p>
+            <ul class="app-terms-list">
+              <li>Uninterrupted or error-free operation</li>
+              <li>That the Service will meet all your requirements</li>
+              <li>That all conversions will be successful</li>
+            </ul>
+            <p>We reserve the right to:</p>
+            <ul class="app-terms-list">
+              <li>Modify, suspend, or discontinue any part of the Service at any time</li>
+              <li>Update features and functionality</li>
+              <li>Impose limits on file sizes, processing times, or usage</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">8. Payment and Refunds</h2>
+            <h3 class="app-terms-subtitle">8.1 Subscription Fees</h3>
+            <p>Premium subscriptions are billed according to the plan you select. All fees are:</p>
+            <ul class="app-terms-list">
+              <li>Charged in advance for the subscription period</li>
+              <li>Non-refundable except as required by law or as stated in our refund policy</li>
+              <li>Subject to change with 30 days notice</li>
+            </ul>
+
+            <h3 class="app-terms-subtitle">8.2 Automatic Renewal</h3>
+            <p>Subscriptions automatically renew unless cancelled at least 24 hours before the renewal date. You can cancel your subscription at any time through your account settings.</p>
+
+            <h3 class="app-terms-subtitle">8.3 Refunds</h3>
+            <p>Refund requests are handled on a case-by-case basis. Contact us at support@beeconvert.com for refund inquiries.</p>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">9. Limitation of Liability</h2>
+            <p>To the maximum extent permitted by law:</p>
+            <ul class="app-terms-list">
+              <li>Bee Convert shall not be liable for any indirect, incidental, special, consequential, or punitive damages</li>
+              <li>Our total liability shall not exceed the amount you paid us in the 12 months preceding the claim</li>
+              <li>We are not responsible for any loss or corruption of your data</li>
+              <li>We do not guarantee the quality or accuracy of converted videos</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">10. Indemnification</h2>
+            <p>You agree to indemnify and hold harmless Bee Convert, its officers, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:</p>
+            <ul class="app-terms-list">
+              <li>Your use of the Service</li>
+              <li>Your violation of these Terms</li>
+              <li>Your violation of any rights of another party</li>
+              <li>Content you upload or process through the Service</li>
+            </ul>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">11. Termination</h2>
+            <p>We may terminate or suspend your access to the Service immediately, without prior notice, for:</p>
+            <ul class="app-terms-list">
+              <li>Violation of these Terms</li>
+              <li>Illegal or fraudulent use of the Service</li>
+              <li>Non-payment of subscription fees</li>
+              <li>Any other reason we deem necessary</li>
+            </ul>
+            <p>You may terminate your account at any time by contacting us or through your account settings.</p>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">12. Changes to Terms</h2>
+            <p>We reserve the right to modify these Terms at any time. We will notify you of material changes by:</p>
+            <ul class="app-terms-list">
+              <li>Posting the updated Terms on our website</li>
+              <li>Updating the "Last updated" date</li>
+              <li>Sending email notifications for significant changes (if you have an account)</li>
+            </ul>
+            <p>Your continued use of the Service after changes become effective constitutes acceptance of the new Terms.</p>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">13. Governing Law</h2>
+            <p>These Terms shall be governed by and construed in accordance with the laws of Vietnam, without regard to its conflict of law provisions. Any disputes arising from these Terms or the Service shall be resolved in the courts of Vietnam.</p>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">14. Contact Information</h2>
+            <p>If you have any questions about these Terms of Service, please contact us:</p>
+            <div class="app-terms-contact-info">
+              <p><strong>Email:</strong> support@beeconvert.com</p>
+              <p><strong>Website:</strong> beeconvert.com</p>
+            </div>
+          </section>
+
+          <section class="app-terms-section">
+            <h2 class="app-terms-section-title">15. Severability</h2>
+            <p>If any provision of these Terms is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.</p>
+          </section>
+        </div>
+      </main>
+      
+      <!-- Scroll to Top Button -->
+      <button id="termsScrollToTop" class="terms-scroll-to-top" aria-label="Scroll to top" onclick="scrollTermsToTop()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </section>
+  </div>
+
+  <!-- History Overlay -->
+  <div id="historyOverlay" class="history-overlay" aria-hidden="true">
+    <section class="history--container">
+      <header class="dialog-overlay-header">
+        <div class="dialog-overlay-logo-container" onclick="closeHistoryOverlay()">
+          <img src="images/m/back.svg" alt="icon back" class="dialog-overlay-logo">
+        </div>
+        <div class="dialog-overlay-title-container">
+          <span class="dialog-overlay-title">History</span>
+        </div>
+      </header>
+      <main class="dialog-overlay-main">
+        <div class="app-list-content-history">
+        </div>
+      </main>
+    </section>
+  </div>
+
+
+  <!-- Bắt đầu khai báo script cho toàn bộ ứng dụng -->
+  <script src="js/main.js?v=1764993244524"></script>
+  <script src="js/common.js?v=1764993244524"></script>
+  <script src="js/utils.js?v=1764993244524"></script>
+  <script src="js/preview-video.js?v=1764993244524"></script>
+  <script src="js/convert.js?v=1764993244524"></script>
+  <script src="js/upload-file.js?v=1764993244524"></script>
+  <script src="js/form-config-convert-video.js?v=1764993244524"></script>
+  <script src="js/save-file.js?v=1764993244524"></script>
+  <script src="js/toast.js?v=1764993244524"></script>
+  <script src="js/dialog-prevent-scroll.js?v=1764993244524"></script>
+  <script src="js/blob-utils.js?v=1764993244524"></script>
+  <script src="js/m/m-history.js?v=1764993244524"></script>
+
+
+
+  <script src="libs/common-utils.js?v=1764993244524"></script>
+  <script src="libs/bee-api.js?v=1764993244524"></script>
+  <script src="libs/coder-config-utils.js?v=1764993244524"></script>
+  <script src="libs/init-browser.js?v=1764993244524"></script>
+  <script src="libs/file-system-api.js?v=1764993244524"></script>
+
+  <script src="components/dialog/dialog.js?v=1764993244524"></script>
+  <script src="components/progress/ProgressDialog.js?v=1764993244524"></script>
+  <script src="components/video-complete/VideoCompleteDialog.js?v=1764993244524"></script>
+  <script src="components/loading/LoadingDialog.js?v=1764993244524"></script>
+  <script src="components/number-input/NumberInputDialog.js?v=1764993244524"></script>
+  <script src="components/video-player/VideoPlayerDialog.js?v=1764993244524"></script>
+  <script src="components/info-dialog/InfoDialog.js?v=1764993244524"></script>
+  <script src="components/modal-trim-crop-video/contanst.js?v=1764993244524"></script>
+  <script src="components/modal-trim-crop-video/common.js?v=1764993244524"></script>
+  <script src="components/modal-trim-crop-video/mtcv-core.js?v=1764993244524"></script>
+  <script src="components/modal-trim-crop-video/mtcv-timeline.js?v=1764993244524"></script>
+  <script src="components/control/video-control.js?v=1764993244524"></script>
+  <script src="components/confirm-dialog/ConfirmDialog.js?v=1764993244524"></script>
+  <script src="components/action-sheet/ActionSheet.js?v=1764993244524"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js?v=1764993244524"></script>
+  <script src="components/dual-range.js?v=1764993244524"></script>
+
+</body>
+</html>
