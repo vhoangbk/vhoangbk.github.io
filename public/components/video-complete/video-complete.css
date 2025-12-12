@@ -4,12 +4,17 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   align-items: center;
   justify-content: center;
   background: rgba(28, 23, 23, 0.4);
   z-index: 3000;
   overflow: hidden;
+}
+@supports not (height: 100dvh) {
+  .dialog-video-overlay {
+    height: 100vh !important;
+  }
 }
 .dialog-video-overlay.active {
   display: flex;

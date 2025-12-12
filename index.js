@@ -18,6 +18,7 @@ app.use(bodyParser.raw({
 }));
 
 const isVercelProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
 const distPublicDir = path.join(__dirname, "dist", "public");
 const fallbackPublicDir = path.join(__dirname, "public");
 
@@ -67,26 +68,26 @@ app.get('/m-index.html', (req, res) => {
   res.redirect(301, '/m');
 });
 
-app.use(express.static(publicDir, {
-  maxAge: '1y',
-  etag: true,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.webp')) {
-      res.setHeader('Content-Type', 'image/webp');
-    }
-    if (path.endsWith('.wasm')) {
-      res.setHeader('Content-Type', 'application/wasm');
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-      res.setHeader('ETag', `"${path}-${Date.now()}"`);
-    }
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    }
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
+// app.use(express.static(publicDir, {
+//   maxAge: '1y',
+//   etag: true,
+//   setHeaders: (res, path) => {
+//     if (path.endsWith('.webp')) {
+//       res.setHeader('Content-Type', 'image/webp');
+//     }
+//     if (path.endsWith('.wasm')) {
+//       res.setHeader('Content-Type', 'application/wasm');
+//       res.setHeader('Cache-Control', 'public, max-age=31536000');
+//       res.setHeader('ETag', `"${path}-${Date.now()}"`);
+//     }
+//     if (path.endsWith('.js')) {
+//       res.setHeader('Content-Type', 'application/javascript');
+//     }
+//     if (path.endsWith('.css')) {
+//       res.setHeader('Content-Type', 'text/css');
+//     }
+//   }
+// }));
 
 app.post('/upload-stream', upload.single('data'), async (req, res) => {
   try {
@@ -256,36 +257,6 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
     });
   }
 });
-// Serve converted files
-app.use('/converted_files', express.static(path.join(__dirname, 'converted_files'), {
-  maxAge: '1d',
-  etag: true,
-  setHeaders: (res, filePath) => {
-    // Set proper Content-Type based on file extension
-    const ext = path.extname(filePath).toLowerCase();
-    if (ext === '.mp4') {
-      res.setHeader('Content-Type', 'video/mp4');
-    } else if (ext === '.avi') {
-      res.setHeader('Content-Type', 'video/x-msvideo');
-    } else if (ext === '.mov') {
-      res.setHeader('Content-Type', 'video/quicktime');
-    } else if (ext === '.webm') {
-      res.setHeader('Content-Type', 'video/webm');
-    } else if (ext === '.jpg' || ext === '.jpeg') {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (ext === '.png') {
-      res.setHeader('Content-Type', 'image/png');
-    } else if (ext === '.gif') {
-      res.setHeader('Content-Type', 'image/gif');
-    } else if (ext === '.webp') {
-      res.setHeader('Content-Type', 'image/webp');
-    } else if (ext === '.ico') {
-      res.setHeader('Content-Type', 'image/x-icon');
-    }
-    // Enable download for all converted files
-    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
-  }
-}));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
@@ -295,33 +266,24 @@ app.get("/m", (req, res) => {
   res.sendFile(path.join(publicDir, "m-index.html"));
 });
 
-// ✅ Thêm cache control headers
-app.use((req, res, next) => {
-  const url = req.path;
-  
-  // HTML files - không cache
-  if (url.endsWith('.html')) {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-  }
-  // CSS/JS files có version - cache lâu dài
-  else if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/)) {
-    if (url.includes('?v=')) {
-      // Có version - cache 1 năm
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else {
-      // Không có version - không cache
+app.use(express.static(publicDir, {
+  etag: true,                // ETag theo file tự nhiên → đổi khi deploy
+  lastModified: true,        // Dùng mtime của file
+  maxAge: '1d',              // Cache 1 ngày
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+
+    // HTML luôn không cache
+    if (ext === '.html') {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      return;
     }
+
+    // Tất cả static file cache 1 ngày
+    res.setHeader('Cache-Control', 'public, max-age=86400');
   }
-  // Images và assets khác
-  else if (url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
-    res.setHeader('Cache-Control', 'public, max-age=31536000');
-  }
-  
-  next();
-});
+}));
+
 
 module.exports = app;
 

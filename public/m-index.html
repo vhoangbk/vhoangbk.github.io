@@ -7,11 +7,11 @@
   <title>Bee Convert</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Monda&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=1764993244524">
-  <link rel="stylesheet" href="/css/m/app.css?v=1764993244524">
-  <link rel="stylesheet" href="/css/m/m-dialog-common.css?v=1764993244524">
-  <link rel="stylesheet" href="/css/m/m-about.css?v=1764993244524">
-  <link rel="stylesheet" href="/css/m/m-policy.css?v=1764993244524">
+  <link rel="stylesheet" href="/css/styles.css?v=1765554961013">
+  <link rel="stylesheet" href="/css/m/app.css?v=1765554961013">
+  <link rel="stylesheet" href="/css/m/m-dialog-common.css?v=1765554961013">
+  <link rel="stylesheet" href="/css/m/m-about.css?v=1765554961013">
+  <link rel="stylesheet" href="/css/m/m-policy.css?v=1765554961013">
 </head>
 
 <body>
@@ -66,39 +66,33 @@
           </div>
         </div>
 
+        <div id="mobileBottomsheetOverlay" class="mobile-bottomsheet-overlay" aria-hidden="true"></div>
+
         <div class="app-form-section">
           <div class="app-form-group">
             <div class="app-form-label">
               <img src="images/m/format.svg" alt="Format">
               <label class="app-config-title-field" for="format">Format</label>
             </div>
-            <select id="formatSelectApp" class="app-config-select" onchange="updateResolutionOptions()">
-              <option value="" disabled selected>Select Format...</option>
-            </select>
+            <div class="app-resolution-wrapper">
+              <div id="formatSelectApp" class="custom-select" data-ui="app" data-key="format">
+                <div class="custom-select-trigger">Select Format...</div>
+                <div class="custom-options"></div>
+              </div>
+            </div>
           </div>
           <div class="app-form-group">
             <div class="app-form-label">
               <img src="images/m/target-size.svg" alt="Format">
               <label class="app-config-title-field">Target size</label>
             </div>
-            <select id="targetSizeApp" convert-option name-option="target_size" class="app-config-select"
-              onchange="showCustomInput(this)">
-              <option value="">None</option>
-              <option value="custom">Custom</option>
-              <option value="1">1MB</option>
-              <option value="2">2MB</option>
-              <option value="5">5MB</option>
-              <option value="8">8MB</option>
-              <option value="10">10MB</option>
-              <option value="15">15MB</option>
-              <option value="20">20MB</option>
-              <option value="50">50MB</option>
-              <option value="100">100MB</option>
-              <option value="200">200MB</option>
-              <option value="500">500MB</option>
-              <option value="800">800MB</option>
-              <option value="1000">1GB</option>
-            </select>
+            <div class="app-resolution-wrapper">
+              <div class="custom-select" data-ui="app" data-key="target-size">
+                <div class="custom-select-trigger">None</div>
+                <div class="custom-options">
+                </div>
+              </div>
+            </div>
           </div>
           <div class="app-form-group">
             <div class="app-form-label">
@@ -106,11 +100,12 @@
               <label class="app-config-title-field">Resolution</label>
             </div>
             <div class="app-resolution-wrapper">
-              <select id="resolutionSelectApp" class="app-config-select" onchange="selectedResolutionOptions()">
-                <option value="">None</option>
-              </select>
-              <div class="overlay" id="overlayResolution"></div>
-            </div>
+                <div id="resolutionSelectApp" class="custom-select" data-ui="app" data-key="resolution">
+                  <div class="custom-select-trigger">None</div>
+                  <div class="custom-options"></div>
+                </div>
+                <div class="overlay" id="overlayResolution"></div>
+              </div>
           </div>
           <div class="app-form-group">
             <div class="app-form-label">
@@ -118,11 +113,11 @@
               <label class="app-config-title-field">Quality</label>
             </div>
             <div class="app-quality-wrapper">
-              <select id="qualitySelectApp" class="app-config-select" onchange="selectedQualityOptions()">
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
-              </select>
+              <div id="qualitySelectApp" class="custom-select" data-ui="app" data-key="quality">
+                <div class="custom-select-trigger">None</div>
+                <div class="custom-options">
+                </div>
+              </div>
               <div class="overlay" id="overlayQuality"></div>
             </div>
           </div>
@@ -132,14 +127,11 @@
               <label class="app-config-title-field">FPS</label>
             </div>
             <div class="app-fps-wrapper">
-              <select id="fpsSelectApp" class="app-config-select" onchange="selectedFpsOptions()">
-                <option value="original">Original</option>
-                <option value="15">15</option>
-                <option value="24">24</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
-                <option value="60">60</option>
-              </select>
+              <div id="fpsSelectApp" class="custom-select" data-ui="app" data-key="fps">
+                <div class="custom-select-trigger">None</div>
+                <div class="custom-options">
+                </div>
+              </div>
               <div class="overlay" id="overlayFps"></div>
             </div>
           </div>
@@ -148,10 +140,12 @@
               <img src="images/m/volume.svg" alt="Format">
               <label class="app-config-title-field">Volume</label>
             </div>
-            <div class="app-volume-control">
-              <input class="app-volume-control-slider volume-control-slider-setup" type="range" id="volumeApp" min="0" max="300" value="100"
-                oninput="updateVolume(value)">
-              <div class="app-volume-config-value volume-value-setup">100%</div>
+            <div class="app-volume-wrapper">
+              <div id="volumeSelectApp" class="custom-select" data-ui="app" data-key="volume">
+                <div class="custom-select-trigger">100%</div>
+                <div class="custom-options">
+                </div>
+              </div>
             </div>
           </div>
 
@@ -162,10 +156,9 @@
                 <span class="app-config-advanced-text">Advanced</span>
               </button>
             </div>
-          </div>
-
-          <div class="app-advanced-info" id="AdvancedInfoApp">
-            <span class="app-advanced-info-text" id="AdvancedInfoTextApp">...</span>
+            <div class="app-advanced-info" id="AdvancedInfoApp">
+              <span class="app-advanced-info-text" id="AdvancedInfoTextApp">...</span>
+            </div>
           </div>
         </div>
 
@@ -684,43 +677,43 @@
 
 
   <!-- Bắt đầu khai báo script cho toàn bộ ứng dụng -->
-  <script src="js/main.js?v=1764993244524"></script>
-  <script src="js/common.js?v=1764993244524"></script>
-  <script src="js/utils.js?v=1764993244524"></script>
-  <script src="js/preview-video.js?v=1764993244524"></script>
-  <script src="js/convert.js?v=1764993244524"></script>
-  <script src="js/upload-file.js?v=1764993244524"></script>
-  <script src="js/form-config-convert-video.js?v=1764993244524"></script>
-  <script src="js/save-file.js?v=1764993244524"></script>
-  <script src="js/toast.js?v=1764993244524"></script>
-  <script src="js/dialog-prevent-scroll.js?v=1764993244524"></script>
-  <script src="js/blob-utils.js?v=1764993244524"></script>
-  <script src="js/m/m-history.js?v=1764993244524"></script>
+  <script src="js/main.js?v=1765554961013"></script>
+  <script src="js/common.js?v=1765554961013"></script>
+  <script src="js/utils.js?v=1765554961013"></script>
+  <script src="js/preview-video.js?v=1765554961013"></script>
+  <script src="js/convert.js?v=1765554961013"></script>
+  <script src="js/upload-file.js?v=1765554961013"></script>
+  <script src="js/form-config-convert-video.js?v=1765554961013"></script>
+  <script src="js/save-file.js?v=1765554961013"></script>
+  <script src="js/toast.js?v=1765554961013"></script>
+  <script src="js/dialog-prevent-scroll.js?v=1765554961013"></script>
+  <script src="js/blob-utils.js?v=1765554961013"></script>
+  <script src="js/m/m-history.js?v=1765554961013"></script>
 
 
 
-  <script src="libs/common-utils.js?v=1764993244524"></script>
-  <script src="libs/bee-api.js?v=1764993244524"></script>
-  <script src="libs/coder-config-utils.js?v=1764993244524"></script>
-  <script src="libs/init-browser.js?v=1764993244524"></script>
-  <script src="libs/file-system-api.js?v=1764993244524"></script>
+  <script src="libs/common-utils.js?v=1765554961013"></script>
+  <script src="libs/bee-api.js?v=1765554961013"></script>
+  <script src="libs/coder-config-utils.js?v=1765554961013"></script>
+  <script src="libs/init-browser.js?v=1765554961013"></script>
+  <script src="libs/file-system-api.js?v=1765554961013"></script>
 
-  <script src="components/dialog/dialog.js?v=1764993244524"></script>
-  <script src="components/progress/ProgressDialog.js?v=1764993244524"></script>
-  <script src="components/video-complete/VideoCompleteDialog.js?v=1764993244524"></script>
-  <script src="components/loading/LoadingDialog.js?v=1764993244524"></script>
-  <script src="components/number-input/NumberInputDialog.js?v=1764993244524"></script>
-  <script src="components/video-player/VideoPlayerDialog.js?v=1764993244524"></script>
-  <script src="components/info-dialog/InfoDialog.js?v=1764993244524"></script>
-  <script src="components/modal-trim-crop-video/contanst.js?v=1764993244524"></script>
-  <script src="components/modal-trim-crop-video/common.js?v=1764993244524"></script>
-  <script src="components/modal-trim-crop-video/mtcv-core.js?v=1764993244524"></script>
-  <script src="components/modal-trim-crop-video/mtcv-timeline.js?v=1764993244524"></script>
-  <script src="components/control/video-control.js?v=1764993244524"></script>
-  <script src="components/confirm-dialog/ConfirmDialog.js?v=1764993244524"></script>
-  <script src="components/action-sheet/ActionSheet.js?v=1764993244524"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js?v=1764993244524"></script>
-  <script src="components/dual-range.js?v=1764993244524"></script>
+  <script src="components/dialog/dialog.js?v=1765554961013"></script>
+  <script src="components/progress/ProgressDialog.js?v=1765554961013"></script>
+  <script src="components/video-complete/VideoCompleteDialog.js?v=1765554961013"></script>
+  <script src="components/loading/LoadingDialog.js?v=1765554961013"></script>
+  <script src="components/number-input/NumberInputDialog.js?v=1765554961013"></script>
+  <script src="components/video-player/VideoPlayerDialog.js?v=1765554961013"></script>
+  <script src="components/info-dialog/InfoDialog.js?v=1765554961013"></script>
+  <script src="components/modal-trim-crop-video/contanst.js?v=1765554961013"></script>
+  <script src="components/modal-trim-crop-video/common.js?v=1765554961013"></script>
+  <script src="components/modal-trim-crop-video/mtcv-core.js?v=1765554961013"></script>
+  <script src="components/modal-trim-crop-video/mtcv-timeline.js?v=1765554961013"></script>
+  <script src="components/control/video-control.js?v=1765554961013"></script>
+  <script src="components/confirm-dialog/ConfirmDialog.js?v=1765554961013"></script>
+  <script src="components/action-sheet/ActionSheet.js?v=1765554961013"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js?v=1765554961013"></script>
+  <script src="components/dual-range.js?v=1765554961013"></script>
 
 </body>
 </html>
