@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="google-site-verification" content="eTW7NplsOHQsNK4L3SV6lTGU5opDlFsaDkYE3jt-PnI" />
+  
+  <title>Free Large Video Compressor (Unlimited Size) - High Quality - BeeConvert</title>
+  <meta name="title" content="Free Large Video Compressor (Unlimited Size) - High Quality - BeeConvert">
+  <meta name="description" content="Compress huge video files (up to 10GB+) down to MB online for free. Extreme video compression tool for MP4, MOV, 4K videos without losing quality. Try BeeConvert now!">
+  
+  <meta name="keywords" content="compress large video, compress gb to mb, reduce video size, video compressor unlimited, compress 4k video, online video converter, beeconvert, mp4 compressor">
+  
+  <meta name="author" content="BeeSoft">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  <meta name="revisit-after" content="7 days">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://beeconvert.com/">
+  <!-- Sửa dòng này để khi share Facebook hiện đúng tiêu đề hấp dẫn -->
+  <meta property="og:title" content="Free Large Video Compressor (Unlimited Size) - BeeConvert">
+  <meta property="og:description" content="Compress huge video files (up to 10GB+) down to MB online. Best tool for large 4K/8K videos without losing quality.">
+  <meta property="og:image" content="https://beeconvert.com/images/logo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Bee Convert">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://beeconvert.com/">
+  <meta name="twitter:title" content="Compress Huge Videos (GB to MB) - BeeConvert">
+  <meta name="twitter:description" content="Compress huge video files (up to 10GB+) down to MB online for free. No software installation required.">
+  <meta name="twitter:image" content="https://beeconvert.com/images/logo.png">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://beeconvert.com/">
+
+  <!-- ================= STRUCTURED DATA (JSON-LD) (Đã update Description) ================= -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Bee Convert - Large Video Compressor",
+      "url": "https://beeconvert.com/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Free online large video compressor and converter. Capable of compressing huge files (10GB+) down to MB, supports MP4, MOV, AVI formats with high quality.",
+      "featureList": [
+        "Compress large video files (Unlimited size)",
+        "Convert video formats",
+        "Reduce GB to MB",
+        "Video trimming & cropping",
+        "Custom file size targeting",
+        "4K/8K Support"
+      ],
+      "screenshot": "https://beeconvert.com/images/logo.png",
+      "softwareVersion": "1.0.0",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1000"
+      }
+    }
+  </script>
+
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Monda&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/desktop-new.css">
+</head>
+
+<body>
+  <div class="desktop-app-container" id="desktopAppContainer">
+    <!-- Header -->
+    <header class="desktop-header-container">
+      <div class="desktop-menu-toggle menu-toggle" onclick="toggleDesktopMenu()">
+        <div class="desktop-menu-icon menu-toggle-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <div class="desktop-header-logo-container">
+        <div class="desktop-logo">
+          <img class="desktop-img-logo" src="/images/icon-bee.webp" alt="Logo beeconvert">
+        </div>
+        <h1 class="desktop-title">Bee Convert</h1>
+      </div>
+      <nav class="desktop-header-nav">
+        <a href="/" class="desktop-nav-item">Home</a>
+        <a href="/about.html" class="desktop-nav-item">About</a>
+        <a href="/blog-page/blog-1.html" class="desktop-nav-item">Blog</a>
+      </nav>
+    </header>
+
+    <!-- Main & Aside -->
+    <div class="desktop-main-wrapper">
+      <!-- Aside Left Banner -->
+      <aside class="desktop-aside-left">
+        <div class="desktop-aside-content">
+          <img src="/images/banner-left.jpg" alt="Left Banner" class="desktop-aside-banner" loading="lazy" />
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="desktop-main">
+        <section class="desktop-upload-section">
+          <div class="desktop-upload-area" onclick="uploadFile('inputFileDesktop')" id="uploadFileDesktop">
+            <input type="file" id="inputFileDesktop" accept="video/*"
+              onchange="handleFileChange(this, 'uploadFileDesktop')" style="display: none;">
+            <div class="desktop-upload-area-icon">
+              <img src="/images/cloud-arrow-up.svg" alt="Upload Icon" loading="lazy">
+            </div>
+            <div class="desktop-upload-area-text">Drag & Drop or Click to Upload</div>
+          </div>
+
+          <div class="desktop-video-preview" id="videoPreviewDesktop" style="display: none;">
+            <button class="desktop-video-preview-close" onclick="onCloseVideoPreview()" aria-label="Close">
+              <svg width="0.8rem" height="0.8rem" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L15 15M15 1L1 15" stroke="#939393" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </button>
+            <div class="desktop-video-thumbnail" onclick="openVideoPlayerDialog()">
+              <button class="desktop-video-thumbnail-play-btn" aria-label="Play video">
+                <svg width="4rem" height="4rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="11" fill="rgba(255, 255, 255, 0.8)" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1"/>
+                  <path d="M9 7L17 12L9 17V7Z" fill="rgba(0, 0, 0, 0.7)"/>
+                </svg>
+              </button>
+            </div>
+            <div class="desktop-video-info">
+              <div class="desktop-video-title">Click to upload video</div>
+              <div class="desktop-video-details"></div>
+            </div>
+          </div>
+
+          <div class="desktop-form-section">
+            <div class="desktop-form-group">
+              <div class="desktop-form-label">
+                <img src="/images/m/format.svg" alt="Format">
+                <label class="desktop-config-title-field" for="format">Format</label>
+              </div>
+              <select id="formatSelectDesktop" class="desktop-config-select" onchange="updateResolutionOptions()">
+                <option value="" disabled selected>Select Format...</option>
+              </select>
+            </div>
+            <div class="desktop-form-group">
+              <div class="desktop-form-label">
+                <img src="/images/m/target-size.svg" alt="Target size">
+                <label class="desktop-config-title-field">Target size</label>
+              </div>
+              <select id="targetSizeDesktop" convert-option name-option="target_size" class="desktop-config-select"
+                onchange="showCustomInput(this)">
+                <option value="">None</option>
+                <option value="custom">Custom</option>
+                <option value="1">1MB</option>
+                <option value="2">2MB</option>
+                <option value="5">5MB</option>
+                <option value="8">8MB</option>
+                <option value="10">10MB</option>
+                <option value="15">15MB</option>
+                <option value="20">20MB</option>
+                <option value="50">50MB</option>
+                <option value="100">100MB</option>
+                <option value="200">200MB</option>
+                <option value="500">500MB</option>
+                <option value="800">800MB</option>
+                <option value="1000">1GB</option>
+              </select>
+            </div>
+            <div class="desktop-form-group">
+              <div class="desktop-form-label">
+                <img src="/images/m/resolution.svg" alt="Resolution">
+                <label class="desktop-config-title-field">Resolution</label>
+              </div>
+              <div class="desktop-resolution-wrapper">
+                <select id="resolutionSelectDesktop" class="desktop-config-select"
+                  onchange="selectedResolutionOptions()">
+                  <option value="">None</option>
+                </select>
+                <div class="desktop-overlay" id="overlayResolution"></div>
+              </div>
+            </div>
+            <div class="desktop-form-group">
+              <div class="desktop-form-label">
+                <img src="/images/m/quality.svg" alt="Quality">
+                <label class="desktop-config-title-field">Quality</label>
+              </div>
+              <div class="desktop-quality-wrapper">
+                <select id="qualitySelectDesktop" class="desktop-config-select" onchange="selectedQualityOptions()">
+                  <option>None</option>
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                </select>
+                <div class="desktop-overlay" id="overlayQuality"></div>
+              </div>
+            </div>
+            <div class="desktop-form-group">
+              <div class="desktop-form-label">
+                <img src="/images/m/fps.svg" alt="FPS">
+                <label class="desktop-config-title-field">FPS</label>
+              </div>
+              <div class="desktop-fps-wrapper">
+                <select id="fpsSelectDesktop" class="desktop-config-select" onchange="selectedFpsOptions()">
+                  <option value="original">Original</option>
+                  <option value="15">15</option>
+                  <option value="24">24</option>
+                  <option value="25">25</option>
+                  <option value="30">30</option>
+                  <option value="60">60</option>
+                </select>
+                <div class="desktop-overlay" id="overlayFps"></div>
+              </div>
+            </div>
+            <div class="desktop-form-group desktop-volume-control-group">
+              <div class="desktop-form-label">
+                <img src="/images/m/volume.svg" alt="Volume">
+                <label class="desktop-config-title-field">Volume</label>
+              </div>
+              <div class="desktop-volume-control">
+                <input class="desktop-volume-control-slider volume-control-slider-setup" type="range" id="volumeDesktop"
+                  min="0" max="300" value="100" oninput="updateVolume(value)">
+                <div class="desktop-volume-config-value volume-value-setup">100%</div>
+              </div>
+            </div>
+
+            <div class="desktop-advanced-section">
+              <div class="desktop-config-advanced-about-us">
+                <button class="desktop-config-advanced-button" onclick="openModalAdvancedConfig()">
+                  <img src="/images/config-icon.svg" alt="advanced" loading="lazy">
+                  <span class="desktop-config-advanced-text">Advanced</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="desktop-advanced-info" id="AdvancedInfoDesktop">
+              <span class="desktop-advanced-info-text" id="AdvancedInfoTextDesktop">...</span>
+            </div>
+          </div>
+        </section>
+        <div class="mtcv-container" id="modalTrimCropVideoContainer"></div>
+
+        <div class="middle-ads">
+          <img src="./images/middle-ads.svg" alt="Advertisement" loading="lazy" />
+        </div>
+        <!-- Hướng dẫn sử dụng -->
+        <div class="guide">
+          <div class="guide__block guide__block--how-to">
+            <h2 class="guide__title">How to use</h2>
+            <div class="guide__steps">
+              <div class="guide__step" data-step="1">
+                <img src="./images/step-1.svg" alt="Step 1" class="guide__step-image" />
+                <p class="guide__step-text">
+                  Mouse or drag and drop your video file into the upload area.
+                </p>
+              </div>
+              <div class="guide__step" data-step="2">
+                <img src="./images/step-2.svg" alt="Step 2" class="guide__step-image" />
+                <p class="guide__step-text">
+                  Choose target video size or auto compression, no input size limit.
+                </p>
+              </div>
+              <div class="guide__step" data-step="3">
+                <img src="./images/step-3.svg" alt="Step 3" class="guide__step-image" />
+                <p class="guide__step-text">
+                  Click "CONVERT" and download the video when the conversion is complete.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tính năng nổi bật -->
+        <div class="section-feature-container">
+          <div class="section-feature-block">
+            <img alt="" src="images/feature-1.svg" class="section-feature-icon" height="80px" width="80px">
+            <div class="feature-content">
+              <span class="section-feature-title">Bee convert</span>
+              <div class="section-feature-description">
+                Support video conversion, cutting, rotating, trimming videos quickly.
+              </div>
+            </div>
+          </div>
+          <div class="section-feature-block">
+            <img alt="" src="images/feature-2.svg" class="section-feature-icon" height="80px" width="80px">
+            <div class="feature-content">
+              <span class="section-feature-title">Fast conversion</span>
+              <div class="section-feature-description">
+                Fast file conversion speed, no installation required. Processed directly on the browser
+              </div>
+            </div>
+          </div>
+          <div class="section-feature-block">
+            <img alt="" src="images/feature-3.svg" class="section-feature-icon" height="80px" width="80px">
+            <div class="feature-content">
+                <span class="section-feature-title">Support all formats</span>
+                <div class="section-feature-description">
+                  Support converting all popular video formats such as h264, h265, AV1...
+                </div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Blog -->
+        <div class="section-blog-container">
+          <div class="section-blog-wrapper">
+            <h2>FAQ</h2>
+            <div class="section-blog-list">
+              <a class="section-blog-item" href="blog-page/blog-1.html">
+                <span class="section-blog-title">How to compress 1GB video to 10MB?</span>
+                <svg class="section-blog-icon" width="15" height="8" viewBox="0 0 15 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.8002 1.13858L7.98236 7.8045C7.91904 7.86648 7.84385 7.91564 7.76108 7.94919C7.67831 7.98273 7.5896 8 7.5 8C7.4104 8 7.32168 7.98273 7.23892 7.94919C7.15615 7.91564 7.08096 7.86648 7.01764 7.8045L0.199801 1.13858C0.0718705 1.0135 0 0.843852 0 0.666963C0 0.490073 0.0718705 0.320428 0.199801 0.195349C0.327731 0.0702687 0.501242 0 0.682163 0C0.863084 0 1.03659 0.0702687 1.16452 0.195349L7.5 6.39049L13.8355 0.195349C13.8988 0.133415 13.974 0.0842872 14.0568 0.0507692C14.1395 0.0172512 14.2283 0 14.3178 0C14.4074 0 14.4961 0.0172512 14.5789 0.0507692C14.6617 0.0842872 14.7369 0.133415 14.8002 0.195349C14.8635 0.257282 14.9138 0.330807 14.9481 0.411727C14.9824 0.492647 15 0.579376 15 0.666963C15 0.75455 14.9824 0.841279 14.9481 0.922198C14.9138 1.00312 14.8635 1.07664 14.8002 1.13858Z" fill="#939393"/>
+                </svg>
+              </a>
+              <a class="section-blog-item" href="blog-page/blog-2.html">
+                <span class="section-blog-title">Will my video lose quality?</span>
+                <svg class="section-blog-icon" width="15" height="8" viewBox="0 0 15 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.8002 1.13858L7.98236 7.8045C7.91904 7.86648 7.84385 7.91564 7.76108 7.94919C7.67831 7.98273 7.5896 8 7.5 8C7.4104 8 7.32168 7.98273 7.23892 7.94919C7.15615 7.91564 7.08096 7.86648 7.01764 7.8045L0.199801 1.13858C0.0718705 1.0135 0 0.843852 0 0.666963C0 0.490073 0.0718705 0.320428 0.199801 0.195349C0.327731 0.0702687 0.501242 0 0.682163 0C0.863084 0 1.03659 0.0702687 1.16452 0.195349L7.5 6.39049L13.8355 0.195349C13.8988 0.133415 13.974 0.0842872 14.0568 0.0507692C14.1395 0.0172512 14.2283 0 14.3178 0C14.4074 0 14.4961 0.0172512 14.5789 0.0507692C14.6617 0.0842872 14.7369 0.133415 14.8002 0.195349C14.8635 0.257282 14.9138 0.330807 14.9481 0.411727C14.9824 0.492647 15 0.579376 15 0.666963C15 0.75455 14.9824 0.841279 14.9481 0.922198C14.9138 1.00312 14.8635 1.07664 14.8002 1.13858Z" fill="#939393"/>
+                </svg>
+              </a>
+              <a class="section-blog-item" href="blog-page/blog-3.html">
+                <span class="section-blog-title">Is BeeConvert free?</span>
+                <svg class="section-blog-icon" width="15" height="8" viewBox="0 0 15 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.8002 1.13858L7.98236 7.8045C7.91904 7.86648 7.84385 7.91564 7.76108 7.94919C7.67831 7.98273 7.5896 8 7.5 8C7.4104 8 7.32168 7.98273 7.23892 7.94919C7.15615 7.91564 7.08096 7.86648 7.01764 7.8045L0.199801 1.13858C0.0718705 1.0135 0 0.843852 0 0.666963C0 0.490073 0.0718705 0.320428 0.199801 0.195349C0.327731 0.0702687 0.501242 0 0.682163 0C0.863084 0 1.03659 0.0702687 1.16452 0.195349L7.5 6.39049L13.8355 0.195349C13.8988 0.133415 13.974 0.0842872 14.0568 0.0507692C14.1395 0.0172512 14.2283 0 14.3178 0C14.4074 0 14.4961 0.0172512 14.5789 0.0507692C14.6617 0.0842872 14.7369 0.133415 14.8002 0.195349C14.8635 0.257282 14.9138 0.330807 14.9481 0.411727C14.9824 0.492647 15 0.579376 15 0.666963C15 0.75455 14.9824 0.841279 14.9481 0.922198C14.9138 1.00312 14.8635 1.07664 14.8002 1.13858Z" fill="#939393"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Aside Right Banner -->
+      <aside class="desktop-aside-right">
+        <div class="desktop-aside-content">
+          <img src="/images/banner-right.jpg" alt="Right Banner" class="desktop-aside-banner" loading="lazy" />
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="desktop-footer-container">
+      <div class="desktop-btn-container">
+        <input type="button" value="Convert" title="Convert" class="desktop-footer-btn-convert" disabled
+          onclick="clickStartConvert()">
+      </div>
+    </footer>
+
+    <!-- Desktop Menu Modal -->
+    <div id="desktopMenuModal" class="desktop-menu-modal">
+      <div class="desktop-menu-modal-overlay"></div>
+      <div class="desktop-menu-modal-content">
+        <div class="desktop-menu-modal-header">
+          <button class="desktop-menu-close" onclick="toggleDesktopMenu()" aria-label="Close">
+            <span class="desktop-menu-close-text">×</span>
+          </button>
+        </div>
+        <div class="desktop-container-menu">
+          <div class="desktop-logo-container">
+            <img class="desktop-logo-icon" src="/images/logo.svg" alt="BeeConvert" />
+            <span class="desktop-logo-title">Bee Convert</span>
+          </div>
+          <nav class="desktop-menu-modal-items">
+            <span class="desktop-menu-modal-item desktop-menu-modal-item-active">
+              <img src="/images/m/home.svg" alt="icon Home">
+              <a href="/">Home</a>
+            </span>
+            <span class="desktop-menu-modal-item">
+              <img src="/images/about-icon.svg" alt="icon About">
+              <a href="/about.html">About</a>
+            </span>
+            <span class="desktop-menu-modal-item">
+              <img src="/images/m/history.svg" alt="icon History">
+              <a href="/blog-page/blog-1.html">Blog</a>
+            </span>
+            <span class="desktop-menu-modal-item">
+              <img src="/images/m/policy.svg" alt="icon Policy">
+              <a href="/privacy-policy.html">Policy</a>
+            </span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Overlay-->
+  <div id="premiumOverlay" class="premium-overlay" aria-hidden="true">
+  </div>
+
+  <!-- Bee Lib -->
+  <script src="libs/common-utils.js"></script>
+  <script src="libs/bee-api.js"></script>
+  <script src="libs/coder-config-utils.js"></script>
+  <script src="libs/init-browser.js"></script>
+  <script src="libs/file-system-api.js"></script>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/preview-video.js"></script>
+  <script src="js/convert.js"></script>
+  <script src="js/upload-file.js"></script>
+  <script src="js/form-config-convert-video.js"></script>
+  <script src="js/drag-video.js"></script>
+  <script src="js/save-file.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/dialog-prevent-scroll.js"></script>
+  <script src="js/blob-utils.js"></script>
+
+
+  <script src="components/dialog/dialog.js"></script>
+  <script src="components/progress/ProgressDialog.js"></script>
+  <script src="components/video-complete/VideoCompleteDialog.js"></script>
+  <script src="components/loading/LoadingDialog.js"></script>
+  <script src="components/number-input/NumberInputDialog.js"></script>
+  <script src="components/video-player/VideoPlayerDialog.js"></script>
+  <script src="components/info-dialog/InfoDialog.js"></script>
+  <script src="components/modal-trim-crop-video/contanst.js"></script>
+  <script src="components/modal-trim-crop-video/common.js"></script>
+  <script src="components/modal-trim-crop-video/mtcv-core.js"></script>
+  <script src="components/modal-trim-crop-video/mtcv-timeline.js"></script>
+  <script src="components/confirm-dialog/ConfirmDialog.js"></script>
+  <script src="components/control/video-control.js"></script>
+  <script src="components/dual-range.js"></script>
+</body>
+
+</html>

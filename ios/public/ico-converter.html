@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG to ICO Converter</title>
+</head>
+<body>
+    <h1>Bee Icon - Download as ICO</h1>
+    <p>Công ty phần mềm Bee Convert - Biểu tượng con ong</p>
+    
+    <canvas id="canvas" width="256" height="256"></canvas>
+    <br><br>
+    
+    <button onclick="downloadICO()">Download as ICO (256x256)</button>
+    <button onclick="downloadICO(128)">Download as ICO (128x128)</button>
+    <button onclick="downloadICO(64)">Download as ICO (64x64)</button>
+    <button onclick="downloadICO(32)">Download as ICO (32x32)</button>
+    <button onclick="downloadICO(16)">Download as ICO (16x16)</button>
+    <button onclick="downloadSVG()">Download as SVG</button>
+    <button onclick="downloadPNG()">Download as PNG</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/svg2png@4.1.1"></script>
+    
+    <script>
+        // Load SVG
+        const svgUrl = '/bee-icon.svg';
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Draw SVG on canvas
+        async function loadSVG() {
+            const response = await fetch(svgUrl);
+            const svgText = await response.text();
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 256, 256);
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgText);
+        }
+
+        loadSVG();
+
+        // Download as PNG
+        function downloadPNG() {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'bee-icon.png';
+            link.click();
+        }
+
+        // Download as SVG
+        function downloadSVG() {
+            fetch(svgUrl)
+                .then(r => r.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'bee-icon.svg';
+                    link.click();
+                });
+        }
+
+        // Convert PNG to ICO
+        function downloadICO(size = 256) {
+            const icoCanvas = document.createElement('canvas');
+            icoCanvas.width = size;
+            icoCanvas.height = size;
+            const icoCtx = icoCanvas.getContext('2d');
+
+            // Draw on resized canvas
+            const img = new Image();
+            img.onload = function() {
+                icoCtx.drawImage(img, 0, 0, size, size);
+                
+                // Get image data
+                const imageData = icoCtx.getImageData(0, 0, size, size);
+                const data = imageData.data;
+
+                // Create ICO file (simplified BMP format)
+                const icoData = createICO(data, size);
+                
+                // Download
+                const blob = new Blob([icoData], { type: 'image/x-icon' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `bee-icon-${size}x${size}.ico`;
+                link.click();
+            };
+            img.src = canvas.toDataURL('image/png');
+        }
+
+        // Simple ICO creator
+        function createICO(imageData, size) {
+            // This is a simplified BMP-to-ICO converter
+            // For a proper ICO, you'd need a library
+            const bmp = createBMP(imageData, size);
+            const ico = new Uint8Array(6 + 16 + bmp.length);
+            
+            // ICO header
+            ico[0] = 0;
+            ico[1] = 0;
+            ico[2] = 1; // Type: Icon
+            ico[3] = 0;
+            
+            // Number of images
+            ico[4] = 1;
+            ico[5] = 0;
+            
+            // Image directory entry
+            ico[6] = size; // Width
+            ico[7] = size; // Height
+            ico[8] = 0; // Color count
+            ico[9] = 0; // Reserved
+            ico[10] = 1; // Planes
+            ico[11] = 0;
+            ico[12] = 32; // Bits per pixel
+            ico[13] = 0;
+            
+            // Image size (little-endian)
+            const imgSize = bmp.length;
+            ico[14] = imgSize & 0xFF;
+            ico[15] = (imgSize >> 8) & 0xFF;
+            ico[16] = (imgSize >> 16) & 0xFF;
+            ico[17] = (imgSize >> 24) & 0xFF;
+            
+            // Image offset
+            ico[18] = 22;
+            ico[19] = 0;
+            ico[20] = 0;
+            ico[21] = 0;
+            
+            // Combine
+            const result = new Uint8Array(ico.length + bmp.length);
+            result.set(ico, 0);
+            result.set(bmp, 22);
+            
+            return result;
+        }
+
+        function createBMP(imageData, size) {
+            // Simplified BMP format
+            const stride = size * 4;
+            const pixelData = new Uint8Array(stride * size);
+            
+            // Copy and flip image data (BMP is bottom-up)
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const srcIdx = (y * size + x) * 4;
+                    const dstIdx = ((size - 1 - y) * size + x) * 4;
+                    pixelData[dstIdx] = imageData[srcIdx + 2]; // B
+                    pixelData[dstIdx + 1] = imageData[srcIdx + 1]; // G
+                    pixelData[dstIdx + 2] = imageData[srcIdx]; // R
+                    pixelData[dstIdx + 3] = imageData[srcIdx + 3]; // A
+                }
+            }
+            
+            // BMP header
+            const bmpSize = 40 + pixelData.length;
+            const bmp = new Uint8Array(40 + pixelData.length);
+            
+            // DIB header
+            bmp[0] = 40; // Header size
+            bmp[4] = size & 0xFF;
+            bmp[5] = (size >> 8) & 0xFF;
+            bmp[8] = size & 0xFF;
+            bmp[9] = (size >> 8) & 0xFF;
+            bmp[12] = 1; // Planes
+            bmp[14] = 32; // Bits per pixel
+            
+            bmp.set(pixelData, 40);
+            return bmp;
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+            margin: 20px 0;
+        }
+        button {
+            background: #FFC107;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #FFD54F;
+        }
+    </style>
+</body>
+</html>

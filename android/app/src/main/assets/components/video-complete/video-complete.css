@@ -1,0 +1,120 @@
+.dialog-video-overlay {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 23, 23, 0.4);
+  z-index: 3000;
+  overflow: hidden;
+}
+@supports not (height: 100dvh) {
+  .dialog-video-overlay {
+    height: 100vh !important;
+  }
+}
+.dialog-video-overlay.active {
+  display: flex;
+}
+.dialog-video-box {
+  background: #fff;
+  border-radius: 0.48rem;
+  box-shadow: 0 1.2rem 1.2rem rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.25s ease;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+}
+.dialog-video-header {
+  display: flex;
+  font-size: 1em;
+  color: #010101;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  font-weight: 700;
+  padding: 0.8rem;
+  border-bottom: 1px solid #F2F0F0;
+  background-color: var(--theme-color);
+}
+.dialog-video-player {
+  width: 100%;
+  height: 50%;
+}
+.dialog-video-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.dialog-video-body {
+  flex: 1;
+  color: #939393;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.video-complete-label {
+  font-size: 1rem;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dialog-video-info {
+  width: 100%;
+  margin: 0.4rem auto 0.4rem auto;
+}
+
+.dialog-video-info-left {
+  text-align: right;
+  color: #000000;
+  font-size: 0.8rem;
+  font-weight: 400;
+  display: table-cell;
+  text-align: left;
+}
+.dialog-video-info-right {
+  text-align: left;
+  color: #939393;
+  font-size: 0.7rem;
+  text-align: left;
+}
+.dialog-video-footer {
+  display: flex;
+  /* margin-bottom: 0.5em; */
+  margin-top: 0.2em;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: space-between;
+  height: 2.64rem;
+}
+.dialog-video-save {
+  width: 48%;
+  border-radius: 0.24rem;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  color: #fff;
+  padding: 0.5em 1.3em;
+  height: 100%;
+}
+.dialog-video-cancel {
+  width: 48%;
+  border-radius: 0.24rem;
+  border: 1px solid #333333c9;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333333c9;
+  padding: 0.5em 1.3em;
+  height: 100%;
+}

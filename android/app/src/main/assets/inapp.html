@@ -1,0 +1,235 @@
+<html>
+
+<head>
+  <title>BeeConvert</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: white;
+      font-family: 'Monda', Arial, sans-serif;
+      font-optical-sizing: auto;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      display: flex;
+      margin: 0px auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+      max-width: 768px;
+      min-width: 300px;
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      width: 30px;
+      height: 30px;
+      background: url('images/close.png');
+      background-size: center;
+      background-repeat: no-repeat;
+      background-position: center;
+      border: none;
+    }
+
+    .btn {
+      cursor: pointer;
+      z-index: 999;
+      background-color: transparent;
+    }
+
+    .btn:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .img-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .container>h3 {
+      font-weight: 600;
+      font-size: 23px;
+      margin-top: 20px;
+      color: #000;
+      margin: 10px 0px 72px 0px;
+    }
+
+    .subscription {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      justify-content: center;
+      width: calc(100% - 40px);
+      margin: 0px auto 0px auto;
+      gap: 20px;
+    }
+
+    .subscription>h4 {
+      font-weight: 400;
+      font-size: 16px;
+      margin: 0px;
+      color: #686868;
+    }
+
+    .subscription>div {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      height: 60px;
+      border: 1px solid #9F9F9F;
+      border-radius: 30px;
+      padding: 0 20px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .subscription>div:active {
+      border-radius: 30px;
+      background-color: #9F9F9F;
+    }
+
+    .subscription>.pouplar {
+      position: relative;
+    }
+
+    .pouplar>img {
+      position: absolute;
+      top: -10px;
+      left: calc(50% - 30px);
+      width: 60px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .subscription .diamond-and-time {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 0px 20px;
+      gap: 20px;
+    }
+
+    .diamond-and-time>img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .diamond-and-time>h3 {
+      font-size: 18px;
+      font-weight: 400;
+      color: #000;
+    }
+
+    .money {
+      font-weight: 700;
+      font-size: 23px;
+      color: #000;
+      width: 75px;
+      margin: 0px;
+      padding: 0px;
+      border-left: 2px dashed #9F9F9F;
+      text-align: center;
+    }
+
+    .term-of-service {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+    }
+
+    .privacy-policy {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .privacy-policy a,
+    .term-of-service a {
+      text-decoration: underline;
+      color: #939393;
+      font-size: 15px;
+      font-weight: 400;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <input type="button" class="btn btn-close" />
+    <img src="images/logo-around.svg" class="img-logo" />
+    <h3>Upgrade to Premium</h3>
+
+    <!-- subscription bloc -->
+    <div class="subscription">
+      <h4>Subscriptions</h4>
+      <!-- 3 months -->
+      <div>
+        <div class="diamond-and-time">
+          <img src="images/diamond.svg" />
+          <h3>3 MONTHS</h3>
+        </div>
+        <h2 class="money">$6</h2>
+      </div>
+
+      <!-- 6 months -->
+      <div class="pouplar">
+        <div class="diamond-and-time">
+          <img src="images/diamond.svg" />
+          <h3>6 MONTHS</h3>
+        </div>
+        <h2 class="money">$9</h2>
+        <img src="images/popular.svg" />
+      </div>
+
+      <!-- forever -->
+      <div>
+        <div class="diamond-and-time">
+          <img src="images/diamond.svg" />
+          <h3>FOREVER</h3>
+        </div>
+        <h2 class="money">$18</h2>
+      </div>
+    </div>
+
+    <div class="term-of-service">
+      <a href="#">Term of Service</a>
+    </div>
+
+    <div class="privacy-policy">
+      <a href="/policy.html">Privacy Policy</a>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const closeButton = document.querySelector('.btn-close');
+        closeButton.addEventListener('click', onPressBack);
+      });
+      function onPressBack() {
+        window.history.back();
+      }
+    </script>
+</body>
+
+</html>

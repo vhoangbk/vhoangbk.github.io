@@ -16,12 +16,11 @@
 }
 
 .app--container .dialog-video-box {
-  width: 374px !important;
+  width: 93vw !important;
 }
 
 .app-progress {
-  width: 374px !important;
-  height: 200px !important;
+  width: 93vw !important;
   height: auto !important;
   font-size: 1rem;
   background: var(--white);
@@ -234,10 +233,8 @@
   z-index: 10002;
 }
 
-/* ✅ Cho phép click vào content và các elements bên trong */
 .app-main .mtcv-container.mtcv-show .mtcv-content {
   margin: auto;
-  /* ✅ Cập nhật max-height: không trừ header height, chỉ trừ padding-bottom */
   max-height: calc(100vh - clamp(0.8rem, 1.2vh, 1rem) - env(safe-area-inset-bottom, 0px));
   pointer-events: auto !important;
   touch-action: manipulation !important;
@@ -246,25 +243,31 @@
   cursor: default;
 }
 
-/* ✅ Cho phép click vào tất cả elements bên trong content */
 .app-main .mtcv-container.mtcv-show .mtcv-content *:not(.max-range):not(.min-range):not(.mtcv-ratio-btn) {
   pointer-events: auto !important;
-  touch-action: manipulation !important; /* ✅ Cho phép tap/click */
+  touch-action: manipulation !important;
 }
 
-/* ✅ Đặc biệt cho buttons - cho phép click */
+.desktop-not-supported__message-warning-container {
+  padding: 0 var(--common-padding);
+}
+.desktop-not-supported__message-warning {
+  display: flex;
+  gap: 5px;
+  color: #B45309;
+}
+
 .app-main .mtcv-container.mtcv-show .mtcv-footer,
 .app-main .mtcv-container.mtcv-show .mtcv-footer button,
 .app-main .mtcv-container.mtcv-show .mtcv-footer .dialog-mtcv-cancel,
 .app-main .mtcv-container.mtcv-show .mtcv-footer .dialog-mtcv-close {
   pointer-events: auto !important;
-  touch-action: manipulation !important; /* ✅ Tối ưu cho mobile - cho phép tap */
+  touch-action: manipulation !important;
   cursor: pointer !important;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1); /* ✅ Visual feedback khi tap */
-  user-select: none; /* ✅ Prevent text selection khi tap */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  user-select: none;
 }
 
-/* ✅ Cho phép click vào tất cả interactive elements */
 .app-main .mtcv-container.mtcv-show .mtcv-content-body,
 .app-main .mtcv-container.mtcv-show .mtcv-content-main-options,
 .app-main .mtcv-container.mtcv-show .mtcv-content-main-options *:not(.max-range):not(.min-range):not(.mtcv-ratio-btn),
@@ -280,18 +283,16 @@
   cursor: pointer;
 }
 
-/* ✅ Cho phép drag crop box và handles trên mobile */
 .app-main .mtcv-container.mtcv-show .mtcv-crop-box,
 .app-main .mtcv-container.mtcv-show .mtcv-handle,
 .app-main .mtcv-container.mtcv-show .mtcv-move-handle {
   pointer-events: auto !important;
-  touch-action: none !important; /* ✅ Cho phép drag gestures */
+  touch-action: none !important;
   cursor: move;
   -webkit-user-select: none;
   user-select: none;
 }
 
-/* ✅ Cho phép click vào trim controls */
 .app-main .mtcv-container.mtcv-show .dual-range,
 .app-main .mtcv-container.mtcv-show .dual-range *,
 .app-main .mtcv-container.mtcv-show .progress-container,
@@ -300,7 +301,6 @@
   touch-action: manipulation !important;
 }
 
-/* ✅ Mobile: trừ safe area cho browser bars */
 .app-main .mtcv-content-body {
   max-height: clamp(
     20vh,
@@ -320,7 +320,6 @@
   }
 }
 
-/* ✅ Mobile màn hình lớn: hiển thị đủ nội dung */
 @media (min-height: 900px) {
   .app-main .mtcv-content {
     max-height: fit-content !important;
@@ -332,7 +331,6 @@
   }
 }
 
-/* ✅ Mobile màn hình nhỏ: giới hạn chặt hơn */
 @media (max-height: 600px) {
   .app-main .mtcv-content {
     max-height: clamp(60vh, 75vh, 80vh) !important;
@@ -355,13 +353,11 @@
   }
 }
 
-/* ✅ Mobile footer styling - CHỈ 1 LẦN, KHÔNG DUPLICATE */
 .app-main .mtcv-footer {
   padding: clamp(0.5rem, 0.9vh, 0.8rem) clamp(0.75rem, 1.5vw, 1rem);
   border-top: 1px solid var(--border-color-line);
   min-height: clamp(3rem, 3.5vh, 3.5rem);
   max-height: 3.5rem;
-  /* ✅ Padding-bottom vừa phải */
   padding-bottom: max(
     clamp(0.7rem, 1vh, 0.9rem),
     calc(clamp(0.7rem, 1vh, 0.9rem) + env(safe-area-inset-bottom, 0px))
@@ -392,10 +388,9 @@
   background-color: var(--theme-color-line);
 }
 
-/* ✅ Mobile màn hình nhỏ (height < 700px) */
 @media (max-height: 700px) {
   .app-main .mtcv-container.mtcv-show {
-    padding-top: 0; /* ✅ Bỏ padding-top */
+    padding-top: 0;
     padding-bottom: max(
       clamp(0.7rem, 1vh, 0.9rem),
       calc(clamp(0.7rem, 1vh, 0.9rem) + env(safe-area-inset-bottom, 0px))

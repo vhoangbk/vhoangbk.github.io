@@ -667,6 +667,8 @@ body.dialog-open .header-logo--container {
   align-items: center;
   padding: 0;
   cursor: pointer;
+  position: relative;
+  z-index: 10;
 }
 
 .app-config-advenced-button img {
@@ -682,8 +684,8 @@ body.dialog-open .header-logo--container {
 .app-advanced-section {
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap; /* ✅ Cho phép xuống hàng khi width không đủ */
-  gap: 0.5rem; /* ✅ Khoảng cách giữa các phần tử */
+  flex-wrap: wrap;
+  gap: 0.5rem;
   position: relative;
 }
 
@@ -692,8 +694,9 @@ body.dialog-open .header-logo--container {
   top: 0;
   right: 0;
   display: none;
-  flex: 1; /* ✅ Cho phép chiếm không gian còn lại */
-  min-width: 0; /* ✅ Cho phép shrink khi cần */
+  flex: 1;
+  min-width: 0;
+  z-index: 1;
 }
 
 .app-advanced-info-text {
@@ -701,8 +704,8 @@ body.dialog-open .header-logo--container {
    font-size: 0.8rem;
    text-align: right;
    line-height: 1.5rem;
-   word-wrap: break-word; /* ✅ Cho phép wrap từ dài */
-   white-space: normal; /* ✅ Cho phép xuống hàng tự nhiên */
+   word-wrap: break-word;
+   white-space: normal;
 }
 
 /* ============================================
