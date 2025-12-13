@@ -2,7 +2,29 @@
   "version": 2,
   "installCommand": "npm install",
   "buildCommand": "node vercel-build.js",
+  "builds": [
+    { "src": "index.js", "use": "@vercel/node" }
+  ],
   "outputDirectory": "dist",
+  "routes": [
+    { "src": "/upload-stream", "dest": "/index.js" },
+    { "src": "/converted_files/(.*)", "dest": "/index.js" },
+    { 
+      "src": "/dist/public/(.*\\.css)", 
+      "dest": "/dist/public/$1",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      }
+    },
+    { 
+      "src": "/dist/public/(.*)", 
+      "dest": "/dist/public/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable no-cache"
+      }
+    },
+    { "src": "/(.*)", "dest": "/index.js" }
+  ],
   "env": {
     "NODE_ENV": "production",
     "VERCEL": "1"
