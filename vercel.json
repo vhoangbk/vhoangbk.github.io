@@ -1,6 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm install",
+  "buildCommand": "node vercel-build.js",
   "env": {
     "NODE_ENV": "production",
     "VERCEL": "1"
