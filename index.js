@@ -68,26 +68,45 @@ app.get('/m-index.html', (req, res) => {
   res.redirect(301, '/m');
 });
 
+
 app.use(express.static(publicDir, {
-  maxAge: '1y',
-  etag: true,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.webp')) {
-      res.setHeader('Content-Type', 'image/webp');
+  etag: true,                // ETag theo file tự nhiên → đổi khi deploy
+  lastModified: true,        // Dùng mtime của file
+  maxAge: '1d',              // Cache 1 ngày
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+
+    // HTML luôn không cache
+    if (ext === '.html') {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      return;
     }
-    if (path.endsWith('.wasm')) {
-      res.setHeader('Content-Type', 'application/wasm');
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-      res.setHeader('ETag', `"${path}-${Date.now()}"`);
-    }
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    }
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
+
+    // Tất cả static file cache 1 ngày
+    res.setHeader('Cache-Control', 'public, max-age=86400');
   }
 }));
+
+// app.use(express.static(publicDir, {
+//   maxAge: '1y',
+//   etag: true,
+//   setHeaders: (res, path) => {
+//     if (path.endsWith('.webp')) {
+//       res.setHeader('Content-Type', 'image/webp');
+//     }
+//     if (path.endsWith('.wasm')) {
+//       res.setHeader('Content-Type', 'application/wasm');
+//       res.setHeader('Cache-Control', 'public, max-age=31536000');
+//       res.setHeader('ETag', `"${path}-${Date.now()}"`);
+//     }
+//     if (path.endsWith('.js')) {
+//       res.setHeader('Content-Type', 'application/javascript');
+//     }
+//     if (path.endsWith('.css')) {
+//       res.setHeader('Content-Type', 'text/css');
+//     }
+//   }
+// }));
 
 app.post('/upload-stream', upload.single('data'), async (req, res) => {
   try {
@@ -297,35 +316,35 @@ app.get("/m", (req, res) => {
 });
 
 // Cache-Control phân tách môi trường
-app.use((req, res, next) => {
-  const url = req.path;
+// app.use((req, res, next) => {
+//   const url = req.path;
 
-  if (isDev) {
-    // 🚫 DEV MODE = disable cache hoàn toàn
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    return next();
-  }
+//   if (isDev) {
+//     // 🚫 DEV MODE = disable cache hoàn toàn
+//     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+//     res.setHeader('Pragma', 'no-cache');
+//     res.setHeader('Expires', '0');
+//     return next();
+//   }
 
-  // 🟢 PRODUCTION MODE
-  if (url.endsWith('.html')) {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  }
-  else if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/)) {
-    // Có version: cache dài
-    if (url.includes('?v=')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else {
-      res.setHeader('Cache-Control', 'no-cache');
-    }
-  }
-  else if (url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
-    res.setHeader('Cache-Control', 'public, max-age=31536000');
-  }
+//   // 🟢 PRODUCTION MODE
+//   if (url.endsWith('.html')) {
+//     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+//   }
+//   else if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/)) {
+//     // Có version: cache dài
+//     if (url.includes('?v=')) {
+//       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+//     } else {
+//       res.setHeader('Cache-Control', 'no-cache');
+//     }
+//   }
+//   else if (url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
+//     res.setHeader('Cache-Control', 'public, max-age=31536000');
+//   }
 
-  next();
-});
+//   next();
+// });
 
 module.exports = app;
 
