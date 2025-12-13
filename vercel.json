@@ -1,6 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm install",
+  "outputDirectory": "dist",
   "env": {
     "NODE_ENV": "production",
     "VERCEL": "1"
