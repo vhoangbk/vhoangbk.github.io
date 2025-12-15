@@ -5,7 +5,7 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 const csso = require('csso');
 const glob = require('glob');
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+const isProduction = true // process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
 const BUILD_DIR = path.join(__dirname, 'dist');
 const BUILD_PUBLIC_DIR = path.join(BUILD_DIR, 'public');
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -45,6 +45,9 @@ const RESERVED_GLOBALS = [
   'exports',
   'global'
 ];
+
+console.log(`process.env.NODE_ENV ${process.env.NODE_ENV}`);
+console.log(`process.env.VERCEL_ENV ${process.env.VERCEL_ENV}`);
 
 function shouldMinify(filePath) {
   if (!isProduction) return false;
