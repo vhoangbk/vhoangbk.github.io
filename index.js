@@ -23,15 +23,15 @@ const distPublicDir = path.join(__dirname, "dist", "public");
 const fallbackPublicDir = path.join(__dirname, "public");
 
 let publicDir = distPublicDir;
-// if (isVercelProd) {
-//   // Trên Vercel, luôn dùng dist/public
-//   publicDir = distPublicDir;
-//   console.log(`📁 Serving static assets from ${publicDir}`);
-// } else {
-//   // Local dev, dùng public
-//   publicDir = fallbackPublicDir;
-//   console.log(`📁 Serving static assets from ${fallbackPublicDir}`);
-// }
+if (isVercelProd) {
+  // Trên Vercel, luôn dùng dist/public
+  publicDir = distPublicDir;
+  console.log(`📁 Serving static assets from ${publicDir}`);
+} else {
+  // Local dev, dùng public
+  publicDir = fallbackPublicDir;
+  console.log(`📁 Serving static assets from ${fallbackPublicDir}`);
+}
 
 const multer = require('multer');
 

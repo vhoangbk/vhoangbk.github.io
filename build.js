@@ -188,6 +188,17 @@ async function copyFile(src, dest) {
   const destDir = path.dirname(dest);
   await fs.ensureDir(destDir);
   await fs.copyFile(src, dest);
+
+  try {
+    const srcStats = await fs.stat(src);
+    // Preserve atime and mtime on destination
+    await fs.utimes(dest, srcStats.atime, srcStats.mtime);
+    // Preserve file mode (permissions)
+    await fs.chmod(dest, srcStats.mode);
+    console.log(`   ⏱️  Preserved timestamps and mode for ${path.relative(PUBLIC_DIR, dest)}`);
+  } catch (err) {
+    console.warn(`   ⚠️  Failed to preserve timestamps/mode for ${dest}:`, err.message);
+  }
 }
 
 async function processFile(srcPath, destPath) {
