@@ -5,7 +5,7 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 const csso = require('csso');
 const glob = require('glob');
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+const isProduction = true// process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
 const BUILD_DIR = path.join(__dirname, 'dist');
 const BUILD_PUBLIC_DIR = path.join(BUILD_DIR, 'public');
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -156,7 +156,7 @@ async function minifyJS(filePath) {
 
     return minifiedCode;
   } catch (error) {
-    console.error(`❌ Error processing ${filePath}:`, error.message);
+    console.error(`❌ Error processing 2 ${filePath}:`, error.message);
     return await fs.readFile(filePath, 'utf8');
   }
 }
@@ -192,18 +192,21 @@ async function copyFile(src, dest) {
   try {
     const copyTime = new Date();
     await fs.utimes(dest, copyTime, copyTime);
+
     console.log(`Set copy time for ${path.relative(PUBLIC_DIR, dest)} (copied at ${copyTime.toISOString()})`);
 
     // Verify last update time
     const destStats = await fs.stat(dest);
     console.log(`Verified: ${path.relative(PUBLIC_DIR, dest)} - Last update: ${destStats.mtime.toISOString()}`);
-    
+
+
   } catch (err) {
     console.warn(`Failed to set timestamps/mode for ${dest}:`, err.message);
   }
 }
 
 async function processFile(srcPath, destPath) {
+  console.log(`Processing file: ${srcPath} -> ${destPath}`);
   const ext = path.extname(srcPath).toLowerCase();
   const relativePath = path.relative(PUBLIC_DIR, srcPath);
 
@@ -297,7 +300,7 @@ async function processFile(srcPath, destPath) {
       await copyFile(srcPath, destPath);
     }
   } catch (error) {
-    console.error(`❌ Error processing ${relativePath}:`, error.message);
+    console.error(`❌ Error processing 1 ${relativePath}:`, error.message);
     console.error(`   Source: ${srcPath}`);
     console.error(`   Dest: ${destPath}`);
     console.error(`   Stack:`, error.stack);

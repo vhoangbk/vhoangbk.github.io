@@ -73,8 +73,10 @@ app.use(express.static(publicDir, {
   etag: true,
   setHeaders: (res, path) => {
 
+    
     const stats = fs.statSync(path);
     res.setHeader('Last-Modified', stats.mtime.toUTCString());
+    console.log('Serving static file:', path, stats.mtime.toUTCString());
 
     if (path.endsWith('.webp')) {
       res.setHeader('Content-Type', 'image/webp');

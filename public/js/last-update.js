@@ -1,7 +1,10 @@
+
 document.addEventListener('DOMContentLoaded', () => {
+
     const lastUpdateElement = document.getElementById('id-last-update');
     if (lastUpdateElement) {
         const lastModified = new Date(document.lastModified);
+        console.log('Page last modified on:', lastModified.toISOString());
         const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         lastUpdateElement.textContent = `Last updated: ${lastModified.toLocaleDateString(undefined, options)}`;
     }
