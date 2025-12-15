@@ -885,7 +885,7 @@ function loadVideoFromUrl(videoUrl) {
     
     // ✅ Hiển thị warning message
     if (warningContainer) {
-      warningContainer.style.display = 'block';
+      warningContainer.style.display = 'flex';
     }
     
     // ✅ Ẩn control video
@@ -1468,6 +1468,14 @@ function saveTrimCropModal() {
   closeModal('.mtcv-container', '.config-advenced-button');
   setTrimCropFlipInfo();
   updateResolutionOptions();
+
+  // Persist cấu hình đã lưu để lần mở sau giữ nguyên
+  try {
+    localStorage.setItem('APP_STATE', JSON.stringify(APP_STATE.configConvertVideo || {}));
+    localStorage.setItem('ratio', JSON.stringify(typeof mtcv_currentRatio !== "undefined" ? mtcv_currentRatio : null));
+  } catch (e) {
+    console.warn('Cannot persist trim/crop config:', e);
+  }
 }
 
 function cancelTrimCropModal() {

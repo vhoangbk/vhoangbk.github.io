@@ -966,6 +966,12 @@ function closeAllCustomSelects() {
 function preventScrollWhenSelectOpen(evt) {
   if (!document.body.classList.contains("custom-options-open")) return;
 
+  // ✅ Desktop: Không chặn scroll, cho phép scroll bình thường
+  if (window.innerWidth > 768) {
+    return; // Không làm gì cả trên desktop
+  }
+
+  // ✅ Mobile: Giữ nguyên logic cũ
   // Cho phép scroll trong .custom-options, nhưng chặn lan ra ngoài
   const scrollable = evt.target.closest(".custom-options");
   if (scrollable) {
@@ -1346,6 +1352,26 @@ function setCustomSelectValue(selectEl, value) {
   if (selectEl.dataset?.key === "resolution" && typeof selectedResolutionOptions === "function") {
     selectedResolutionOptions();
   }
+}
+
+if (typeof TARGET_SIZE_ITEMS === "undefined") {
+  window.TARGET_SIZE_ITEMS = [
+    { value: "", text: "None" },
+    { value: "custom", text: "Custom" },
+    { value: "1", text: "1MB" },
+    { value: "2", text: "2MB" },
+    { value: "5", text: "5MB" },
+    { value: "8", text: "8MB" },
+    { value: "10", text: "10MB" },
+    { value: "15", text: "15MB" },
+    { value: "20", text: "20MB" },
+    { value: "50", text: "50MB" },
+    { value: "100", text: "100MB" },
+    { value: "200", text: "200MB" },
+    { value: "500", text: "500MB" },
+    { value: "800", text: "800MB" },
+    { value: "1000", text: "1GB" }
+  ];
 }
 
 function renderTargetSize() {

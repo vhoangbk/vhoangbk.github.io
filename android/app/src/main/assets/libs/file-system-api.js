@@ -281,7 +281,7 @@ async function pickDirectory(type) {
     if (!accepted) {
         return null;
     }
-
+cv
     pathFileSave = await window.showDirectoryPicker({
         startIn: type,
         mode: 'readwrite'

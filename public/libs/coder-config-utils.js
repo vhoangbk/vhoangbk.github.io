@@ -468,43 +468,159 @@ function calculateOptimalBitrate(width, height, fps, codecId) {
     return Math.max(minBitrate, Math.min(maxBitrate, Math.round(bitrate)));
 }
 
+/**
+ * Tìm max bitrate tối đa theo width, height và fps
+ * ✅ Tự động tính toán dựa trên độ phân giải và frame rate
+ * ✅ Hỗ trợ từ 360p đến 8K với fps từ 15-120
+ * ✅ Tối ưu theo chuẩn streaming và hardware limits
+ * 
+ * @param {number} width - Video width (pixels)
+ * @param {number} height - Video height (pixels)
+ * @param {number} fps - Frame rate (fps)
+ * @param {number} [codecId=27] - Codec ID (27: H.264, 173: H.265, 226: AV1, 167: VP9)
+ * @returns {number} Maximum bitrate in bps
+ */
+function findMaxBitrate(width, height, fps, codecId = 27) {
+    // ✅ Validate inputs
+    if (!width || !height || !fps || width <= 0 || height <= 0 || fps <= 0) {
+        console.error('❌ Invalid input parameters:', { width, height, fps });
+        return 1000000; // 1Mbps fallback
+    }
+
+    const pixels = width * height;
+    const pixelsPerSecond = pixels * fps;
+
+    // ✅ Max bits per pixel based on resolution tiers
+    let maxBitsPerPixel = 0.3; // Default high quality
+
+    if (pixels >= 7680 * 4320) { // 8K
+        maxBitsPerPixel = 0.4;
+    } else if (pixels >= 3840 * 2160) { // 4K
+        maxBitsPerPixel = 0.35;
+    } else if (pixels >= 2560 * 1440) { // 1440p
+        maxBitsPerPixel = 0.3;
+    } else if (pixels >= 1920 * 1080) { // 1080p
+        maxBitsPerPixel = 0.25;
+    } else if (pixels >= 1280 * 720) { // 720p
+        maxBitsPerPixel = 0.2;
+    } else if (pixels >= 854 * 480) { // 480p
+        maxBitsPerPixel = 0.18;
+    } else { // 360p and below
+        maxBitsPerPixel = 0.15;
+    }
+
+    // ✅ FPS scaling factor
+    let fpsMultiplier = 1.0;
+    if (fps >= 120) {
+        fpsMultiplier = 1.8;
+    } else if (fps >= 60) {
+        fpsMultiplier = 1.5;
+    } else if (fps >= 50) {
+        fpsMultiplier = 1.3;
+    } else if (fps >= 30) {
+        fpsMultiplier = 1.1;
+    } else if (fps <= 15) {
+        fpsMultiplier = 0.8;
+    }
+
+    // ✅ Codec efficiency factors
+    const codecEfficiency = {
+        27: 1.0,    // H.264 baseline
+        173: 0.75,  // H.265 more efficient
+        226: 0.6,   // AV1 most efficient  
+        167: 0.8    // VP9 good efficiency
+    };
+
+    const codecFactor = codecEfficiency[codecId] || 1.0;
+
+    // ✅ Calculate max bitrate
+    let maxBitrate = pixelsPerSecond * maxBitsPerPixel * fpsMultiplier * codecFactor;
+
+    // ✅ Hardware and streaming limits
+    const hardwareLimits = [
+        [35389440, 500000000],   // 8K: 500Mbps max (8192*4320)
+        [33177600, 400000000],   // 8K: 400Mbps max (7680*4320)  
+        [8294400, 150000000],    // 4K: 150Mbps max (3840*2160)
+        [3686400, 80000000],     // 1440p: 80Mbps max (2560*1440)
+        [2073600, 50000000],     // 1080p: 50Mbps max (1920*1080)
+        [921600, 25000000],      // 720p: 25Mbps max (1280*720)
+        [409920, 10000000],      // 480p: 10Mbps max (854*480)
+        [230400, 5000000]        // 360p: 5Mbps max (640*360)
+    ];
+
+    // ✅ Apply hardware limits
+    for (const [resolutionPixels, limit] of hardwareLimits) {
+        if (pixels >= resolutionPixels) {
+            maxBitrate = Math.min(maxBitrate, limit);
+            break;
+        }
+    }
+
+    // ✅ Absolute min/max bounds
+    const absoluteMin = 500000;    // 500kbps minimum
+    const absoluteMax = 1000000000; // 1Gbps maximum
+
+    const result = Math.max(absoluteMin, Math.min(absoluteMax, Math.round(maxBitrate)));
+
+    console.log(`🚀 Max bitrate for ${width}x${height}@${fps}fps (codec ${codecId}): ${(result / 1000000).toFixed(2)}Mbps`);
+
+    return result;
+}
 
 async function findBestVideoEncoderConfigForTargetBitrate(format, originalWidth, originalHeight, targetBitrate) {
+
+    const formatToCodecId = { h264: 27, h265: 173, av1: 226, vp9: 167 };
+    var codecId = formatToCodecId[format];
+
+
     // ✅ Constants
     const minWidth = 320, maxWidth = 3840;
     const minHeight = 240, maxHeight = 2160;
     const targetFps = 24; // Fixed FPS
     const targetBpp = 0.2; // Fixed bits per pixel
     const aspectRatio = originalWidth / originalHeight;
-    const totalPixels = targetBitrate / (targetFps * targetBpp);
-    var newWidth = Math.sqrt(totalPixels * aspectRatio) & ~1;
-    var newHeight = Math.sqrt(totalPixels / aspectRatio) & ~1;
+    var newWidth = originalWidth;
+    var newHeight = originalHeight;
+    if (targetBitrate > 0) {
+        const totalPixels = targetBitrate / (targetFps * targetBpp);
+        var baseWidth = Math.sqrt(totalPixels * aspectRatio) & ~1;
+        var baseHeight = Math.sqrt(totalPixels / aspectRatio) & ~1;
+    } else {
+        var baseWidth = originalWidth;
+        var baseHeight = originalHeight;
+    }
 
+    if (targetBitrate <= 0) {
+        targetBitrate = calculateOptimalBitrate(baseWidth, baseHeight, targetFps, codecId);
+    }
     var scale = 1.0;
-    while (scale > 0.1) {
-        newWidth = (scale * Math.sqrt(totalPixels * aspectRatio)) & ~1;
-        newHeight = (scale * Math.sqrt(totalPixels / aspectRatio)) & ~1;
-        if(newWidth < minWidth || newHeight < minHeight || newWidth > maxWidth || newHeight > maxHeight) {
+    while (scale > 0) {
+        newWidth = (scale * baseWidth) & ~1;
+        newHeight = (scale * baseHeight) & ~1;
+        if (newWidth < minWidth || newHeight < minHeight) {
             break;
         }
 
         try {
-            const support = await isVideoEncoderConfigSupported(format, newWidth, newHeight, targetFps, targetBitrate);
+            const support = await isVideoEncoderConfigSupported(codecId, newWidth, newHeight, targetFps, targetBitrate);
             if (support === true) {
+                var maxBitrate = findMaxBitrate(newWidth, newHeight, targetFps, codecId);
                 return {
                     width: newWidth,
                     height: newHeight,
-                    framerate: targetFps
+                    framerate: targetFps,
+                    bitrate: Math.min(maxBitrate, targetBitrate)
                 };
             }
         } catch (e) { }
         scale -= 0.05;
     }
-
+    var maxBitrate = findMaxBitrate(newWidth, newHeight, targetFps, codecId);
     return {
         width: newWidth,
         height: newHeight,
-        framerate: targetFps
+        framerate: targetFps,
+        bitrate: Math.min(maxBitrate, targetBitrate)
     };
 
 }
@@ -533,11 +649,7 @@ async function findBestVideoEncoderConfigWithRealTest(codecId, width, height, fp
         return null;
     }
 
-    if (sampleFrame.format == null) {
-        //  debugger;
-        sampleFrame = sampleFrame.clone();
-        sampleFrame = await fix_format_null(sampleFrame);
-    }
+
     // ✅ 1. Tạo danh sách codec strings (ưu tiên codec mới hơn)
     const codecLists = {
         27: [ // H.264 - High > Main > Baseline
@@ -567,6 +679,15 @@ async function findBestVideoEncoderConfigWithRealTest(codecId, width, height, fp
     if (!codecList) {
         console.error(`❌ Unsupported codecId: ${codecId}`);
         return null;
+    }
+
+    var isCloned = false;
+    const formats = ['I420', 'NV12', 'NV21', 'RGBA', 'RGBX', 'BGRA', 'BGRX'];
+    if (!formats.includes(sampleFrame.format)) {
+        //  debugger;
+        sampleFrame = sampleFrame.clone();
+        sampleFrame = await fix_format_null(sampleFrame);
+        isCloned = true;
     }
 
     // ✅ Auto calculate bitrate
@@ -695,6 +816,10 @@ async function findBestVideoEncoderConfigWithRealTest(codecId, width, height, fp
     } else {
         console.error(`❌ No suitable VideoEncoder found for codecId ${codecId}`);
         throw new Error(`No suitable VideoEncoder found for codecId ${codecId}`);
+    }
+
+    if (isCloned && sampleFrame) {
+        sampleFrame.close();
     }
 
     return bestConfig;

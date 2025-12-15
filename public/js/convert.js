@@ -1,5 +1,34 @@
 const makeEven = v => 2 * Math.round(v / 2);
 
+// Wake Lock helpers
+let wakeLock = null;
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release', () => {
+      console.log('WakeLock released');
+    });
+  } catch (err) {
+    console.warn('WakeLock error:', err);
+  }
+}
+
+function releaseWakeLock() {
+  try {
+    wakeLock?.release();
+  } catch (err) {
+    console.warn('Release WakeLock error:', err);
+  }
+  wakeLock = null;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && wakeLock?.released) {
+    requestWakeLock();
+  }
+});
+
 function getConfigConvertVideo() {
   console.log("APP_STATE", APP_STATE.configConvertVideo);
   if (!APP_STATE.configConvertVideo) {
@@ -153,6 +182,7 @@ function clickStartConvert() {
     alert("Please select a file first!");
     return;
   }
+  requestWakeLock();
 
   // show quảng cáo nếu là mobile
   // const platform = detectPlatform();

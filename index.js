@@ -22,7 +22,7 @@ const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
 const distPublicDir = path.join(__dirname, "dist", "public");
 const fallbackPublicDir = path.join(__dirname, "public");
 
-let publicDir = distPublicDir;
+let publicDir = fallbackPublicDir;
 if (isVercelProd) {
   // Trên Vercel, luôn dùng dist/public
   publicDir = distPublicDir;
@@ -72,12 +72,6 @@ app.use(express.static(publicDir, {
   maxAge: '1y',
   etag: true,
   setHeaders: (res, path) => {
-
-    
-    const stats = fs.statSync(path);
-    res.setHeader('Last-Modified', stats.mtime.toUTCString());
-    console.log('Serving static file:', path, stats.mtime.toUTCString());
-
     if (path.endsWith('.webp')) {
       res.setHeader('Content-Type', 'image/webp');
     }

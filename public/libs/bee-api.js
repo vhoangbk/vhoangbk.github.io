@@ -1,6 +1,3 @@
-// importScripts('common-utils.js?v=0');
-// import all exports as 'commonUtils'
-// import * as commonUtils from './common-utils.js';
 const mainBroadcastChannel = new BroadcastChannel("app_channel");
 mainBroadcastChannel.onmessage = async (event) => {
     if (event.data && event.data.type_cmd === CMD_BEE_ERROR_CONFIG_CODER) {
@@ -284,6 +281,9 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
         }
 
         notificationAndroid('cancel')
+        if (typeof releaseWakeLock === 'function') {
+            releaseWakeLock();
+        }
     });
 
     var start_time = Date.now();
@@ -299,6 +299,9 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
         } else if (data.type_cmd === CMD_BEE_ERROR) {
             hideProgressDialog();
             showAppError('Conversion failed: ' + (data.error || 'Unknown error occurred'));
+            if (typeof releaseWakeLock === 'function') {
+                releaseWakeLock();
+            }
         }
     });
 
@@ -383,9 +386,15 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
         // Sử dụng requestAnimationFrame để đảm bảo VideoCompleteDialog đã render
         requestAnimationFrame(() => {
             hideProgressDialog();
+            if (typeof releaseWakeLock === 'function') {
+                releaseWakeLock();
+            }
         });
 
     } else {
         hideProgressDialog();
+        if (typeof releaseWakeLock === 'function') {
+            releaseWakeLock();
+        }
     }
 }

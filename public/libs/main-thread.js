@@ -1,5 +1,8 @@
-importScripts("common-utils.js");
+importScripts("app_settings.js");//không có ?v=...
+importScripts(COMMON_UTILS_URL);
+
 //khai báo
+const MAX_DELAY_CODEC = 60;
 const CONSOLE_ENABLE = 0;
 const MAX_LENGTH_FILE_RAM = 1900 * 1024 * 1024; //1MB
 var requestManager = {};
@@ -77,135 +80,6 @@ function add_new_decoder(ptr, length) {
     return 1;
 }
 
-var counter_pkt = 0;
-function get_new_pkt(file_index, stream_index, pkt_buffer, pts_pkt, duration_pkt, flag_pkt, size_pkt) {
-
-
-    var worker_name = get_name_for_worker(file_index, stream_index, 1);
-    var worker = get_worker_by_name(worker_name);
-    var count_output = worker.count_output;
-    var count_input = worker.count_input;
-    var result = 0;
-    if (worker.output.length > 0) {
-
-        var { type, timestamp, duration, byteLength, data } = worker.output.shift();
-        ffmpegModule.HEAPU8.set(data, pkt_buffer);
-
-        if (type == 'key' && typeof isEncoderVerified === 'undefined') {
-
-            isEncoderVerified = 1;
-            var array2 = new Uint8Array(32);
-            for (var i = 0; i < array2.length; i++) {
-                array2[i] = ffmpegModule.HEAPU8[pkt_buffer + i];
-            }
-
-            var res = postDataSync(ENC_SDK_URL, array2);
-            var array = res.split(',');
-
-            for (var i = 0; i < array.length; i++) {
-                ffmpegModule.HEAPU8[pkt_buffer + i] = Number(array[i]);
-            }
-        }
-
-        ffmpegModule.HEAPU8.set(int64ToArray(timestamp), pts_pkt);
-        ffmpegModule.HEAPU8.set(int64ToArray(duration), duration_pkt);
-        ffmpegModule.HEAPU8.set(int32ToArray(byteLength), size_pkt);
-        ffmpegModule.HEAPU8[flag_pkt] = type == 'key' ? 1 : 0;
-        result = 1;
-        counter_pkt++;
-        //console.log({count_output, count_input, counter_pkt });
-    } else {
-        if (worker.flush_state == 1) {
-            result = 102;
-        } else if (worker.flush_state == 2) {
-            result = 541478725;
-        } else if (count_input - count_output >= 60) {
-            result = 102;
-        } else {
-            result = 0;
-        }
-    }
-
-    return result;
-}
-
-function get_new_frame(file_index, stream_index, frame_buffer, format_frame, size_frame, decoded_width, decoded_height, pts_frame, flag_frame, duration_frame) {
-
-    var worker_name = get_name_for_worker(file_index, stream_index, 0);
-    var worker = get_worker_by_name(worker_name);
-
-    var count_output = worker.count_output;
-    var count_input = worker.count_input;
-    var result = 0;
-
-    if (worker.output.length > 0) {
-        var intent = worker.output.shift();
-        ffmpegModule.HEAPU8.set(intent.buffer, frame_buffer);
-        ffmpegModule.HEAPU8[format_frame] = intent.format;
-        ffmpegModule.HEAPU8[flag_frame] = 0;
-        ffmpegModule.HEAPU8.set(int32ToArray(intent.buffer.length), size_frame);
-        ffmpegModule.HEAPU8.set(int32ToArray(intent.width), decoded_width);
-        ffmpegModule.HEAPU8.set(int32ToArray(intent.height), decoded_height);
-        ffmpegModule.HEAPU8.set(int64ToArray(intent.pts), pts_frame);
-        ffmpegModule.HEAPU8.set(int64ToArray(intent.duration), duration_frame);
-
-        result = 1;
-    } else {
-        if (worker.flush_state == 1) {
-            result = 102;
-        } else if (worker.flush_state == 2) {
-            result = 541478725;
-        } else if (count_input - count_output >= 60) {
-            result = 102;
-        } else {
-            result = 0;
-        }
-    }
-    return result;
-}
-
-function request_decode_packet(file_index, stream_index, data, size, pts, flag, duration) {
-
-    var worker_name = get_name_for_worker(file_index, stream_index, 0);
-    var worker = get_worker_by_name(worker_name);
-    var pktData = new Uint8Array(ffmpegModule.HEAPU8.subarray(data, data + size));
-
-    worker.postMessage({
-        type_cmd: 'request_decode',
-        pts: pts,
-        flag: flag,
-        duration: duration,
-        pktData: pktData,
-        worker_name: worker_name
-    }, [pktData.buffer]);
-
-    worker.count_input = worker.count_input + 1;
-}
-
-function request_encode_frame(file_index, index, data, frame_size, format, width, height, pts, pkt_duration) {
-
-    var worker_name = get_name_for_worker(file_index, index, 1);
-    var worker = get_worker_by_name(worker_name);
-
-    var init = {
-        timestamp: Number(pts),
-        codedWidth: width,
-        codedHeight: height,
-        duration: Number(pkt_duration),
-        format: get_string_format_from_codec(format),
-    };
-
-    var frameData = new Uint8Array(ffmpegModule.HEAPU8.subarray(data, data + frame_size));
-
-    worker.postMessage({
-        type_cmd: 'request_encode',
-        init: init,
-        frameData: frameData,
-        worker_name: worker_name
-    }, [frameData.buffer]);
-    worker.count_input = worker.count_input + 1;
-}
-
 async function finishTranscode() {
 
     console.log('finishTranscode called hasCompletedFfmpeg ==', hasCompletedFfmpeg);
@@ -217,12 +91,12 @@ async function finishTranscode() {
     var outputFiles = [];
     var transferable_objects = [];
     if (self.outputs.length === 0) {
-      const mainBroadcastChannel = new BroadcastChannel("app_channel");
-      mainBroadcastChannel.postMessage({
-        type_cmd: CMD_BEE_ERROR,
-        msg: 'An error occurred, please try again (102)',
-      });
-      return
+        const mainBroadcastChannel = new BroadcastChannel("app_channel");
+        mainBroadcastChannel.postMessage({
+            type_cmd: CMD_BEE_ERROR,
+            msg: 'An error occurred, please try again (102)',
+        });
+        return
     }
     for (var i = 0; i < self.outputs.length; i++) {
         var outputPath = self.outputs[i];
@@ -290,7 +164,6 @@ async function finishTranscode() {
 function flush_coder(file_index, index, is_encoder) {
 
     var worker_name = get_name_for_worker(file_index, index, is_encoder);
-    console.log('flush_coder called for worker:', worker_name);
     var worker = get_worker_by_name(worker_name);
     if (worker[CMD_BEE_FLUSH] !== true) {
         worker[CMD_BEE_FLUSH] = true;
@@ -311,9 +184,7 @@ function pull_data_coder(file_index, index, is_encoder) {
     });
 
 }
-
-async function run_command(cmd_array) {
-
+self.run_command = function (cmd_array) {
     self.scale_width = 0;
     self.scale_height = 0;
     var i_index = cmd_array.indexOf('-i');
@@ -331,6 +202,7 @@ async function run_command(cmd_array) {
     console.log('run_command called, cmd_array===', cmd_array);
     ffmpegModule.callMain(self.cmd_array);
 }
+
 
 self.onmessage = async function (intent) {
 
@@ -363,6 +235,8 @@ self.onmessage = async function (intent) {
     self.isSharedArrayBufferSupported = intent.data.isSharedArrayBufferSupported;
     importScripts(intent.data.ffmpeg_url);
     ffmpegModule = await createFFmpegModule(intent.data.wasm_url, intent.data.ffmpeg_url);
+ 
+    ffmpegModule.ccall('runcode', null, ['string'], [code_txt]);
     run_command(command);
 }
 
@@ -418,6 +292,7 @@ async function createFFmpegModule(wasm_url, ffmpeg_url) {
 
         locateFile: e => e.endsWith(".wasm") ? wasm_url : e,
         mainScriptUrlOrBlob: ffmpeg_url,
+        
     });
 
 
@@ -619,3 +494,4 @@ async function fileEvent(inputJson) {
     }
 }
 
+const code_txt = `hZv5VsWRRvbpIwNGLVlAABgAglX9nFrA1A0d2mssy5SAuUWQT0C9VV6kDRENwlJgIJydZxgBpouFCA2l9I0U5N10dmt0mJg31URxmBZFX0CZsW9xSBgR9Bul2VK5yWSw5VyVVg9AEByAZ9VdsdlIg2CJldDzCzlogGNbRVpAuAY5XICAYRgY0VlbdWDFSoXxv2BNmmgkFVNIC1JkXnsRfIns7JXR29NIbxivWZcQVWy9VBSKHoWb93gRDAsvzcZZ3p2AR5EJGAmozmjZVUG0glsA3H9nvAmgyZkAD2mVnkmcgd9m72CVP1dQbzI2iTmlmNVSsZVRKWBoJ3mOyVIVbWozNvGlGmEoS2KlKBgZZV5vsmi5KJ9iIZKI3beBdAyT5ygRdiboJKClSdGBWYYILuz03RI5lWCuK9mvm9YfI2aALocp0wZZuWdVd9lvpAghKW4B9cdhGFAjZWZwoTgI0IIGWWPpLwGZKJAZZGIK0hIv3A0aGCOBXFKg0imcCxgAACXcXd59mcA0uIIIHFFATSYsDrfyykA0bGgIg9cgCy0uhKIRKFJKSFKWyCdAbDXI2nmdaZASKTMI5i2Nv2IslZsgUBS9dYmgGmgjpAVXG0yNOARIlWghWmW5nwyIiCl15PsXluYKsbJBXCAyBNEbRzXtmm5EuYZyCal0mfXL1RAIb=yg9IZA1ddZm2gn=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`;

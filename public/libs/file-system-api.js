@@ -286,7 +286,7 @@ async function pickDirectory(type) {
         startIn: type,
         mode: 'readwrite'
     });
-    return window[dirName];
+    return pathFileSave;
 }
 
 const recentSavedFiles = 'recent-saved-files';

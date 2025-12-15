@@ -20,8 +20,25 @@ function openModalAdvancedConfig() {
   // if(backupAppState) {
   //   backupAppState.ratio = backupAppState.ratio !== null ? backupAppState.ratio : 'custom';
   // }
+  // Backup hiện tại (dùng cho cancel)
   localStorage.setItem('APP_STATE', JSON.stringify(backupAppState || {}));
-  localStorage.setItem('ratio', JSON.stringify(mtcv_currentRatio));
+  try {
+    localStorage.setItem('ratio', JSON.stringify(typeof mtcv_currentRatio !== "undefined" ? mtcv_currentRatio : null));
+  } catch (e) {
+    console.warn('Cannot save ratio:', e);
+  }
+
+  // Khôi phục cấu hình đã lưu trước đó (nếu có) để render đúng giá trị khi mở lại
+  const saved = localStorage.getItem('APP_STATE');
+  const savedRatio = localStorage.getItem('ratio');
+  if (saved) {
+    try { APP_STATE.configConvertVideo = JSON.parse(saved); }
+    catch (e) { console.warn('Cannot parse saved APP_STATE:', e); }
+  }
+  if (savedRatio) {
+    try { mtcv_currentRatio = JSON.parse(savedRatio); }
+    catch (e) { console.warn('Cannot parse saved ratio:', e); }
+  }
   const modal = APP_STATE.modalTrimCrop;
   const advancedBtn = document.querySelector('.config-advenced-button');
   

@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // }
 
   const platform = detectPlatform();
-  if (!platform.isBeeConvertApp) {
+  // if (!platform.isBeeConvertApp) {
     loadRecentFile();
-  }
+  // }
   
 });
 
@@ -92,11 +92,11 @@ async function handleFileChange(event, id, isOldFile = false) {
     if (event.files && event.files.length > 0) {
 
     const platform = detectPlatform();
-    if (!platform.isBeeConvertApp) {
+    // if (!platform.isBeeConvertApp) {
       if (!isOldFile) {
         set("selectedFile", event.files[0]);
       }
-    }
+    // }
 
     if (!window.app_settings) {
       if (typeof showLoadingDialog === 'function') {

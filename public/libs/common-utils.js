@@ -1,35 +1,3 @@
-const USE_FILE_INPUT = false;
-const ENC_SDK_URL = 'https://www.convertsdk.com/enc';
-const DEC_SDK_URL = 'https://www.convertsdk.com/dec';
-//const IS_SHARED_ARRAY_BUFFER_SUPPORTED = typeof SharedArrayBuffer === 'undefined' ? false : true;
-const IS_SHARED_ARRAY_BUFFER_SUPPORTED = false;
-const WASM_BEE_LIB_URL = IS_SHARED_ARRAY_BUFFER_SUPPORTED ? 'libs/ffmpeg-wasm/ffmpeg-mt-gpl.wasm?v=1763370859963' : 'libs/ffmpeg-wasm/ffmpeg-st-gpl.wasm?v=1763370614149';
-const FFMPEG_BEE_LIB_URL = IS_SHARED_ARRAY_BUFFER_SUPPORTED ? 'libs/ffmpeg-wasm/ffmpeg-mt-gpl.js?v=1763370860320' : 'libs/ffmpeg-wasm/ffmpeg-st-gpl.js?v=1763370614617';
-const userAgent = navigator.userAgent.toLowerCase();
-const IS_MOBILE_APP = /beeconvertapp/i.test(userAgent);
-const MAIN_THREAD_URL = 'libs/main-thread.js';
-const CONVERT_UTILS_URL = 'libs/common-utils.js';
-const CODEC_HELPER_URL = 'libs/coder-config-utils.js';
-const ENCODE_DECODE_WORKER_URL = 'coder-thread.js';
-
-
-const CMD_BEE_UPDATE_PROGRESS = 'cmd-bee-update-progress';
-const CMD_BEE_ERROR = 'cmd-bee-error';
-const CMD_BEE_ERROR_CONFIG_CODER = 'cmd-bee-error-config-coder';
-
-const CMD_BEE_TRY_AGAIN = 'cmd-bee-try-again';
-const CMD_BEE_COMPLETE = 'cmd-bee-complete';
-const CMD_BEE_CALL_MAIN = 'cmd-bee-call-main';
-const CMD_BEE_CALL_MAIN_RESPONSE = 'cmd-bee-call-main-response';
-const CMD_BEE_GET_INFO = 'cmd-bee-get-info';
-const CMD_BEE_CONVERT = 'cmd-bee-convert';
-const CMD_NEW_FRAME = 'new_frame';
-const CMD_BEE_WRITE_FILE = 'cmd-bee-write-file';
-const CMD_BEE_PULL_DATA = 'cmd-bee-pull-data';
-const CMD_BEE_FLUSH = 'cmd-bee-flush';
-const CMD_BEE_GET_DATA = 'cmd-bee-get-data'; 
-const CMD_BEE_GET_DATA_RESPONSE = 'cmd-bee-get-data-response';
-
 
 const CODEC_MAP = {
 	"I420": { "value": 0, "bpp": 12 }, "I420A": { "value": 33, "bpp": 20 }, "I422": { "value": 4, "bpp": 16 }, "I422A": { "value": 78, "bpp": 24 },
@@ -689,7 +657,7 @@ async function convertUserOptionsToCommand(userOptions) {
 		var targetConfig = await findBestVideoEncoderConfigForTargetBitrate(userOptions.format_name, userOptions.crop?.width || fileInfo.width, userOptions.crop?.height || fileInfo.height, videoBitRateNew);
 		userOptions.fps = targetConfig.framerate;
 		userOptions.resolution = { width: targetConfig.width, height: targetConfig.height };
-		userOptions.videoBitrate = 0.9 * videoBitRateNew;
+		userOptions.videoBitrate = 0.9 * targetConfig.bitrate;
 	}
 
 	var cmd_array = ['-loglevel', 'info', '-stats_period', 2, '-progress', '-', '-nostats'];
@@ -723,17 +691,25 @@ async function convertUserOptionsToCommand(userOptions) {
 
 	var outputWidth = userOptions.resolution?.width || userOptions.crop?.width || fileInfo.width;
 	var outputHeight = userOptions.resolution?.height || userOptions.crop?.height || fileInfo.height;
-	if (userOptions.videoBitrate) {
-		cmd_array.push('-b:v', dec(userOptions.videoBitrate, 0));
-	} else if (userOptions.quality) {
-		cmd_array.push('-b:v', selectBitrateByCodec(userOptions.format_name, outputWidth, outputHeight, userOptions.quality.toLowerCase()));
-	}
+
 	var needReencode = false;
 	needReencode = needReencode || (userOptions.format_name && userOptions.format_name !== fileInfo.videoCodec);
 	needReencode = needReencode || (userOptions.fps != -1 && userOptions.fps !== fileInfo.fps);
 	needReencode = needReencode || (getVF().length > 0);
 	needReencode = needReencode || (fileInfo.width !== outputWidth || fileInfo.height !== outputHeight);
 	needReencode = needReencode || (userOptions.quality != null);
+
+	if (needReencode && !userOptions.target_size) {
+		var outputConfig = await findBestVideoEncoderConfigForTargetBitrate(userOptions.format_name, outputWidth, outputHeight, 0);
+		outputWidth = outputConfig.width;
+		outputHeight = outputConfig.height;
+	}
+
+	if (userOptions.videoBitrate) {
+		cmd_array.push('-b:v', dec(userOptions.videoBitrate, 0));
+	} else if (userOptions.quality) {
+		cmd_array.push('-b:v', selectBitrateByCodec(userOptions.format_name, outputWidth, outputHeight, userOptions.quality.toLowerCase()));
+	}
 
 	if (needReencode) {
 		cmd_array.push('-r', userOptions.fps > 0 ? userOptions.fps : fileInfo.fps);
@@ -829,26 +805,26 @@ function getScaleWidth(device = "DESKTOP") {
 	return scaleWidth;
 }
 function isSafari() {
-    const ua = navigator.userAgent;
-    const isSafari = /Safari/.test(ua)
-        && !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|OPR|Opera|SamsungBrowser/.test(ua);
+	const ua = navigator.userAgent;
+	const isSafari = /Safari/.test(ua)
+		&& !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|OPR|Opera|SamsungBrowser/.test(ua);
 
-    const isIOS = /iPhone|iPad|iPod/.test(navigator.platform)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+	const isIOS = /iPhone|iPad|iPod/.test(navigator.platform)
+		|| (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // ✅ Check if we're in worker context
-    const isWorker = typeof window === 'undefined';
-    let isWKWebView = false;
+	// ✅ Check if we're in worker context
+	const isWorker = typeof window === 'undefined';
+	let isWKWebView = false;
 
-    if (!isWorker) {
-        // Main thread: check window.webkit
-        isWKWebView = window.webkit?.messageHandlers !== undefined;
-    } else {
-        // Worker context: fallback to platform detection
-        // WKWebView usually runs on iOS, so assume true for iOS
-        isWKWebView = isIOS;
-    }
+	if (!isWorker) {
+		// Main thread: check window.webkit
+		isWKWebView = window.webkit?.messageHandlers !== undefined;
+	} else {
+		// Worker context: fallback to platform detection
+		// WKWebView usually runs on iOS, so assume true for iOS
+		isWKWebView = isIOS;
+	}
 
-    return isSafari || (isIOS && isWKWebView);
+	return isSafari || (isIOS && isWKWebView);
 }
 var is_safari = isSafari();

@@ -2,9 +2,10 @@
   display: block;
 }
 
-body.desktop-select-open {
+/* ✅ Desktop: Không lock scroll khi custom-select mở */
+/* body.desktop-select-open {
   overflow: hidden;
-}
+} */
 .layout-desktop .header {
   height: 4rem;
   width: 100%;
@@ -895,16 +896,22 @@ aside {
   height: 100%;
 }
 
-.custom-select-trigger {
-  background: transparent;
-  width: 100%;
-  font-size: 0.85rem;
-  max-height: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 0.85rem;
+/* ✅ Chỉ áp dụng cho mobile, desktop sẽ dùng CSS từ desktop-new.css */
+@media (max-width: 768px) {
+  .custom-select-trigger {
+    background: transparent;
+    width: 100%;
+    font-size: 0.85rem;
+    max-height: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 0.85rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .custom-options {
@@ -1039,6 +1046,9 @@ aside {
   }
 
   .custom-options-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     height: 3rem;
     padding: 0 1.5rem;
     display: flex;
@@ -1046,7 +1056,7 @@ aside {
     background: var(--theme-color);
     font-weight: 500;
     font-size: 1.2rem;
-    color: var(--black)
+    color: var(--black);
   }
 
   .custom-options-list {
@@ -1054,6 +1064,8 @@ aside {
     display: flex;
     flex-direction: column;
     gap: var(--common-padding);
+    overflow-y: auto;
+    max-height: calc(min(70dvh, 600px) - 3rem);
   }
 
   .custom-options-container-top {

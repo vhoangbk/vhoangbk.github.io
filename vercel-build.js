@@ -4,7 +4,7 @@ const path = require('path');
 
 const branch = process.env.VERCEL_GIT_COMMIT_REF || '';
 // ✅ Cho phép build trên cả main và develop
-const shouldBuild = true // branch === 'main' || branch === 'master';
+const shouldBuild = true // branch === 'main' || branch === 'develop';
 
 if (shouldBuild) {
   const distDir = path.join(__dirname, 'dist');

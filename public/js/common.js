@@ -154,8 +154,6 @@ function timeStringToSeconds(timeStr) {
 function detectDeviceAndLayout() {
   const browserWidth = window.innerWidth;
   const browserHeight = window.innerHeight;
-  console.warn('browserWidth ======>', browserWidth);
-  console.warn('browserHeight ======>', browserHeight);
   let baseFontSize = 18;
   let showAside = false;
 

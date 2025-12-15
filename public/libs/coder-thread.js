@@ -1,7 +1,6 @@
-importScripts("common-utils.js");
-importScripts("coder-config-utils.js");
-
-
+importScripts("app_settings.js");//không có ?v=...
+importScripts(COMMON_UTILS_URL);
+importScripts(CODEC_HELPER_URL);
 
 var coder_map = {}; //{name:(videodecoder|videoencoder)}
 const ex_decoder_key = 'ex_decoder_key';
@@ -60,10 +59,7 @@ var ex_mime_codec;
                 }
 
                 if (coder.state != 'configured') {
-                    // if (!coder.is_encoder && !coder.init_decoder && coder.pendding_inputs.length > 0) {
-                    //     coder.init_decoder = true;
-                    //     config_decoder(coder, coder.pendding_inputs[0]);
-                    // }
+    
                     if (coder.is_setup == false) {
                         coder.is_setup = true;
                         config_coder(coder, coder.pendding_inputs[0]);
@@ -226,8 +222,15 @@ async function config_coder(coder, sample) {
     console.log("config_coder===", JSON.stringify(coder.config));
     try {
         if (coder.is_encoder) {
-            // debugger;
-            //async function findBestVideoEncoderConfig3(codecId, width, height, fps = 25, bitrate = 0, sampleFrame = null) {
+
+            //dành riêng cho ex_encoder_key
+            if (coder.name == ex_encoder_key) {
+                var config = await findBestVideoEncoderConfigForTargetBitrate('h264', coder.config.enc_width, coder.config.enc_height, 0);
+                 coder.config.enc_width = config.width;
+                 coder.config.enc_height = config.height;
+            }
+
+
             var config = await findBestVideoEncoderConfigWithRealTest(coder.config.codec_id, coder.config.enc_width, coder.config.enc_height, coder.config.framerate_den > 0
                 ? coder.config.framerate_num / coder.config.framerate_den : 30, coder.config.bit_rate > 0 ? coder.config.bit_rate : 0, sample);
             coder.configure(config.config);

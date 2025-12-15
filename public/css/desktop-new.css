@@ -1,4 +1,4 @@
-@import url('desktop-mtcv.css');
+@import url('desktop-mtcv.css?v=1765808452997');
 
 :root {
   --color: #333;
@@ -392,7 +392,7 @@ body {
   box-sizing: border-box;
 
   @media (max-width: 600px) {
-    padding: clamp(1rem, 2vh, 1.5rem) clamp(1rem, 2vh, 1.5rem) 0;
+    padding: clamp(1rem, 2vh, 1.5rem) clamp(0.5rem, 1vh, 1rem) 0;
   }
 }
 
@@ -496,6 +496,28 @@ body {
   font-size: clamp(1rem, 1vh, 1.2rem);
   appearance: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ✅ Desktop: Sửa custom-select-trigger cho đúng */
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: clamp(1rem, 1vh, 1.2rem);
+  font-weight: 400;
+  color: var(--black);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
   box-sizing: border-box;
 }
 
@@ -676,13 +698,19 @@ body.mobile-sheet-open .desktop-footer-container {
 .desktop-btn-container {
   width: 100%;
   max-width: var(--max-content-width);
+  padding: 0.8rem var(--section-padding-h);
   padding: clamp(0.5rem, 1.2vh, 0.8rem) var(--section-padding-h);
-  height: 100%;
+  min-height: 4rem;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
   box-sizing: border-box;
   margin: 0 auto;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
 }
 
 input.desktop-footer-btn-convert {

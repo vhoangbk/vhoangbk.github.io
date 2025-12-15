@@ -458,11 +458,16 @@ ease;
   margin-top: -10px;
   margin-bottom: -6px;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .desktop-not-supported__message-warning-container {
   display: none;
   padding: 0 var(--common-padding);
+  height: auto;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .desktop-not-supported__message-warning .warning-icon,
