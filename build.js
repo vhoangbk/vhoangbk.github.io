@@ -240,13 +240,13 @@ async function processFile(srcPath, destPath) {
       
       // ✅ Check dest file cũ (nếu có)
       if (await fs.pathExists(destPath)) {
-        const oldDestStats = await fs.stat(destPath);
-        const oldDestContent = await fs.readFile(destPath, 'utf8');
-        const oldDestHash = require('crypto').createHash('md5').update(oldDestContent).digest('hex').substring(0, 8);
-        console.log(`   ⚠️  Old dest exists: size=${oldDestStats.size}B, hash=${oldDestHash}, mtime=${oldDestStats.mtime.toISOString()}`);
-        console.log(`   📝 Old dest content preview: ${oldDestContent.substring(0, 100)}...`);
+        // const oldDestStats = await fs.stat(destPath);
+        // const oldDestContent = await fs.readFile(destPath, 'utf8');
+        // const oldDestHash = require('crypto').createHash('md5').update(oldDestContent).digest('hex').substring(0, 8);
+        // console.log(`   ⚠️  Old dest exists: size=${oldDestStats.size}B, hash=${oldDestHash}, mtime=${oldDestStats.mtime.toISOString()}`);
+        // console.log(`   📝 Old dest content preview: ${oldDestContent.substring(0, 100)}...`);
         await fs.remove(destPath);
-        console.log(`   🗑️  Removed old dest file`);
+        // console.log(`   🗑️  Removed old dest file`);
       }
       
       // ✅ Write file mới
@@ -327,8 +327,10 @@ async function build() {
     const srcPath = path.join(PUBLIC_DIR, file);
     const destPath = path.join(BUILD_PUBLIC_DIR, file);
 
+    console.log(`Processing file: ${file}`);
     try {
-      await processFile(srcPath, destPath);
+      // await processFile(srcPath, destPath);
+      await copyFile(srcPath, destPath);
       successCount++;
     } catch (error) {
       errorCount++;
@@ -339,49 +341,49 @@ async function build() {
   console.log(`\n📝 Updating HTML files with build version ${BUILD_VERSION}...`);
   const htmlFiles = glob.sync('**/*.html', { cwd: BUILD_PUBLIC_DIR });
 
-  for (const htmlFile of htmlFiles) {
-    const htmlPath = path.join(BUILD_PUBLIC_DIR, htmlFile);
-    try {
-      let content = await fs.readFile(htmlPath, 'utf8');
-      let updated = false;
+  // for (const htmlFile of htmlFiles) {
+  //   const htmlPath = path.join(BUILD_PUBLIC_DIR, htmlFile);
+  //   try {
+  //     let content = await fs.readFile(htmlPath, 'utf8');
+  //     let updated = false;
 
-      content = content.replace(
-        /(href|src)=["']([^"']*(?:\.js|\.css|\.wasm))(\?v=[^"']*)?["']/gi,
-        (match, attr, filePath, existingVersion) => {
-          if (existingVersion) {
-            return match;
-          }
-          updated = true;
-          return `${attr}="${filePath}?v=${BUILD_VERSION}"`;
-        }
-      );
+  //     content = content.replace(
+  //       /(href|src)=["']([^"']*(?:\.js|\.css|\.wasm))(\?v=[^"']*)?["']/gi,
+  //       (match, attr, filePath, existingVersion) => {
+  //         if (existingVersion) {
+  //           return match;
+  //         }
+  //         updated = true;
+  //         return `${attr}="${filePath}?v=${BUILD_VERSION}"`;
+  //       }
+  //     );
 
-      content = content.replace(
-        /(href|src)=["']([^"']*(?:\.js|\.css|\.wasm))\?v=[^"']+["']/gi,
-        (match, attr, filePath) => {
-          updated = true;
-          return `${attr}="${filePath}?v=${BUILD_VERSION}"`;
-        }
-      );
+  //     content = content.replace(
+  //       /(href|src)=["']([^"']*(?:\.js|\.css|\.wasm))\?v=[^"']+["']/gi,
+  //       (match, attr, filePath) => {
+  //         updated = true;
+  //         return `${attr}="${filePath}?v=${BUILD_VERSION}"`;
+  //       }
+  //     );
 
-      if (updated) {
-        await fs.writeFile(htmlPath, content, 'utf8');
-        console.log(`  ✓ Updated: ${htmlFile}`);
-      }
-    } catch (error) {
-      console.error(`  ❌ Error updating ${htmlFile}:`, error.message);
-    }
-  }
+  //     if (updated) {
+  //       await fs.writeFile(htmlPath, content, 'utf8');
+  //       console.log(`  ✓ Updated: ${htmlFile}`);
+  //     }
+  //   } catch (error) {
+  //     console.error(`  ❌ Error updating ${htmlFile}:`, error.message);
+  //   }
+  // }
 
-  const buildInfoPath = path.join(BUILD_PUBLIC_DIR, 'build-info.json');
-  const buildInfo = {
-    lastUpdate: parseInt(BUILD_VERSION),
-    buildVersion: BUILD_VERSION,
-    fileCount: successCount,
-    buildTime: new Date().toISOString()
-  };
-  await fs.writeFile(buildInfoPath, JSON.stringify(buildInfo, null, 2), 'utf8');
-  console.log(`  ✓ Updated: build-info.json`);
+  // const buildInfoPath = path.join(BUILD_PUBLIC_DIR, 'build-info.json');
+  // const buildInfo = {
+  //   lastUpdate: parseInt(BUILD_VERSION),
+  //   buildVersion: BUILD_VERSION,
+  //   fileCount: successCount,
+  //   buildTime: new Date().toISOString()
+  // };
+  // await fs.writeFile(buildInfoPath, JSON.stringify(buildInfo, null, 2), 'utf8');
+  // console.log(`  ✓ Updated: build-info.json`);
 
   console.log(`\n📋 Copying index.js to dist/index.js...`);
   const rootIndexJs = path.join(__dirname, 'index.js');
