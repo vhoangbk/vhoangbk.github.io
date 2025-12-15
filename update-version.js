@@ -189,7 +189,7 @@ function addVersionToFile(filePath) {
     }
   }
 }
-addVersionToDir(PUBLIC_DIR)
+// addVersionToDir(PUBLIC_DIR)
 // addVersionToFile(path.join(__dirname, 'public/libs/convert-lib/constant.js'));
 // addVersionToFile(path.join(__dirname, 'public/css/styles.css'));
 // addVersionToFile(path.join(__dirname, 'public/index.html'));
