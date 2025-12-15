@@ -5,7 +5,7 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 const csso = require('csso');
 const glob = require('glob');
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+const isProduction = true; //process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
 const BUILD_DIR = path.join(__dirname, 'dist');
 const BUILD_PUBLIC_DIR = path.join(BUILD_DIR, 'public');
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -69,12 +69,14 @@ async function minifyJS(filePath) {
 
     // ✅ Skip minify hoàn toàn cho các file FFmpeg và WASM loader
     const shouldMinifyFile = shouldMinify(filePath);
+    console.log(`shouldMinifyFile ${shouldMinifyFile} file ${filePath}`);
     if (!shouldMinifyFile) {
       console.log(`⚠️  Skipping minify for ${path.relative(PUBLIC_DIR, filePath)} (FFmpeg/WASM file)`);
       return code; // Trả về code gốc không minify
     }
 
     const useObfuscate = shouldObfuscate(filePath);
+    console.log(`useObfuscate ${useObfuscate} file ${filePath}`);
 
     const terserOptions = {
       compress: {
