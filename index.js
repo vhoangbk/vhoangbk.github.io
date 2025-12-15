@@ -22,7 +22,7 @@ const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
 const distPublicDir = path.join(__dirname, "dist", "public");
 const fallbackPublicDir = path.join(__dirname, "public");
 
-let publicDir = fallbackPublicDir;
+let publicDir = distPublicDir;
 // if (isVercelProd) {
 //   // Trên Vercel, luôn dùng dist/public
 //   publicDir = distPublicDir;
