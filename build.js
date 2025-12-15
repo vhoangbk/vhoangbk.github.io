@@ -187,17 +187,15 @@ async function minifyCSS(cssContent, filePath = null) {
 async function copyFile(src, dest) {
   const destDir = path.dirname(dest);
   await fs.ensureDir(destDir);
+  
   await fs.copyFile(src, dest);
-
   try {
-    const srcStats = await fs.stat(src);
-    // Preserve atime and mtime on destination
-    await fs.utimes(dest, srcStats.atime, srcStats.mtime);
-    // Preserve file mode (permissions)
-    await fs.chmod(dest, srcStats.mode);
-    console.log(`   ⏱️  Preserved timestamps and mode for ${path.relative(PUBLIC_DIR, dest)}`);
+    const copyTime = new Date();
+    await fs.utimes(dest, copyTime, copyTime);
+    console.log(`Set copy time for ${path.relative(PUBLIC_DIR, dest)} (copied at ${copyTime.toISOString()})`);
+
   } catch (err) {
-    console.warn(`   ⚠️  Failed to preserve timestamps/mode for ${dest}:`, err.message);
+    console.warn(`Failed to set timestamps/mode for ${dest}:`, err.message);
   }
 }
 
