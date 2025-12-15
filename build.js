@@ -361,6 +361,9 @@ async function build() {
   for (const htmlFile of htmlFiles) {
     const htmlPath = path.join(BUILD_PUBLIC_DIR, htmlFile);
     try {
+      const copyTime = new Date();
+      await fs.utimes(htmlPath, copyTime, copyTime);
+      console.log(`  ✓ Set copy time for ${htmlFile} (updated at ${copyTime.toISOString()})`);
       let content = await fs.readFile(htmlPath, 'utf8');
       let updated = false;
 
@@ -387,8 +390,6 @@ async function build() {
         await fs.writeFile(htmlPath, content, 'utf8');
         console.log(`  ✓ Updated: ${htmlFile}`);
       }
-      const copyTime = new Date();
-      await fs.utimes(htmlPath, copyTime, copyTime);
     } catch (error) {
       console.error(`  ❌ Error updating ${htmlFile}:`, error.message);
     }
