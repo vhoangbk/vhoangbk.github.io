@@ -72,6 +72,10 @@ app.use(express.static(publicDir, {
   maxAge: '1y',
   etag: true,
   setHeaders: (res, path) => {
+
+    const stats = fs.statSync(path);
+    res.setHeader('Last-Modified', stats.mtime.toUTCString());
+
     if (path.endsWith('.webp')) {
       res.setHeader('Content-Type', 'image/webp');
     }

@@ -189,14 +189,20 @@ async function copyFile(src, dest) {
   await fs.ensureDir(destDir);
   
   await fs.copyFile(src, dest);
-  try {
-    const copyTime = new Date();
-    await fs.utimes(dest, copyTime, copyTime);
-    console.log(`Set copy time for ${path.relative(PUBLIC_DIR, dest)} (copied at ${copyTime.toISOString()})`);
+  // try {
+  //   const copyTime = new Date();
+  //   await fs.utimes(dest, copyTime, copyTime);
+  //   console.log(`Set copy time for ${path.relative(PUBLIC_DIR, dest)} (copied at ${copyTime.toISOString()})`);
 
-  } catch (err) {
-    console.warn(`Failed to set timestamps/mode for ${dest}:`, err.message);
-  }
+  //   // const lastModified = new Date(document.lastModified);
+    
+  //   // Verify last update time
+  //   const destStats = await fs.stat(dest);
+  //   console.log(`Verified: ${path.relative(PUBLIC_DIR, dest)} - Last update: ${destStats.mtime.toISOString()}`);
+    
+  // } catch (err) {
+  //   console.warn(`Failed to set timestamps/mode for ${dest}:`, err.message);
+  // }
 }
 
 async function processFile(srcPath, destPath) {
