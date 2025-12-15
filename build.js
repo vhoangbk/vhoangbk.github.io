@@ -385,10 +385,10 @@ async function build() {
 
       if (updated) {
         await fs.writeFile(htmlPath, content, 'utf8');
-        const copyTime = new Date();
-        await fs.utimes(htmlPath, copyTime, copyTime);
         console.log(`  ✓ Updated: ${htmlFile}`);
       }
+      const copyTime = new Date();
+      await fs.utimes(htmlPath, copyTime, copyTime);
     } catch (error) {
       console.error(`  ❌ Error updating ${htmlFile}:`, error.message);
     }
