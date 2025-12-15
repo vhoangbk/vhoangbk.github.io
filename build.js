@@ -196,8 +196,8 @@ async function copyFile(src, dest) {
     console.log(`Set copy time for ${path.relative(PUBLIC_DIR, dest)} (copied at ${copyTime.toISOString()})`);
 
     // Verify last update time
-    const destStats = await fs.stat(dest);
-    console.log(`Verified: ${path.relative(PUBLIC_DIR, dest)} - Last update: ${destStats.mtime.toISOString()}`);
+    // const destStats = await fs.stat(dest);
+    // console.log(`Verified: ${path.relative(PUBLIC_DIR, dest)} - Last update: ${destStats.mtime.toISOString()}`);
 
 
   } catch (err) {
@@ -385,6 +385,8 @@ async function build() {
 
       if (updated) {
         await fs.writeFile(htmlPath, content, 'utf8');
+        const copyTime = new Date();
+        await fs.utimes(htmlPath, copyTime, copyTime);
         console.log(`  ✓ Updated: ${htmlFile}`);
       }
     } catch (error) {
