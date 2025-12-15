@@ -5,7 +5,7 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 const csso = require('csso');
 const glob = require('glob');
 
-const isProduction = false //process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
 const BUILD_DIR = path.join(__dirname, 'dist');
 const BUILD_PUBLIC_DIR = path.join(BUILD_DIR, 'public');
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -240,13 +240,13 @@ async function processFile(srcPath, destPath) {
       
       // ✅ Check dest file cũ (nếu có)
       if (await fs.pathExists(destPath)) {
-        // const oldDestStats = await fs.stat(destPath);
-        // const oldDestContent = await fs.readFile(destPath, 'utf8');
-        // const oldDestHash = require('crypto').createHash('md5').update(oldDestContent).digest('hex').substring(0, 8);
-        // console.log(`   ⚠️  Old dest exists: size=${oldDestStats.size}B, hash=${oldDestHash}, mtime=${oldDestStats.mtime.toISOString()}`);
-        // console.log(`   📝 Old dest content preview: ${oldDestContent.substring(0, 100)}...`);
+        const oldDestStats = await fs.stat(destPath);
+        const oldDestContent = await fs.readFile(destPath, 'utf8');
+        const oldDestHash = require('crypto').createHash('md5').update(oldDestContent).digest('hex').substring(0, 8);
+        console.log(`   ⚠️  Old dest exists: size=${oldDestStats.size}B, hash=${oldDestHash}, mtime=${oldDestStats.mtime.toISOString()}`);
+        console.log(`   📝 Old dest content preview: ${oldDestContent.substring(0, 100)}...`);
         await fs.remove(destPath);
-        // console.log(`   🗑️  Removed old dest file`);
+        console.log(`   🗑️  Removed old dest file`);
       }
       
       // ✅ Write file mới
@@ -327,10 +327,8 @@ async function build() {
     const srcPath = path.join(PUBLIC_DIR, file);
     const destPath = path.join(BUILD_PUBLIC_DIR, file);
 
-    console.log(`Processing file: ${file}`);
     try {
       await processFile(srcPath, destPath);
-      // await copyFile(srcPath, destPath);
       successCount++;
     } catch (error) {
       errorCount++;

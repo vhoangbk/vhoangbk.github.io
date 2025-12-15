@@ -1,22 +1,22 @@
 /* styles.css - File CSS tập trung */
 
 /* ===== CSS VARIABLES & RESET ===== */
-@import url('common.css?v=1764992654627');
+@import url('common.css?v=0');
 
 /* ===== MAIN LAYOUT STYLES ===== */
-@import url('home.css?v=1765808452997');
-@import url('up-load-home.css?v=1764992654630');
-@import url('form-config-convert-video.css?v=1764035777021');
+@import url('home.css?v=0');
+@import url('up-load-home.css?v=0');
+@import url('form-config-convert-video.css?v=0');
 
 /* ===== COMPONENT STYLES ===== */
-@import url('/components/info-dialog/info-dialog.css?v=1764992654622');
-@import url('/components/number-input/number-input.css?v=1765525001214');
-@import url('/components/loading/loading.css?v=1764992654623');
-@import url('/components/progress/progress.css?v=1765465595751');
-@import url('/components/video-complete/video-complete.css?v=1765766788518');
-@import url('/components/video-player/video-player.css?v=1764992654627');
+@import url('/components/info-dialog/info-dialog.css?v=0');
+@import url('/components/number-input/number-input.css?v=0');
+@import url('/components/loading/loading.css?v=0');
+@import url('/components/progress/progress.css?v=0');
+@import url('/components/video-complete/video-complete.css?v=0');
+@import url('/components/video-player/video-player.css?v=0');
 
 /* ===== MODAL COMPONENT STYLES ===== */
-@import url('/components/modal-trim-crop-video/mtcv.css?v=1765766788518');
-@import url('/components/modal-trim-crop-video/mtcv-timeline.css?v=1764992654624');
-@import url('/css/desktop-style.css?v=1764992654628');
+@import url('/components/modal-trim-crop-video/mtcv.css?v=0');
+@import url('/components/modal-trim-crop-video/mtcv-timeline.css?v=0');
+@import url('/css/desktop-style.css?v=0');

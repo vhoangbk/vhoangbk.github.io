@@ -3,14 +3,14 @@ const ENC_SDK_URL = 'https://www.convertsdk.com/enc';
 const DEC_SDK_URL = 'https://www.convertsdk.com/dec';
 //const IS_SHARED_ARRAY_BUFFER_SUPPORTED = typeof SharedArrayBuffer === 'undefined' ? false : true;
 const IS_SHARED_ARRAY_BUFFER_SUPPORTED = false;
-const WASM_BEE_LIB_URL = IS_SHARED_ARRAY_BUFFER_SUPPORTED ? '/libs/ffmpeg-wasm/ffmpeg-mt-gpl.wasm?v=1765766788610' : '/libs/ffmpeg-wasm/ffmpeg-st-gpl.wasm?v=1765766788705';
-const FFMPEG_BEE_LIB_URL = IS_SHARED_ARRAY_BUFFER_SUPPORTED ? '/libs/ffmpeg-wasm/ffmpeg-mt-gpl.js?v=1765766788523' : '/libs/ffmpeg-wasm/ffmpeg-st-gpl.js?v=1765766788611';
+const WASM_BEE_LIB_URL = IS_SHARED_ARRAY_BUFFER_SUPPORTED ? '/libs/ffmpeg-wasm/ffmpeg-mt-gpl.wasm?v=1765694567773' : '/libs/ffmpeg-wasm/ffmpeg-st-gpl.wasm?v=1765693946421';
+const FFMPEG_BEE_LIB_URL = IS_SHARED_ARRAY_BUFFER_SUPPORTED ? '/libs/ffmpeg-wasm/ffmpeg-mt-gpl.js?v=1765694568134' : '/libs/ffmpeg-wasm/ffmpeg-st-gpl.js?v=1765693946785';
 const userAgent = navigator.userAgent.toLowerCase();
 const IS_MOBILE_APP = /beeconvertapp/i.test(userAgent);
-const MAIN_THREAD_URL = '/libs/main-thread.js?v=1765782606252';
-const CODEC_HELPER_URL = '/libs/coder-config-utils.js?v=1765808453000';
-const ENCODE_DECODE_WORKER_URL = '/libs/coder-thread.js?v=1765781461327';
-const COMMON_UTILS_URL = '/libs/common-utils.js?v=1765781461327';
+const MAIN_THREAD_URL = '/libs/main-thread.js?v=1765723743299';
+const CODEC_HELPER_URL = '/libs/coder-config-utils.js?v=1765546458036';
+const ENCODE_DECODE_WORKER_URL = '/libs/coder-thread.js?v=1765723987964';
+const COMMON_UTILS_URL = '/libs/common-utils.js?v=1765722038852';
 
 
 const CMD_BEE_UPDATE_PROGRESS = 'cmd-bee-update-progress';
