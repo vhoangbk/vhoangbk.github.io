@@ -268,6 +268,7 @@ async function processFile(srcPath, destPath) {
       // ✅ Write file mới
       await fs.ensureDir(path.dirname(destPath));
       await fs.writeFile(destPath, finalContent, 'utf8');
+      await fs.stat(destPath);
       console.log(`   ✅ Written to: ${destPath}`);
       
       // ✅ Verify sau khi write
@@ -275,6 +276,8 @@ async function processFile(srcPath, destPath) {
       const destContent = await fs.readFile(destPath, 'utf8');
       const destHash = require('crypto').createHash('md5').update(destContent).digest('hex').substring(0, 8);
       const isMatch = destContent === finalContent;
+      const copyTime = new Date();
+      await fs.utimes(destStats, copyTime, copyTime);
       
       console.log(`   📊 Dest size: ${destStats.size} bytes`);
       console.log(`   🕐 Dest mtime: ${destStats.mtime.toISOString()}`);
