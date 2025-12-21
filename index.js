@@ -79,9 +79,9 @@ app.use(express.static(publicDir, {
     //   res.setHeader('Cache-Control', 'public, max-age=31536000'); 
     // }
 
-    if (path.match(/\.(js|css)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    }
+    // if (path.match(/\.(js|css)$/)) {
+    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
+    // }
 
     // if (path.endsWith('.webp')) {
     //   res.setHeader('Content-Type', 'image/webp');
