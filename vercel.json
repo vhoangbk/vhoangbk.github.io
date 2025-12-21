@@ -10,11 +10,17 @@
     { "src": "/converted_files/(.*)", "dest": "/index.js" },
     { 
       "src": "/dist/public/(.*\\.css)", 
-      "dest": "/dist/public/$1"
+      "dest": "/dist/public/$1",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      }
     },
     { 
       "src": "/dist/public/(.*)", 
-      "dest": "/dist/public/$1"
+      "dest": "/dist/public/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable no-cache"
+      }
     },
     { "src": "/(.*)", "dest": "/index.js" }
   ],
