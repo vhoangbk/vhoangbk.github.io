@@ -69,24 +69,43 @@ app.get('/m-index.html', (req, res) => {
 });
 
 app.use(express.static(publicDir, {
-  maxAge: '1y',
   lastModified: true,
   etag: true,
-  // setHeaders: (res, path) => {
+  setHeaders: (res, path) => {
+    // HTML files: không cache, luôn lấy mới
+    if (path.endsWith('.html') || path.endsWith('/')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      return;
+    }
 
-    // if (path.endsWith('.html') || path.endsWith('/')) {
-      // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    // }
+    // File có version trong URL (?v=xxx): cache dài hạn, immutable
+    if (path.match(/\.(js|css|wasm)/) && path.includes('?v=')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return;
+    }
 
-    // if (path.match(/\.(js|css)$/)) {
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
-    // }
+    // JS/CSS/WASM không có version: phải revalidate với server
+    if (path.match(/\.(js|css|wasm)$/)) {
+      res.setHeader('Cache-Control', 'public, no-cache, must-revalidate');
+      return;
+    }
 
-    // if (path.endsWith('app_settings.js')) {
-    //   res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
-    //   res.setHeader('ETag', `"${Date.now()}"`); // ETag động để force revalidate
-    // }
-  // }
+    // app_settings.js: cache ngắn 60 giây
+    if (path.endsWith('app_settings.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=60');
+      res.setHeader('ETag', `"${Date.now()}"`);
+      return;
+    }
+
+    // Assets khác (images, fonts): cache dài hạn
+    if (path.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+      return;
+    }
+
+    // Default: cache 1 ngày
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  }
 }));
 
 app.post('/upload-stream', upload.single('data'), async (req, res) => {
