@@ -76,8 +76,12 @@ app.use(express.static(publicDir, {
     // if (path.endsWith('.html')) {
     //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     // } else {
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
+    //   res.setHeader('Cache-Control', 'public, max-age=31536000'); 
     // }
+
+    if (url.match(/\.(js|css)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
 
     // if (path.endsWith('.webp')) {
     //   res.setHeader('Content-Type', 'image/webp');
