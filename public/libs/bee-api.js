@@ -366,7 +366,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
         // ✅ Mở VideoCompleteDialog TRƯỚC khi đóng ProgressDialog
         // để tránh race condition restore scroll
         let platform = detectPlatform();
-        const videoCompleteDialog = showVideoDetailDialog(newFileInfo, 'test123.mp4', async function (url, name) {
+        const videoCompleteDialog = showVideoDetailDialog(newFileInfo, 'test.mp4', async function (url, name) {
             //khi người dùng bấm nút save.
             if (!outputFile) {
                 console.error('outputFile is undefined');
@@ -375,7 +375,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
                 } else {
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'test123.mp4';
+                    a.download = 'test.mp4';
                     a.click();
                 }
                 return;
@@ -392,7 +392,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
                 } else {
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'test123.mp4';
+                    a.download = 'test.mp4';
                     a.click();
                 }
             }
