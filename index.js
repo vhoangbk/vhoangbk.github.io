@@ -82,6 +82,11 @@ app.use(express.static(publicDir, {
     //   res.setHeader('Cache-Control', 'public, max-age=31536000');
     // }
 
+    if (path.match(/\.(svg|png|jpg|webp|jepg)(\?v=\d+)?$/)) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+
     // if (path.endsWith('.webp')) {
     //   res.setHeader('Content-Type', 'image/webp');
     // }
@@ -96,10 +101,10 @@ app.use(express.static(publicDir, {
     // if (path.endsWith('.css')) {
     //   res.setHeader('Content-Type', 'text/css');
     // }
-    // if (path.endsWith('app_settings.js')) {
-    //   res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
-    //   res.setHeader('ETag', `"${Date.now()}"`); // ETag động để force revalidate
-    // }
+    if (path.endsWith('app_settings.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
+      res.setHeader('ETag', `"${Date.now()}"`); // ETag động để force revalidate
+    }
   }
 }));
 
