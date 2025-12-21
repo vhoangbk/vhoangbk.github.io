@@ -76,16 +76,8 @@ app.use(express.static(publicDir, {
     // if (path.endsWith('.html')) {
     //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     // } else {
-      //if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/))
-      //textContent = textContent.replace(/[^"\s']*(?:\.js|\.css|\.wasm)[^"\s']*\?v=[^"\s']+/g, (match)
-      // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     //   res.setHeader('Cache-Control', 'public, max-age=31536000');
     // }
-
-    if (path.match(/\.(svg|png|jpg|webp|jepg)(\?v=\d+)?$/)) {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    }
-
 
     // if (path.endsWith('.webp')) {
     //   res.setHeader('Content-Type', 'image/webp');
@@ -316,8 +308,8 @@ app.get("/m", (req, res) => {
 });
 
 // Cache-Control phân tách môi trường
-app.use((req, res, next) => {
-  const url = req.path;
+// app.use((req, res, next) => {
+//   const url = req.path;
 
   // if (isDev) {
   //   // 🚫 DEV MODE = disable cache hoàn toàn
@@ -343,8 +335,8 @@ app.use((req, res, next) => {
   //   res.setHeader('Cache-Control', 'public, max-age=31536000');
   // }
 
-  next();
-});
+//   next();
+// });
 
 module.exports = app;
 
