@@ -73,12 +73,14 @@ app.use(express.static(publicDir, {
   lastModified: true,
   etag: true,
   setHeaders: (res, path) => {
-    // if (path.endsWith('.html')) {
-    //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    // } else {
-    //   // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
-    // }
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    } else {
+      //if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/))
+      //textContent = textContent.replace(/[^"\s']*(?:\.js|\.css|\.wasm)[^"\s']*\?v=[^"\s']+/g, (match)
+      // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
 
     // if (path.endsWith('.webp')) {
     //   res.setHeader('Content-Type', 'image/webp');
