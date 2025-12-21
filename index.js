@@ -103,8 +103,7 @@ app.use(express.static(publicDir, {
       return;
     }
 
-    // Default: cache 1 ngày
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   }
 }));
 
