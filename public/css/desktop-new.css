@@ -634,7 +634,7 @@ body {
   font-size: clamp(0.95rem, 2vh, 1.2rem);
   font-weight: 600;
   color: var(--color);
-  background-color: blue;
+  background-color: red;
 }
 
 .desktop-advanced-section {
