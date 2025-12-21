@@ -76,7 +76,8 @@ app.use(express.static(publicDir, {
     if (path.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     } else {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
     }
 
     if (path.endsWith('.webp')) {
