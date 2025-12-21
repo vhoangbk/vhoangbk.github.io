@@ -74,6 +74,10 @@ app.use(express.static(publicDir, {
   etag: true,
   setHeaders: (res, path) => {
 
+    if (url.endsWith('.html') || url.endsWith('/')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
     // if (path.match(/\.(js|css)$/)) {
     //   res.setHeader('Cache-Control', 'public, max-age=31536000');
     // }
