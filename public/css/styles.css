@@ -1,1 +1,22 @@
-@import url("common.css?v=95fdd93b2057");@import url("home.css?v=b242cf86f0df");@import url("up-load-home.css?v=9d9b1981b939");@import url("form-config-convert-video.css?v=f7dd00e3b6e6");@import url("/components/info-dialog/info-dialog.css?v=c89a4275af8f");@import url("/components/number-input/number-input.css?v=e032aedeccdf");@import url("/components/loading/loading.css?v=dfa931db8f82");@import url("/components/progress/progress.css?v=2e01907b788f");@import url("/components/video-complete/video-complete.css?v=d83a4362520a");@import url("/components/video-player/video-player.css?v=9a5bb538f6d4");@import url("/components/modal-trim-crop-video/mtcv.css?v=8944c1423257");@import url("/components/modal-trim-crop-video/mtcv-timeline.css?v=8b3d5cf6ed48");@import url("/css/desktop-style.css?v=970093224132");
+/* styles.css - File CSS tập trung */
+
+/* ===== CSS VARIABLES & RESET ===== */
+@import url('common.css?v=3827a6a05cf0');
+
+/* ===== MAIN LAYOUT STYLES ===== */
+@import url('home.css?v=df127547b129');
+@import url('up-load-home.css?v=593a090500ed');
+@import url('form-config-convert-video.css?v=6da5dce7c285');
+
+/* ===== COMPONENT STYLES ===== */
+@import url('/components/info-dialog/info-dialog.css?v=3e53d75d3c1d');
+@import url('/components/number-input/number-input.css?v=c0f2c5263936');
+@import url('/components/loading/loading.css?v=b06b275c7ef5');
+@import url('/components/progress/progress.css?v=f247ace6ee9d');
+@import url('/components/video-complete/video-complete.css?v=23687306ca92');
+@import url('/components/video-player/video-player.css?v=6fdd583e42ce');
+
+/* ===== MODAL COMPONENT STYLES ===== */
+@import url('/components/modal-trim-crop-video/mtcv.css?v=e27653b9ae1d');
+@import url('/components/modal-trim-crop-video/mtcv-timeline.css?v=ef22a6bf32d3');
+@import url('/css/desktop-style.css?v=7aa416aeef33');

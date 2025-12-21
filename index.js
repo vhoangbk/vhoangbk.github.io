@@ -1,1 +1,348 @@
-const a0_0x2cd7ae=a0_0x545d;(function(_0x13a0b7,_0x411576){const _0x4ead47=a0_0x545d,_0x3e0a94=_0x13a0b7();while(!![]){try{const _0x30a5e3=-parseInt(_0x4ead47(0x157))/0x1+-parseInt(_0x4ead47(0xf0))/0x2*(parseInt(_0x4ead47(0xd3))/0x3)+-parseInt(_0x4ead47(0x143))/0x4*(parseInt(_0x4ead47(0xfa))/0x5)+parseInt(_0x4ead47(0x165))/0x6+parseInt(_0x4ead47(0x153))/0x7+parseInt(_0x4ead47(0xdd))/0x8*(parseInt(_0x4ead47(0xc9))/0x9)+-parseInt(_0x4ead47(0xd6))/0xa;if(_0x30a5e3===_0x411576)break;else _0x3e0a94['push'](_0x3e0a94['shift']());}catch(_0x4a2f0a){_0x3e0a94['push'](_0x3e0a94['shift']());}}}(a0_0x22e0,0xddf3f));function a0_0x22e0(){const _0x3af54a=['AHYJi','has','raw','.html','8160944kHYtve','iyEEF','NKEqR','bytes','.png','qCdAX','image/gif','write','reuqK','hLzxR','=============✍️\x20Wrote','video/x-msvideo','WGCPy','.webp','get','static','application/javascript','File\x20operation\x20completed\x20successfully','📁\x20Serving\x20static\x20assets\x20from\x20','1047862lVsLzh','no-store,\x20no-cache,\x20must-revalidate,\x20proxy-revalidate','vmeMs','KHUHt','aSDRq','ewVAs','require-corp','basename','\x20\x20Timestamp:','🗑️\x20Deleted\x20file:','1304555TbGeOR','QndGZ','fkXOD','join','rVzMX','.webm','\x20\x20Final\x20file\x20size:','0.0.0.0','gjNRq','delete','x-forwarded-proto','converted_files','video/quicktime','use','application/wasm','.mp4','no-cache','public','Cache-Control','CSLmN','startsWith','Content-Disposition','https','Completion\x20notification\x20received\x20(no\x20file\x20found)','statSync','ACWse','Invalid\x20action.\x20Only\x20\x22write\x22\x20and\x20\x22complete\x22\x20are\x20supported.','application/octet-stream','same-origin','XRzww','.avi','at\x20position','REsQY','compression','Pragma','LXebv','path','ETag','cJxxx','SiTBe','🔒\x20Emergency\x20close\x20file\x20descriptor\x20for:','NODE_ENV','GgbKa','MyoiD','image/jpeg','log','.mov','endsWith','cors','jXQoy','image/png','listen','.jpg','host','lGlpg','.ico','status','HSIIJ','UyFaN','body','public,\x20max-age=60','.css','length','SEljg','50000mb','includes','UGBqm','closeSync','.gif','PORT','headers','niKQf','image/x-icon','8wpwdLD','production','error','xVVOc','TFQqS','Lhyyx','📂\x20Opened\x20new\x20file\x20descriptor\x20for:','.jpeg','/converted_files','QxBqp','📋\x20Data\x20Complete\x20Notification:','attachment;\x20filename=\x22','data','now','Invalid\x20file\x20path','m-index.html','5744158lSzjbb','No\x20data\x20provided','multer','openSync','13375xwsqXE','BBLKT','kIPlz','buffer','completed','json','Content-Type','/index.html','vaPDN','AiRUm','qCCWq','ONauh','vpjuT','setHeader','1208268QgWawZ','sendFile','Error\x20closing\x20file\x20descriptor:','no-store,\x20no-cache,\x20must-revalidate','❌\x20Error\x20in\x20file\x20operation:','set','ZsyrG','image/webp','exports','SQxqq','dXjDQ','Cross-Origin-Embedder-Policy','existsSync','VERCEL','file','public,\x20max-age=31536000','ISlmh','video/webm','🔒\x20File\x20descriptor\x20closed\x20for:','video/mp4','9OMiMeh','CpoTb','/converted_files/','CuAVi','mkdirSync','size','env','redirect','pPDyF','main','3egJtIe','RVnEc','hHdah','738430DErPRj','wFdMU','iTLAB'];a0_0x22e0=function(){return _0x3af54a;};return a0_0x22e0();}function a0_0x545d(_0x2a4429,_0x1c53be){_0x2a4429=_0x2a4429-0xb6;const _0x22e078=a0_0x22e0();let _0x545d64=_0x22e078[_0x2a4429];return _0x545d64;}const express=require('express'),path=require(a0_0x2cd7ae(0x11e)),compression=require(a0_0x2cd7ae(0x11b)),cors=require(a0_0x2cd7ae(0x12a)),bodyParser=require('body-parser'),fs=require('fs'),app=express(),PORT=process[a0_0x2cd7ae(0xcf)][a0_0x2cd7ae(0x13f)]||0x1f40;app[a0_0x2cd7ae(0x107)](cors()),app[a0_0x2cd7ae(0x107)](compression()),app[a0_0x2cd7ae(0x107)](bodyParser[a0_0x2cd7ae(0x15c)]()),app[a0_0x2cd7ae(0x107)](bodyParser['urlencoded']({'extended':!0x1})),app['use'](bodyParser[a0_0x2cd7ae(0xdb)]({'type':a0_0x2cd7ae(0x115),'limit':a0_0x2cd7ae(0x13a)}));const isVercelProd=a0_0x2cd7ae(0x144)===process[a0_0x2cd7ae(0xcf)][a0_0x2cd7ae(0x123)]||process['env'][a0_0x2cd7ae(0xc2)],isDev=!isVercelProd&&a0_0x2cd7ae(0x144)!==process['env']['NODE_ENV'],distPublicDir=path[a0_0x2cd7ae(0xfd)](__dirname,'dist',a0_0x2cd7ae(0x10b)),fallbackPublicDir=path[a0_0x2cd7ae(0xfd)](__dirname,a0_0x2cd7ae(0x10b));let publicDir=fallbackPublicDir;isVercelProd?(publicDir=distPublicDir,console[a0_0x2cd7ae(0x127)](a0_0x2cd7ae(0xef)+publicDir)):(publicDir=fallbackPublicDir,console[a0_0x2cd7ae(0x127)]('📁\x20Serving\x20static\x20assets\x20from\x20'+fallbackPublicDir));const multer=require(a0_0x2cd7ae(0x155));app[a0_0x2cd7ae(0x107)](bodyParser[a0_0x2cd7ae(0xdb)]({'type':a0_0x2cd7ae(0x115),'limit':a0_0x2cd7ae(0x13a)}));const openFiles=new Map(),upload=multer({'storage':multer['memoryStorage'](),'limits':{'fileSize':0xc35000000}});app[a0_0x2cd7ae(0x107)]((_0x55f0f9,_0x32bfbb,_0x1c6e04)=>{const _0x4e95df=a0_0x2cd7ae,_0x438324={'dXjDQ':'Cross-Origin-Opener-Policy','rVzMX':_0x4e95df(0xc0),'ikLgR':_0x4e95df(0xf6),'AHYJi':function(_0x48d751){return _0x48d751();}};_0x32bfbb[_0x4e95df(0x164)](_0x438324[_0x4e95df(0xbf)],_0x4e95df(0x116)),_0x32bfbb[_0x4e95df(0x164)](_0x438324[_0x4e95df(0xfe)],_0x438324['ikLgR']),_0x438324[_0x4e95df(0xd9)](_0x1c6e04);}),app['get'](a0_0x2cd7ae(0x15e),(_0x4532e9,_0x16569d)=>{const _0x3060aa=a0_0x2cd7ae;_0x16569d[_0x3060aa(0xd0)](0x12d,'/');}),app[a0_0x2cd7ae(0xeb)]('/m-index.html',(_0x3b9408,_0x21743d)=>{_0x21743d['redirect'](0x12d,'/m');}),app[a0_0x2cd7ae(0x107)](express['static'](publicDir,{'maxAge':'1y','lastModified':!0x0,'etag':!0x0,'setHeaders':(_0x2eee84,_0x371888)=>{const _0xcedc81=a0_0x2cd7ae,_0x21b176={'aSDRq':_0xcedc81(0xdc),'vmeMs':_0xcedc81(0xb8),'ewVAs':'.wasm','cJxxx':_0xcedc81(0x108),'ZsyrG':_0xcedc81(0x10c),'UGBqm':_0xcedc81(0x11f),'dBYDC':'.js','hLzxR':_0xcedc81(0x15d),'CSLmN':_0xcedc81(0xed),'QxBqp':'text/css','hHdah':_0xcedc81(0x136)};_0x371888[_0xcedc81(0x129)](_0x21b176[_0xcedc81(0xf4)]),_0x2eee84['setHeader']('Cache-Control',_0x21b176[_0xcedc81(0xf2)]),_0x371888[_0xcedc81(0x129)](_0xcedc81(0xea))&&_0x2eee84[_0xcedc81(0x164)](_0xcedc81(0x15d),_0xcedc81(0xbc)),_0x371888[_0xcedc81(0x129)](_0x21b176[_0xcedc81(0xf5)])&&(_0x2eee84['setHeader'](_0xcedc81(0x15d),_0x21b176[_0xcedc81(0x120)]),_0x2eee84[_0xcedc81(0x164)](_0x21b176['ZsyrG'],_0xcedc81(0xc4)),_0x2eee84['setHeader'](_0x21b176[_0xcedc81(0x13c)],'\x22'+_0x371888+'-'+Date[_0xcedc81(0x150)]()+'\x22')),_0x371888[_0xcedc81(0x129)](_0x21b176['dBYDC'])&&_0x2eee84[_0xcedc81(0x164)](_0x21b176[_0xcedc81(0xe6)],_0x21b176[_0xcedc81(0x10d)]),_0x371888[_0xcedc81(0x129)](_0xcedc81(0x137))&&_0x2eee84[_0xcedc81(0x164)](_0x21b176[_0xcedc81(0xe6)],_0x21b176[_0xcedc81(0x14c)]),_0x371888[_0xcedc81(0x129)]('app_settings.js')&&(_0x2eee84[_0xcedc81(0x164)](_0x21b176[_0xcedc81(0xbb)],_0x21b176[_0xcedc81(0xd5)]),_0x2eee84[_0xcedc81(0x164)](_0x21b176[_0xcedc81(0x13c)],'\x22'+Date[_0xcedc81(0x150)]()+'\x22'));}})),app['post']('/upload-stream',upload['single'](a0_0x2cd7ae(0x14f)),async(_0x2ca058,_0x30569b)=>{const _0x13bc49=a0_0x2cd7ae,_0x375162={'qCCWq':function(_0x4bebdd,_0x26ed60){return _0x4bebdd||_0x26ed60;},'GgbKa':'Missing\x20filename\x20or\x20action','CpoTb':_0x13bc49(0x151),'SQxqq':_0x13bc49(0xe4),'AiRUm':_0x13bc49(0x154),'lGlpg':function(_0x28a365,_0x2ab3e5){return _0x28a365(_0x2ab3e5);},'ACWse':_0x13bc49(0x149),'mBOuQ':'bytes\x20to','jXQoy':_0x13bc49(0x119),'HSIIJ':'Data\x20written\x20successfully,\x20file\x20remains\x20open','reuqK':function(_0x17a6f3,_0x2ad02f){return _0x17a6f3===_0x2ad02f;},'kIPlz':'complete','DqogD':_0x13bc49(0x14d),'BBLKT':_0x13bc49(0xc7),'vpjuT':_0x13bc49(0x100),'qqTCf':_0x13bc49(0x104),'Dhmdg':_0x13bc49(0x110),'wFdMU':'http','odClr':_0x13bc49(0xee),'YhbDC':_0x13bc49(0x15b),'SEljg':_0x13bc49(0x111),'REsQY':_0x13bc49(0x103),'RVnEc':'File\x20deleted\x20successfully','BWCIv':_0x13bc49(0xb9),'ISlmh':_0x13bc49(0x14f),'WGCPy':_0x13bc49(0xb7)};try{const {filename:_0x4b7ab8,position:_0x17a227,action:_0x24270f}=_0x2ca058[_0x13bc49(0x135)];if(_0x375162[_0x13bc49(0x161)](!_0x4b7ab8,!_0x24270f))return _0x30569b['status'](0x190)[_0x13bc49(0x15c)]({'success':!0x1,'error':_0x375162[_0x13bc49(0x124)]});const _0x51d587=path[_0x13bc49(0xfd)](__dirname,_0x13bc49(0x105));fs[_0x13bc49(0xc1)](_0x51d587)||fs[_0x13bc49(0xcd)](_0x51d587,{'recursive':!0x0});const _0xf23b02=path['join'](_0x51d587,path[_0x13bc49(0xf7)](_0x4b7ab8));if(_0x4b7ab8[_0x13bc49(0x13b)]('..')||!_0xf23b02[_0x13bc49(0x10e)](_0x51d587))return _0x30569b['status'](0x190)['json']({'success':!0x1,'error':_0x375162[_0x13bc49(0xca)]});if(_0x375162[_0x13bc49(0xbe)]===_0x24270f){if(!_0x2ca058[_0x13bc49(0xc3)])return _0x30569b[_0x13bc49(0x132)](0x190)[_0x13bc49(0x15c)]({'success':!0x1,'error':_0x375162[_0x13bc49(0x160)]});const _0x497d19=_0x2ca058[_0x13bc49(0xc3)][_0x13bc49(0x15a)],_0x5cc9af=_0x375162[_0x13bc49(0x130)](parseInt,_0x17a227)||0x0;let _0x628787;openFiles[_0x13bc49(0xda)](_0xf23b02)?(_0x628787=openFiles[_0x13bc49(0xeb)](_0xf23b02),console[_0x13bc49(0x127)]('📝\x20Using\x20existing\x20file\x20descriptor\x20for:',_0x4b7ab8)):(_0x628787=fs[_0x13bc49(0x156)](_0xf23b02,'w+'),openFiles[_0x13bc49(0xba)](_0xf23b02,_0x628787),console[_0x13bc49(0x127)](_0x375162[_0x13bc49(0x113)],_0x4b7ab8)),fs['writeSync'](_0x628787,_0x497d19,0x0,_0x497d19[_0x13bc49(0x138)],_0x5cc9af),console['log'](_0x13bc49(0xe7),_0x497d19['length'],_0x375162['mBOuQ'],_0x4b7ab8,_0x375162[_0x13bc49(0x12b)],_0x5cc9af),_0x30569b['json']({'success':!0x0,'bytesWritten':_0x497d19[_0x13bc49(0x138)],'message':_0x375162[_0x13bc49(0x133)]});}else{if(_0x375162[_0x13bc49(0xe5)](_0x375162[_0x13bc49(0x159)],_0x24270f)){if(console[_0x13bc49(0x127)](_0x375162['DqogD']),console[_0x13bc49(0x127)]('\x20\x20Filename:',_0x4b7ab8),console['log'](_0x13bc49(0xf8),new Date()['toISOString']()),openFiles[_0x13bc49(0xda)](_0xf23b02)){const _0x670777=openFiles[_0x13bc49(0xeb)](_0xf23b02);fs[_0x13bc49(0x13d)](_0x670777),openFiles[_0x13bc49(0x103)](_0xf23b02),console[_0x13bc49(0x127)](_0x375162[_0x13bc49(0x158)],_0x4b7ab8);}if(fs[_0x13bc49(0xc1)](_0xf23b02)){const _0x3bb91c=fs[_0x13bc49(0x112)](_0xf23b02);console['log'](_0x375162[_0x13bc49(0x163)],_0x3bb91c[_0x13bc49(0xce)],_0x13bc49(0xe0));const _0x11315e=(_0x2ca058['secure']||_0x375162[_0x13bc49(0xe5)](_0x13bc49(0x110),_0x2ca058[_0x13bc49(0x140)][_0x375162['qqTCf']])?_0x375162['Dhmdg']:_0x375162[_0x13bc49(0xd7)])+'://'+(_0x2ca058['get'](_0x13bc49(0x12f))||'localhost:'+PORT)+_0x13bc49(0xcb)+path[_0x13bc49(0xf7)](_0x4b7ab8);_0x30569b[_0x13bc49(0x15c)]({'success':!0x0,'message':_0x375162['odClr'],'filename':_0x4b7ab8,'fileSize':_0x3bb91c['size'],'timestamp':Date[_0x13bc49(0x150)](),'status':_0x375162['YhbDC'],'fileClosed':!0x0,'fileUrl':_0x11315e});}else _0x30569b[_0x13bc49(0x15c)]({'success':!0x0,'message':_0x375162[_0x13bc49(0x139)],'filename':_0x4b7ab8,'timestamp':Date[_0x13bc49(0x150)](),'status':_0x13bc49(0x15b),'fileClosed':!0x1});}else{if(_0x375162[_0x13bc49(0xe5)](_0x375162[_0x13bc49(0x11a)],_0x24270f)){if(fs['existsSync'](_0xf23b02)){if(openFiles['has'](_0xf23b02)){const _0xca077=openFiles[_0x13bc49(0xeb)](_0xf23b02);fs['closeSync'](_0xca077),openFiles['delete'](_0xf23b02),console['log']('🔒\x20File\x20descriptor\x20closed\x20for\x20(before\x20delete):',_0x4b7ab8);}fs['unlinkSync'](_0xf23b02),console[_0x13bc49(0x127)](_0x13bc49(0xf9),_0x4b7ab8),_0x30569b[_0x13bc49(0x15c)]({'success':!0x0,'message':_0x375162[_0x13bc49(0xd4)]});}}else _0x30569b['status'](0x190)[_0x13bc49(0x15c)]({'success':!0x1,'error':_0x13bc49(0x114)});}}}catch(_0xe41159){console[_0x13bc49(0x145)](_0x375162['BWCIv'],_0xe41159);const {filename:_0x935626}=_0x2ca058['body'];if(_0x935626){const _0x55476e=path[_0x13bc49(0xfd)](__dirname,_0x375162[_0x13bc49(0xc5)]),_0x1fc7c9=path[_0x13bc49(0xfd)](_0x55476e,path[_0x13bc49(0xf7)](_0x935626));if(openFiles[_0x13bc49(0xda)](_0x1fc7c9))try{const _0x3d316a=openFiles['get'](_0x1fc7c9);fs['closeSync'](_0x3d316a),openFiles[_0x13bc49(0x103)](_0x1fc7c9),console[_0x13bc49(0x127)](_0x13bc49(0x122),_0x935626);}catch(_0xae9399){console['error'](_0x375162[_0x13bc49(0xe9)],_0xae9399);}}_0x30569b['status'](0x1f4)[_0x13bc49(0x15c)]({'success':!0x1,'error':_0xe41159['message']});}}),app['use'](a0_0x2cd7ae(0x14b),express[a0_0x2cd7ae(0xec)](path[a0_0x2cd7ae(0xfd)](__dirname,'converted_files'),{'maxAge':'1d','etag':!0x0,'setHeaders':(_0xa88122,_0x25c98d)=>{const _0x2fbb6d=a0_0x2cd7ae,_0x450d03={'ONauh':'Content-Type','niKQf':_0x2fbb6d(0xc8),'hhmrL':_0x2fbb6d(0x118),'LXebv':_0x2fbb6d(0xe8),'iMleK':function(_0x333e89,_0x3c596a){return _0x333e89===_0x3c596a;},'TeVJX':_0x2fbb6d(0x128),'QLNpq':_0x2fbb6d(0x106),'XRzww':function(_0x430585,_0x21d264){return _0x430585===_0x21d264;},'iyEEF':_0x2fbb6d(0xff),'NKEqR':_0x2fbb6d(0xc6),'Lhyyx':function(_0x4e5833,_0x5be6b6){return _0x4e5833===_0x5be6b6;},'MyoiD':_0x2fbb6d(0x12e),'fkXOD':_0x2fbb6d(0x14a),'xVVOc':_0x2fbb6d(0x126),'JtlQS':_0x2fbb6d(0x12c),'TFQqS':_0x2fbb6d(0x13e),'TwIrq':'.webp','QndGZ':'image/webp','vaPDN':_0x2fbb6d(0x142),'UyFaN':_0x2fbb6d(0x10f)},_0x20f438=path['extname'](_0x25c98d)['toLowerCase']();_0x2fbb6d(0x109)===_0x20f438?_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x162)],_0x450d03[_0x2fbb6d(0x141)]):_0x450d03['hhmrL']===_0x20f438?_0xa88122[_0x2fbb6d(0x164)]('Content-Type',_0x450d03[_0x2fbb6d(0x11d)]):_0x450d03['iMleK'](_0x450d03['TeVJX'],_0x20f438)?_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x162)],_0x450d03['QLNpq']):_0x450d03[_0x2fbb6d(0x117)](_0x450d03[_0x2fbb6d(0xde)],_0x20f438)?_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x162)],_0x450d03[_0x2fbb6d(0xdf)]):_0x450d03['Lhyyx'](_0x450d03[_0x2fbb6d(0x125)],_0x20f438)||_0x450d03[_0x2fbb6d(0xfc)]===_0x20f438?_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x162)],_0x450d03[_0x2fbb6d(0x146)]):_0x450d03['Lhyyx'](_0x2fbb6d(0xe1),_0x20f438)?_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x162)],_0x450d03['JtlQS']):_0x450d03[_0x2fbb6d(0x148)](_0x450d03[_0x2fbb6d(0x147)],_0x20f438)?_0xa88122['setHeader'](_0x2fbb6d(0x15d),_0x2fbb6d(0xe3)):_0x450d03[_0x2fbb6d(0x117)](_0x450d03['TwIrq'],_0x20f438)?_0xa88122[_0x2fbb6d(0x164)](_0x2fbb6d(0x15d),_0x450d03[_0x2fbb6d(0xfb)]):_0x2fbb6d(0x131)===_0x20f438&&_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x162)],_0x450d03[_0x2fbb6d(0x15f)]),_0xa88122[_0x2fbb6d(0x164)](_0x450d03[_0x2fbb6d(0x134)],_0x2fbb6d(0x14e)+path['basename'](_0x25c98d)+'\x22');}})),app[a0_0x2cd7ae(0xeb)]('/',(_0x2a7b94,_0xbef15)=>{const _0x102d51=a0_0x2cd7ae,_0x32cd06={'SiTBe':'index.html'};_0xbef15[_0x102d51(0xb6)](path[_0x102d51(0xfd)](publicDir,_0x32cd06[_0x102d51(0x121)]));}),app[a0_0x2cd7ae(0xeb)]('/m',(_0x58aebe,_0x1c566f)=>{const _0x2c2889=a0_0x2cd7ae;_0x1c566f[_0x2c2889(0xb6)](path[_0x2c2889(0xfd)](publicDir,_0x2c2889(0x152)));}),app['use']((_0x1746ce,_0x1d2f59,_0x364bde)=>{const _0x3b4285=a0_0x2cd7ae,_0x583778={'CuAVi':_0x3b4285(0x10c),'KHUHt':_0x3b4285(0xf1),'iTLAB':_0x3b4285(0x11c),'pPDyF':_0x3b4285(0x10a),'EolUl':'Expires','qCdAX':function(_0x96dfa5){return _0x96dfa5();}};if(_0x1746ce[_0x3b4285(0x11e)],isDev)return _0x1d2f59[_0x3b4285(0x164)](_0x583778[_0x3b4285(0xcc)],_0x583778[_0x3b4285(0xf3)]),_0x1d2f59[_0x3b4285(0x164)](_0x583778[_0x3b4285(0xd8)],_0x583778[_0x3b4285(0xd1)]),_0x1d2f59[_0x3b4285(0x164)](_0x583778['EolUl'],'0'),_0x583778[_0x3b4285(0xe2)](_0x364bde);_0x583778['qCdAX'](_0x364bde);}),module[a0_0x2cd7ae(0xbd)]=app,require[a0_0x2cd7ae(0xd2)]===module&&app[a0_0x2cd7ae(0x12d)](PORT,a0_0x2cd7ae(0x101),()=>{const _0x1e76e5=a0_0x2cd7ae,_0x128c0d={'gjNRq':'✅\x20Server\x20running\x20on\x20port:'};console[_0x1e76e5(0x127)](_0x128c0d[_0x1e76e5(0x102)],PORT);});
+const express = require("express");
+const path = require("path");
+const compression = require('compression');
+const cors = require("cors");
+const bodyParser = require('body-parser');
+const fs = require("fs");
+
+const app = express();
+const PORT = process.env.PORT || 8000;
+
+app.use(cors());
+app.use(compression());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.raw({ 
+  type: 'application/octet-stream', 
+  limit: '50000mb' 
+}));
+
+const isVercelProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
+const distPublicDir = path.join(__dirname, "dist", "public");
+const fallbackPublicDir = path.join(__dirname, "public");
+
+let publicDir = fallbackPublicDir;
+if (isVercelProd) {
+  // Trên Vercel, luôn dùng dist/public
+  publicDir = distPublicDir;
+  console.log(`📁 Serving static assets from ${publicDir}`);
+} else {
+  // Local dev, dùng public
+  publicDir = fallbackPublicDir;
+  console.log(`📁 Serving static assets from ${fallbackPublicDir}`);
+}
+
+const multer = require('multer');
+
+app.use(bodyParser.raw({ 
+  type: 'application/octet-stream', 
+  limit: '50000mb' 
+}));
+
+
+// Lưu trạng thái file descriptors đang mở
+const openFiles = new Map();
+
+// Cấu hình multer để xử lý file upload
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50000 * 1024 * 1024 // 500MB
+  }
+});
+
+//=======
+app.use((req, res, next) => {
+ // console.log('Setting COOP/COEP headers');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  next();
+});
+
+app.get('/index.html', (req, res) => {
+  res.redirect(301, '/');
+});
+
+app.get('/m-index.html', (req, res) => {
+  res.redirect(301, '/m');
+});
+
+app.use(express.static(publicDir, {
+  maxAge: '1y',
+  lastModified: true,
+  etag: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+    if (path.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+    if (path.endsWith('.wasm')) {
+      res.setHeader('Content-Type', 'application/wasm');
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+      res.setHeader('ETag', `"${path}-${Date.now()}"`);
+    }
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    if (path.endsWith('app_settings.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
+      res.setHeader('ETag', `"${Date.now()}"`); // ETag động để force revalidate
+    }
+  }
+}));
+
+app.post('/upload-stream', upload.single('data'), async (req, res) => {
+  try {
+    const { filename, position, action } = req.body;
+
+    if (!filename || !action) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing filename or action' 
+      });
+    }
+
+    const dataDir = path.join(__dirname, 'converted_files');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    const filePath = path.join(dataDir, path.basename(filename));
+
+    // Kiểm tra path traversal
+    if (filename.includes('..') || !filePath.startsWith(dataDir)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid file path' 
+      });
+    }
+
+    if (action === 'write') {
+      // Xử lý ghi file
+
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'No data provided' 
+        });
+      }
+
+      const buffer = req.file.buffer;
+      const writePosition = parseInt(position) || 0;
+      
+      // Mở file để ghi nếu chưa mở
+      let fd;
+      if (openFiles.has(filePath)) {
+        fd = openFiles.get(filePath);
+        console.log('📝 Using existing file descriptor for:', filename);
+      } else {
+        fd = fs.openSync(filePath, 'w+');
+        openFiles.set(filePath, fd);
+        console.log('📂 Opened new file descriptor for:', filename);
+      }
+      
+      // Ghi dữ liệu tại vị trí chỉ định
+      fs.writeSync(fd, buffer, 0, buffer.length, writePosition);
+      console.log('=============✍️ Wrote', buffer.length, 'bytes to', filename, 'at position', writePosition);
+      
+      // Flush dữ liệu xuống disk ngay lập tức
+      // try {
+      //   fs.fsyncSync(fd);
+      //   console.log('💾 Data flushed to disk for:', filename);
+      // } catch (err) {
+      //   console.warn('⚠️ fsyncSync warning:', err.message);
+      // }
+      
+      // KHÔNG đóng file ở đây, chờ action 'complete'
+
+      res.json({ 
+        success: true, 
+        bytesWritten: buffer.length,
+        message: 'Data written successfully, file remains open'
+      });
+
+    } else if (action === 'complete') {
+      // Xử lý thông báo hoàn thành và đóng file
+      console.log('📋 Data Complete Notification:');
+      console.log('  Filename:', filename);
+      console.log('  Timestamp:', new Date().toISOString());
+      
+      // Đóng file descriptor nếu đang mở - QUAN TRỌNG: chỉ closeSync ở đây
+      if (openFiles.has(filePath)) {
+        const fd = openFiles.get(filePath);
+        fs.closeSync(fd);  // ⭐ CHỈ GỌI closeSync KHI ACTION LÀ 'complete'
+        openFiles.delete(filePath);
+        console.log('🔒 File descriptor closed for:', filename);
+      }
+      
+      // Kiểm tra file đã được tạo thành công
+      if (fs.existsSync(filePath)) {
+        const stats = fs.statSync(filePath);
+        console.log('  Final file size:', stats.size, 'bytes');
+        
+        // Tạo URL đầy đủ với protocol, host và port
+        const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+        const host = req.get('host') || `localhost:${PORT}`;
+        const fileUrl = `${protocol}://${host}/converted_files/${path.basename(filename)}`;
+
+        res.json({
+          success: true,
+          message: 'File operation completed successfully',
+          filename: filename,
+          fileSize: stats.size,
+          timestamp: Date.now(),
+          status: 'completed',
+          fileClosed: true,
+          fileUrl: fileUrl
+        });
+      } else {
+        res.json({
+          success: true,
+          message: 'Completion notification received (no file found)',
+          filename: filename,
+          timestamp: Date.now(),
+          status: 'completed',
+          fileClosed: false
+        });
+      }
+
+    } else if (action === 'delete') {
+
+      // Xử lý xóa file
+      if (fs.existsSync(filePath)) {
+        // Đóng file descriptor nếu đang mở
+        if (openFiles.has(filePath)) {
+          const fd = openFiles.get(filePath);
+          fs.closeSync(fd);
+          openFiles.delete(filePath);
+          console.log('🔒 File descriptor closed for (before delete):', filename);
+        }
+
+        fs.unlinkSync(filePath);
+        console.log('🗑️ Deleted file:', filename);
+        res.json({ 
+          success: true, 
+          message: 'File deleted successfully' 
+        });
+      }
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        error: 'Invalid action. Only "write" and "complete" are supported.' 
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Error in file operation:', error);
+    
+    // Nếu có lỗi, cần đóng file descriptor để tránh memory leak
+    const { filename } = req.body;
+    if (filename) {
+      const dataDir = path.join(__dirname, 'data');
+      const filePath = path.join(dataDir, path.basename(filename));
+      
+      if (openFiles.has(filePath)) {
+        try {
+          const fd = openFiles.get(filePath);
+          fs.closeSync(fd);
+          openFiles.delete(filePath);
+          console.log('🔒 Emergency close file descriptor for:', filename);
+        } catch (closeError) {
+          console.error('Error closing file descriptor:', closeError);
+        }
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+// Serve converted files
+app.use('/converted_files', express.static(path.join(__dirname, 'converted_files'), {
+  maxAge: '1d',
+  etag: true,
+  setHeaders: (res, filePath) => {
+    // Set proper Content-Type based on file extension
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.mp4') {
+      res.setHeader('Content-Type', 'video/mp4');
+    } else if (ext === '.avi') {
+      res.setHeader('Content-Type', 'video/x-msvideo');
+    } else if (ext === '.mov') {
+      res.setHeader('Content-Type', 'video/quicktime');
+    } else if (ext === '.webm') {
+      res.setHeader('Content-Type', 'video/webm');
+    } else if (ext === '.jpg' || ext === '.jpeg') {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (ext === '.png') {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (ext === '.gif') {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (ext === '.webp') {
+      res.setHeader('Content-Type', 'image/webp');
+    } else if (ext === '.ico') {
+      res.setHeader('Content-Type', 'image/x-icon');
+    }
+    // Enable download for all converted files
+    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+  }
+}));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
+});
+
+app.get("/m", (req, res) => {
+  res.sendFile(path.join(publicDir, "m-index.html"));
+});
+
+// Cache-Control phân tách môi trường
+app.use((req, res, next) => {
+  const url = req.path;
+
+  if (isDev) {
+    // 🚫 DEV MODE = disable cache hoàn toàn
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    return next();
+  }
+
+  // 🟢 PRODUCTION MODE
+  // if (url.endsWith('.html')) {
+  //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  // }
+  // else if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/)) {
+  //   // Có version: cache dài
+  //   if (url.includes('?v=')) {
+  //     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  //   } else {
+  //     res.setHeader('Cache-Control', 'no-cache');
+  //   }
+  // }
+  // else if (url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
+  //   res.setHeader('Cache-Control', 'public, max-age=31536000');
+  // }
+
+  next();
+});
+
+module.exports = app;
+
+if (require.main === module) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log("✅ Server running on port:", PORT);
+  });
+}
+

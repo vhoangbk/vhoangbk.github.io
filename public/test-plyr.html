@@ -1,1 +1,207 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="google-site-verification" content="eTW7NplsOHQsNK4L3SV6lTGU5opDlFsaDkYE3jt-PnI"><title>Bee Convert</title><link rel="icon" href="/favicon.ico" type="image/x-icon"><link href="https://fonts.googleapis.com/css2?family=Monda&display=swap" rel="stylesheet"><link rel="stylesheet" href="/css/styles.css"><link rel="stylesheet" href="/css/desktop-new.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.css" integrity="sha512-qQVHM49OSnTirkDnnX8DpwzCYdY9Xlyny22edmRdRmb1Q2k6bbNwKqBoOn1k9Ydg4sYFdoiKszuoYYHwwS2kVw==" crossorigin="anonymous" referrerpolicy="no-referrer"><script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.min.js" integrity="sha512-Eeu7Wo2Jjbcc0N9faybH9EV8Fzoib0EBnibkNSehxBy55KKsR9PMvbGctyLEe3vla6J/UzEft5f2JZ9gYN55AQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><style>:root{--plyr-color-main:#ff6b00;--plyr-control-spacing:12px;--plyr-menu-background:rgba(17, 17, 17, 0.98);--plyr-menu-border-radius:12px;--plyr-video-control-background-hover:#ff8b33;--plyr-audio-control-background-hover:#ff8b33}.plyr__control--overlaid{background:var(--plyr-color-main)!important;border:4px solid #fff!important;backdrop-filter:blur(10px)}.plyr__control--overlaid:hover{background:#ff8b33!important}.plyr--full-ui input[type=range]{color:var(--plyr-color-main)!important}.plyr__menu__container{background:var(--plyr-menu-background);border-radius:var(--plyr-menu-border-radius)}body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;font-family:Arial,sans-serif}*{margin:0;padding:0;box-sizing:border-box}body,html{height:100%;width:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif}.plyr-container{position:fixed;top:0;left:0;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:#000}.plyr,.plyr-container video{max-width:100vw;max-height:100vh;width:auto!important;height:auto!important;object-fit:contain;border-radius:0!important}</style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.css" integrity="sha512-qQVHM49OSnTirkDnnX8DpwzCYdY9Xlyny22edmRdRmb1Q2k6bbNwKqBoOn1k9Ydg4sYFdoiKszuoYYHwwS2kVw==" crossorigin="anonymous" referrerpolicy="no-referrer"><script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.min.js" integrity="sha512-Eeu7Wo2Jjbcc0N9faybH9EV8Fzoib0EBnibkNSehxBy55KKsR9PMvbGctyLEe3vla6J/UzEft5f2JZ9gYN55AQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script></head><body><div class="plyr-container"><video id="player" playsinline controls><source src="./videos/4k_60fps.mp4" type="video/mp4">Trình duyệt của bạn không hỗ trợ video HTML5.</video></div><script>const player=new Plyr("#player",{controls:["play-large","restart","rewind","play","fast-forward","progress","current-time","duration","mute","volume","captions","settings","pip","airplay","fullscreen"],settings:["captions","quality","speed","loop"],quality:{default:1080,options:[4320,2160,1440,1080,720,576,480,360,240],forced:!0},speed:{selected:1,options:[.25,.5,.75,1,1.25,1.5,1.75,2,3,4]},seekTime:10,volume:1,muted:!1,clickToPlay:!0,hideControls:!0,tooltips:{controls:!0,seek:!0},keyboard:{focused:!0,global:!0},loop:{active:!1},autoplay:!1,autopause:!0,listeners:{timeupdate(){"undefined"!=typeof mtcv_endTime&&1e3*player.currentTime>mtcv_endTime&&(player.currentTime=(mtcv_startTime||0)/1e3,player.pause())},seeked(){const e=1e3*player.currentTime;e<mtcv_startTime&&(player.currentTime=mtcv_startTime/1e3),e>mtcv_endTime&&(player.currentTime=mtcv_endTime/1e3)}}});player.on("ready",()=>{}),player.on("ended",()=>{})</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="google-site-verification" content="eTW7NplsOHQsNK4L3SV6lTGU5opDlFsaDkYE3jt-PnI" />
+  <title>Bee Convert</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Monda&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/desktop-new.css">
+
+  <!-- Player libs  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.css" integrity="sha512-qQVHM49OSnTirkDnnX8DpwzCYdY9Xlyny22edmRdRmb1Q2k6bbNwKqBoOn1k9Ydg4sYFdoiKszuoYYHwwS2kVw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.min.js" integrity="sha512-Eeu7Wo2Jjbcc0N9faybH9EV8Fzoib0EBnibkNSehxBy55KKsR9PMvbGctyLEe3vla6J/UzEft5f2JZ9gYN55AQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    :root {
+      --plyr-color-main: #ff6b00;
+      --plyr-control-spacing: 12px;
+      --plyr-menu-background: rgba(17, 17, 17, 0.98);
+      --plyr-menu-border-radius: 12px;
+      --plyr-video-control-background-hover: #ff8b33;
+      --plyr-audio-control-background-hover: #ff8b33;
+    }
+
+    /* Nút Play to giữa màn hình */
+    .plyr__control--overlaid {
+      background: var(--plyr-color-main) !important;
+      border: 4px solid white !important;
+      backdrop-filter: blur(10px);
+    }
+    .plyr__control--overlaid:hover {
+      background: #ff8b33 !important;
+    }
+
+    /* Thanh progress + volume */
+    .plyr--full-ui input[type="range"] {
+      color: var(--plyr-color-main) !important;
+    }
+
+    /* Menu cài đặt */
+    .plyr__menu__container {
+      background: var(--plyr-menu-background);
+      border-radius: var(--plyr-menu-border-radius);
+    }
+
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    /* Container chiếm toàn màn hình */
+    .plyr-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+
+    .plyr-container video,
+    .plyr {
+      max-width: 100vw;
+      max-height: 100vh;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain;
+      border-radius: 0 !important;
+    }
+  </style>
+
+  <!-- Player libs  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.css" integrity="sha512-qQVHM49OSnTirkDnnX8DpwzCYdY9Xlyny22edmRdRmb1Q2k6bbNwKqBoOn1k9Ydg4sYFdoiKszuoYYHwwS2kVw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.min.js" integrity="sha512-Eeu7Wo2Jjbcc0N9faybH9EV8Fzoib0EBnibkNSehxBy55KKsR9PMvbGctyLEe3vla6J/UzEft5f2JZ9gYN55AQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+  <div class="plyr-container">
+    <video id="player" playsinline controls>
+      <source src="./videos/4k_60fps.mp4" type="video/mp4" />
+      Trình duyệt của bạn không hỗ trợ video HTML5.
+    </video>
+  </div>
+
+  <script>
+    const player = new Plyr('#player', {
+      controls: [
+    'play-large',
+    'restart',
+    'rewind',
+    'play',
+    'fast-forward',
+    'progress',
+    'current-time',
+    'duration',
+    'mute',
+    'volume',
+    'captions',
+    'settings',
+    'pip',
+    'airplay',
+    'fullscreen'
+  ],
+
+  settings: ['captions', 'quality', 'speed', 'loop'],
+
+  quality: {
+    default: 1080,
+    options: [4320, 2160, 1440, 1080, 720, 576, 480, 360, 240],
+    forced: true
+  },
+
+  speed: {
+    selected: 1,
+    options: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 4]
+  },
+
+  seekTime: 10,
+  volume: 1,
+  muted: false,
+  clickToPlay: true,
+  hideControls: true,
+  tooltips: { controls: true, seek: true },
+  keyboard: { focused: true, global: true },
+  loop: { active: false },
+  autoplay: false,
+  autopause: true,
+
+  // i18n: {
+  //   restart: 'Về đầu',
+  //   rewind: 'Lùi {seektime}s',
+  //   play: 'Phát',
+  //   pause: 'Dừng',
+  //   fastForward: 'Tua {seektime}s',
+  //   seek: 'Tua',
+  //   seekLabel: '{currentTime} / {duration}',
+  //   played: 'Đã phát',
+  //   buffered: 'Đã tải',
+  //   currentTime: 'Hiện tại',
+  //   duration: 'Tổng',
+  //   volume: 'Âm lượng',
+  //   mute: 'Tắt tiếng',
+  //   unmute: 'Bật tiếng',
+  //   enableCaptions: 'Bật phụ đề',
+  //   disableCaptions: 'Tắt phụ đề',
+  //   enterFullscreen: 'Toàn màn hình',
+  //   exitFullscreen: 'Thoát toàn màn',
+  //   captions: 'Phụ đề',
+  //   settings: 'Cài đặt',
+  //   speed: 'Tốc độ',
+  //   normal: 'Bình thường',
+  //   quality: 'Chất lượng',
+  //   loop: 'Lặp',
+  //   start: 'Bắt đầu',
+  //   end: 'Kết thúc',
+  //   qualityBadge: {
+  //     4320: '8K', 2160: '4K', 1440: '2K', 1080: 'FHD',
+  //     720: 'HD', 576: 'SD', 480: '480p', 360: '360p', 240: '240p'
+  //   }
+  // },
+
+  // Giới hạn phát trong đoạn Trim
+  listeners: {
+    timeupdate() {
+      if (typeof mtcv_endTime !== 'undefined' && player.currentTime * 1000 > mtcv_endTime) {
+        player.currentTime = (mtcv_startTime || 0) / 1000;
+        player.pause();
+      }
+    },
+    seeked() {
+      const t = player.currentTime * 1000;
+      if (t < mtcv_startTime) player.currentTime = mtcv_startTime / 1000;
+      if (t > mtcv_endTime) player.currentTime = mtcv_endTime / 1000;
+    }
+  }
+    });
+
+    player.on('ready', () => {
+      // console.log('Plyr đã sẵn sàng!');
+    });
+
+    player.on('ended', () => {
+      // alert('Video đã kết thúc!');
+    });
+  </script>
+</body>
+</html>

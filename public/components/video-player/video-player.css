@@ -1,1 +1,50 @@
-.dialog-video-player-overlay{align-items:center;background:rgba(28,23,23,.4);display:none;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:10002}.dialog-video-player-overlay.active{display:flex}.dialog-video-player-box{align-items:center;animation:fadeIn .25s ease;border-radius:8px;display:flex;justify-content:center;overflow:hidden;position:absolute}.dialog-video-player-player{max-height:90vh;max-width:90vw;object-fit:contain}.dialog-video-player-close{align-items:center;aspect-ratio:1/1;background:hsla(0,0%,100%,.9);border:none;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.1);cursor:pointer;display:flex;justify-content:center;position:absolute;right:clamp(.5rem,1vh,.8rem);top:clamp(.5rem,1vh,.8rem);transition:all .2s;z-index:10}
+.dialog-video-player-overlay {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 23, 23, 0.4);
+  z-index: 10002;
+}
+.dialog-video-player-overlay.active {
+  display: flex;
+}
+.dialog-video-player-box {
+  border-radius: 8px;
+  animation: fadeIn 0.25s ease;
+  border-radius: 8px;
+  overflow: hidden;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-video-player-player {
+  object-fit: contain;
+  max-height: 90vh;
+  max-width: 90vw;
+}
+
+.dialog-video-player-close {
+  position: absolute;
+  top: clamp(0.5rem, 1vh, 0.8rem);
+  right: clamp(0.5rem, 1vh, 0.8rem);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  /* width: clamp(1.5rem, 2vh, 2rem);
+  height: clamp(1.5rem, 2vh, 2rem); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
+}
