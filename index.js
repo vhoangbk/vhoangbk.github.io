@@ -69,24 +69,7 @@ app.get('/m-index.html', (req, res) => {
 });
 
 app.use(express.static(publicDir, {
-  maxAge: '1d',
-  lastModified: true,
-  etag: true,
-  setHeaders: (res, path) => {
 
-    // if (path.endsWith('.html') || path.endsWith('/')) {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    // }
-
-    // if (path.match(/\.(js|css)$/)) {
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
-    // }
-
-    if (path.endsWith('app_settings.js')) {
-      res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
-      res.setHeader('ETag', `"${Date.now()}"`); // ETag động để force revalidate
-    }
-  }
 }));
 
 app.post('/upload-stream', upload.single('data'), async (req, res) => {
