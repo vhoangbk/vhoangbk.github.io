@@ -74,9 +74,9 @@ app.use(express.static(publicDir, {
   etag: true,
   setHeaders: (res, path) => {
 
-    if (path.match(/\.(js|css)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    }
+    // if (path.match(/\.(js|css)$/)) {
+    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
+    // }
 
     if (path.endsWith('app_settings.js')) {
       res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
