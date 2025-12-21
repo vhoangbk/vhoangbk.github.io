@@ -9,11 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // if (typeof loadWasmLib === 'function') {
-  //   loadWasmLib().then(wasm_url => {
-  //     window.wasm_url = wasm_url;
-  //   });
-  // }
 
   const platform = detectPlatform();
   // if (!platform.isBeeConvertApp) {
@@ -113,20 +108,10 @@ async function handleFileChange(event, id, isOldFile = false) {
       }
     }
 
-    // if (!window.wasm_url) {
-    //   if (typeof showLoadingDialog === 'function') {
-    //     let timer = setTimeout(showLoadingDialog("Loading library, please wait..."), 500);
-    //     while (!window.wasm_url) {
-    //       await new Promise(resolve => setTimeout(resolve, 100));
-    //     }
-    //     clearTimeout(timer);
-    //     hideLoadingDialog();
-    //   } else {
-    //     while (!window.wasm_url) {
-    //       await new Promise(resolve => setTimeout(resolve, 100));
-    //     }
-    //   }
-    // }
+    while(isReadyLib === false) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     if (typeof showLoadingDialog === 'function') {
       showLoadingDialog("Loading video information...");
     }

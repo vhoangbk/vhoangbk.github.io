@@ -2,17 +2,45 @@ importScripts("app_settings.js");//không có ?v=...
 importScripts(COMMON_UTILS_URL);
 
 //khai báo
-const MAX_DELAY_CODEC = 60;
+const MAX_DELAY_CODEC = 30;
 const CONSOLE_ENABLE = 0;
-var MAX_LENGTH_FILE_RAM = 1900 * 1024 * 1024; //1MB
-var requestManager = {};
-var saveToDiskFiles = {};
-var flag_addr = {};
-var logcat = [];
-var inputs = [];
-var outputs = [];
 
-var hasCompletedFfmpeg = 0;
+var requestManager = {};
+var flag_addr = 0;
+var isEncoderVerified = 0;
+var ffmpegModule = null;
+function setVariable() {
+    MAX_LENGTH_FILE_RAM = 1900 * 1024 * 1024; //1MB
+    requestManager = {};
+    saveToDiskFiles = {};
+    logcat = [];
+    inputs = [];
+    outputs = [];
+    count_flush = 0;
+    worker_pool = [];
+    // isEncoderVerified = 0;
+    bufferReaderMap = {}; //{fd-position:data}
+    fileInRam = [];
+
+    // ✅ Reset thêm các biến FFmpeg state
+    lineCode = 0;
+    self.scale_width = 0;
+    self.scale_height = 0;
+    self.cmd_array = [];
+    self.command = [];
+    self.settings = {};
+
+    // Reset global variables if they exist
+    if (typeof currentSpeed !== 'undefined') {
+        currentSpeed = 0;
+    }
+    if (typeof output_info !== 'undefined') {
+        output_info = {};
+    }
+
+    console.log('All variables reset');
+}
+setVariable();
 
 function getSleepTime() {
     return 1005;
@@ -22,10 +50,8 @@ function set_flags(_flag_addr) {
     flag_addr = _flag_addr;
 }
 
-
 function readInputData(stream, buffer, offset, length, position) {
 
-    // debugger;
     var filename = stream.node.name;
     if (fileInRam.includes(filename)) {
         return -999999999;
@@ -45,7 +71,7 @@ function readInputData(stream, buffer, offset, length, position) {
 
 function add_new_encoder(ptr, length) {
 
-    var string = new TextDecoder().decode(new Uint8Array(self.ffmpegModule.HEAPU8.subarray(ptr, ptr + length)));
+    var string = new TextDecoder().decode(new Uint8Array(ffmpegModule.HEAPU8.subarray(ptr, ptr + length)));
     var config = JSON.parse(string.replaceAll("`", `"`));
     setTimeout(() => { ffmpegModule.HEAPU8[flag_addr] = 0; }, 10);
     if (config.encoding_needed == 0) {
@@ -55,15 +81,12 @@ function add_new_encoder(ptr, length) {
     if ([27, 173, 226, 167].indexOf(config.codec_id) == -1) {
         return 0;
     }
-
-
-
     add_new_worker(config, true);
     return 1;
 }
 
 function add_new_decoder(ptr, length) {
-    var string = new TextDecoder().decode(new Uint8Array(self.ffmpegModule.HEAPU8.subarray(ptr, ptr + length)));
+    var string = new TextDecoder().decode(new Uint8Array(ffmpegModule.HEAPU8.subarray(ptr, ptr + length)));
     var config = JSON.parse(string.replaceAll("`", `"`));
     setTimeout(() => { ffmpegModule.HEAPU8[flag_addr] = 0; }, 10);
     if (self.settings.type_cmd === CMD_BEE_GET_INFO) {
@@ -74,8 +97,6 @@ function add_new_decoder(ptr, length) {
         return 0;
     }
 
-    CONSOLE_ENABLE && console.log('add_new_decoder config===', config);
-
     if ([27, 173, 226, 167].indexOf(config.codec_id) == -1) {
         return 0;
     }
@@ -84,14 +105,46 @@ function add_new_decoder(ptr, length) {
     return 1;
 }
 
-async function finishTranscode() {
+function cancelConvert() {
+    ffmpegModule.HEAPU8[flag_addr + 1] = 1;
 
-    console.log('finishTranscode called hasCompletedFfmpeg ==', hasCompletedFfmpeg);
-    if (hasCompletedFfmpeg > 0) {
+}
+
+async function freeMemory() {
+
+    while (true) {
+        if (count_flush > 0) {
+            await sleep(500);
+            continue;
+        }
+        break;
+    }
+
+    worker_pool = [];
+    var file_array = [...inputs, ...outputs];
+    for (var i = 0; i < file_array.length; i++) {
+        var fPath = file_array[i];
+        try {
+            ffmpegModule.FS.unlink(fPath);
+        } catch (e) {
+        }
+    }
+
+    setVariable();
+}
+async function finishTranscode(code) {
+
+    if (ffmpegModule.HEAPU8[flag_addr + 1] == 1) {
+        ffmpegModule.HEAPU8[flag_addr + 1] = 0;
+
+        postMessage({
+            type_cmd: CMD_BEE_READY,
+        });
+
+        freeMemory();
         return;
     }
-    //debugger;
-    hasCompletedFfmpeg = 1;
+
     var outputFiles = [];
     var transferable_objects = [];
     if (self.outputs.length === 0) {
@@ -110,7 +163,7 @@ async function finishTranscode() {
         }
 
         try {
-            var fileData = self.ffmpegModule.FS.readFile(outputPath);
+            var fileData = ffmpegModule.FS.readFile(outputPath);
             transferable_objects.push(fileData.buffer);
             outputFiles.push({
                 name: outputPath,
@@ -136,6 +189,8 @@ async function finishTranscode() {
         });
     }
 
+
+
     postMessage({
         type_cmd: CMD_BEE_COMPLETE,
         sessionId: self.sessionId,
@@ -143,35 +198,20 @@ async function finishTranscode() {
         output_info: self.output_info,
         logcat: logcat
     }, transferable_objects);
-    logcat = [];
 
-    for (wroker of worker_pool) {
-        wroker.terminate();
-    }
-    // ✅ Giải phóng bộ nhớ ffmpegModule
-    if (typeof ffmpegModule !== 'undefined' && ffmpegModule) {
-        try {
-            if (ffmpegModule.FS && ffmpegModule.FS.unmount) {
-                ffmpegModule.FS.unmount('/');
-            }
-            if (ffmpegModule.delete) {
-                ffmpegModule.delete();
-            }
-        } catch (e) {
-            console.warn('ffmpegModule unlink failed:', e);
-        }
+    freeMemory();
 
-    }
-    ffmpegModule._exit(0);
 }
 
 
-function flush_coder(file_index, index, is_encoder) {
 
+function flush_coder(file_index, index, is_encoder) {
     var worker_name = get_name_for_worker(file_index, index, is_encoder);
     var worker = get_worker_by_name(worker_name);
     if (worker[CMD_BEE_FLUSH] !== true) {
+        worker.flush_state = 1; //=1=>>yêu cầu flush nhưng chưa xong
         worker[CMD_BEE_FLUSH] = true;
+        count_flush++;
         worker.postMessage({
             type_cmd: CMD_BEE_FLUSH,
             worker_name: worker_name
@@ -187,10 +227,10 @@ function pull_data_coder(file_index, index, is_encoder) {
         type_cmd: CMD_BEE_PULL_DATA,
         worker_name: worker_name
     });
-
 }
 
 self.get_new_pkt = function (file_index, stream_index, pkt_buffer, pts_pkt, duration_pkt, flag_pkt, size_pkt) {
+
 
     var worker_name = get_name_for_worker(file_index, stream_index, 1);
     var worker = get_worker_by_name(worker_name);
@@ -202,7 +242,7 @@ self.get_new_pkt = function (file_index, stream_index, pkt_buffer, pts_pkt, dura
         var { type, timestamp, duration, byteLength, data } = worker.output.shift();
         ffmpegModule.HEAPU8.set(data, pkt_buffer);
 
-        if (type == 'key' && typeof isEncoderVerified === 'undefined') {
+        if (type == 'key' && isEncoderVerified === 0) {
 
             isEncoderVerified = 1;
             var array2 = new Uint8Array(32);
@@ -243,6 +283,7 @@ self.get_new_frame = function (file_index, stream_index, frame_buffer, format_fr
     var worker_name = get_name_for_worker(file_index, stream_index, 0);
     var worker = get_worker_by_name(worker_name);
 
+
     var count_output = worker.count_output;
     var count_input = worker.count_input;
     var result = 0;
@@ -270,11 +311,13 @@ self.get_new_frame = function (file_index, stream_index, frame_buffer, format_fr
             result = 0;
         }
     }
+    //  console.log('get_new_frame called with file_index:', file_index, 'stream_index:', stream_index, 'count_input:', worker.count_input,'count_output:',count_output,'result===', result);
     return result;
 }
 
 self.request_decode_packet = function (file_index, stream_index, data, size, pts, flag, duration) {
 
+    //console.log('request_decode_packet called with file_index:', file_index, 'stream_index:', stream_index);
     var worker_name = get_name_for_worker(file_index, stream_index, 0);
     var worker = get_worker_by_name(worker_name);
     var pktData = new Uint8Array(ffmpegModule.HEAPU8.subarray(data, data + size));
@@ -289,13 +332,13 @@ self.request_decode_packet = function (file_index, stream_index, data, size, pts
     }, [pktData.buffer]);
 
     worker.count_input = worker.count_input + 1;
+    // console.log('request_decode_packet called with file_index:', file_index, 'stream_index:', stream_index, 'count_input:', worker.count_input);
 }
 
 self.request_encode_frame = function (file_index, index, data, frame_size, format, width, height, pts, pkt_duration) {
 
     var worker_name = get_name_for_worker(file_index, index, 1);
     var worker = get_worker_by_name(worker_name);
-
     var init = {
         timestamp: Number(pts),
         codedWidth: width,
@@ -330,17 +373,18 @@ self.run_command = function (cmd_array) {
     }
 
     self.cmd_array = cmd_array;
-    hasCompletedFfmpeg = 0;
-
-    ffmpegModule.callMain(self.cmd_array);
+    var result = ffmpegModule.callMain(self.cmd_array);
 }
 
 
 self.onmessage = async function (intent) {
-    if (hasCompletedFfmpeg > 0) {
+
+    if (intent.data.type_cmd === CMD_BEE_CALL_MAIN_RESPONSE) {
         return;
     }
-    if (intent.data.type_cmd === CMD_BEE_CALL_MAIN_RESPONSE) {
+
+    if (intent.data.type_cmd === CMD_BEE_CANCEL_CONVERT) {
+        cancelConvert();
         return;
     }
 
@@ -366,15 +410,19 @@ self.onmessage = async function (intent) {
     self.settings = intent.data.settings || {};
     self.command = command;
 
-    self.isSharedArrayBufferSupported = intent.data.isSharedArrayBufferSupported;
-    importScripts(intent.data.ffmpeg_url);
+    if (ffmpegModule == null) {
+        importScripts(FFMPEG_BEE_LIB_URL);
+        ffmpegModule = await createFFmpegModule();
+    }
 
-    ffmpegModule = await createFFmpegModule(intent.data.wasm_url, intent.data.ffmpeg_url);
-    // ffmpegModule.ccall('runcode', null, ['string'], [code_txt]);
+    if (self.settings.type_cmd === CMD_BEE_READY) {
+        postMessage({type_cmd: CMD_BEE_READY});
+        return;
+    }
 
     run_command(command);
 }
-
+threadingEnabled = true;
 async function createFFmpegModule(wasm_url, ffmpeg_url) {
     // debugger;
     lineCode = 0;
@@ -383,7 +431,17 @@ async function createFFmpegModule(wasm_url, ffmpeg_url) {
         ENV: { ASYNCIFY: '1' },           // Signal để WASM biết
         ASYNCIFY_STACK_SIZE: 524288,       // Cấu hình memory
         ASYNCIFY_IMPORTS: ['emscripten_sleep'], // Khai báo async functions
-
+        ...(threadingEnabled && {
+            PTHREAD: true,
+            ALLOW_MEMORY_GROWTH: true,
+            INITIAL_MEMORY: 536870912,    // 128MB
+            MAXIMUM_MEMORY: 4 * 536870912,    // 2GB max
+            PTHREAD_POOL_SIZE: 1,         // Limit pool size
+            PTHREAD_POOL_SIZE_STRICT: 1,
+            PTHREAD_POOL_DELAY_LOAD: false,
+            USE_PTHREADS: true,
+            MODULARIZE: true
+        }),
         print: (text) => {
             // logger.push(text);
             CONSOLE_ENABLE && console.error(text + '\nlineCode:' + lineCode, '|time===', Date.now());
@@ -430,12 +488,8 @@ async function createFFmpegModule(wasm_url, ffmpeg_url) {
             CONSOLE_ENABLE && console.error(text + '\nlineCode:' + lineCode, '|time===', Date.now());
             lineCode++;
         },
-
-        onExit: (code) => {
-        },
-
-        locateFile: e => e.endsWith(".wasm") ? wasm_url : e,
-        mainScriptUrlOrBlob: ffmpeg_url,
+        locateFile: e => e.endsWith(".wasm") ? WASM_BEE_LIB_URL : e,
+        mainScriptUrlOrBlob: FFMPEG_BEE_LIB_URL,
 
     });
 
@@ -455,7 +509,7 @@ function get_resolution_output_encoder(code_id, width, height) {
 //
 //
 //========================= functions helper ==============================================================================//
-var worker_pool = [];
+
 
 function get_worker_by_name(name) {
     for (var i = 0; i < worker_pool.length; i++) {
@@ -464,10 +518,10 @@ function get_worker_by_name(name) {
 }
 
 function add_new_worker(config, is_encoder) {
-
-    var codecWorker = new Worker(ENCODE_DECODE_WORKER_URL);
+    var name = get_name_for_worker(config.file_index, config.stream_index, is_encoder);
+    var codecWorker = new Worker(ENCODE_DECODE_WORKER_URL + '?name=' + name);
     codecWorker.config = config;
-    codecWorker.name = get_name_for_worker(config.file_index, config.stream_index, is_encoder);
+    codecWorker.name = name;
     codecWorker.output = [];
     codecWorker.flush_state = 0;//=0=>>không có gì || =1 yêu cầu flush nhưng chưa complete || =2, flush đã complete
     codecWorker.is_ready = 0;
@@ -476,10 +530,6 @@ function add_new_worker(config, is_encoder) {
     codecWorker.pull_state = 0;
 
     codecWorker.onmessage = function (intent) {
-        if (hasCompletedFfmpeg > 0) {
-            return;
-        }
-        // console.log({type_cmd:intent.data.type_cmd})
         if (intent.data.type_cmd == 'worker_ready') {
             intent.target.is_ready = 1;
         } else if (intent.data.type_cmd == 'new_video_chunk') {
@@ -494,15 +544,17 @@ function add_new_worker(config, is_encoder) {
             worker.count_output = worker.count_output + 1;
             worker.count_feed = intent.data.count_feed;
         } else if (intent.data.type_cmd == CMD_BEE_PULL_DATA) {
-            // intent.target.flush_state = 2;
-            //intent.target.terminate();
             ffmpegModule.HEAPU8[flag_addr] = 0;
         } else if (intent.data.type_cmd == CMD_BEE_FLUSH) {
             intent.target.flush_state = 2;
-            //intent.target.terminate();
-            ffmpegModule.HEAPU8[flag_addr] = 0;
+            intent.target.terminate();
+            count_flush--;
+            if (count_flush == 0) {
+                ffmpegModule.HEAPU8[flag_addr] = 0;
+            }
+
         } else if (intent.data.type_cmd == 'get_file_info') {
-            self.ffmpegModule.callMain(self.array_cmd);
+            ffmpegModule.callMain(self.array_cmd);
         } else if (intent.data.type_cmd == CMD_BEE_ERROR_CONFIG_CODER) {
             postMessage({
                 type_cmd: intent.data.type_cmd,
@@ -517,6 +569,10 @@ function add_new_worker(config, is_encoder) {
         settings: self.settings,
         worker_name: codecWorker.name
     });
+    codecWorker.onerror = function (error) {
+        console.error('Error in worker', codecWorker.name, error);
+    }
+
 }
 
 function getLengthInput(filename, length) {
@@ -535,26 +591,26 @@ function getLengthInput(filename, length) {
 }
 
 
-
-var bufferReaderMap = {}; //{fd-position:data}
-var fileInRam = [];
 async function fileEvent(inputJson) {
     inputJson = JSON.parse(inputJson);
-    //console.log('fileEvent called inputJson===', inputJson);
+
     var filename = inputJson.filename;
     if (inputJson.event == 'file_open') {
-        if (self.inputs.indexOf(filename) > -1) {
+
+        if (inputs.indexOf(filename) > -1) {
+
             const length_max = 200 * 1000 * 1000;
-            if (isUrl(decodeURIComponent(filename)) && getUrlLength(decodeURIComponent(filename)) > length_max) {
+            if (isUrl(decodeURIComponent(filename)) && getUrlLength(decodeURIComponent(filename)) < length_max) {
                 var url = decodeURIComponent(filename);
                 getDataFromUrl(url, 0, self.getUrlLength(url) - 1, async function (response) {
                     MAX_LENGTH_FILE_RAM = Math.max(0, MAX_LENGTH_FILE_RAM - response.byteLength);
-                    self.ffmpegModule.FS.writeFile(filename, new Uint8Array(response));
+                    ffmpegModule.FS.writeFile(filename, new Uint8Array(response));
                     fileInRam.push(filename);
                     ffmpegModule.HEAPU8[flag_addr] = 0;
                 });
             } else {
-                self.ffmpegModule.FS.writeFile(filename, new Uint8Array(1));
+                console.log('ffmpegModule.FS.writeFile=empty');
+                ffmpegModule.FS.writeFile(filename, new Uint8Array(1));
                 ffmpegModule.HEAPU8[flag_addr] = 0;
             }
 
@@ -619,11 +675,9 @@ async function fileEvent(inputJson) {
             ffmpegModule.HEAPU8[flag_addr] = 0;
             return;
         }
-        //    console.log('file_write completed for file:', JSON.stringify(inputJson));
         if (outputs.indexOf(filename) === -1) outputs.push(filename);
 
         if (inputJson.encrypt == 1) {
-            // debugger;
             var outputData = new Uint8Array(32);
             for (var i = 0; i < outputData.length; i++) {
                 outputData[i] = ffmpegModule.HEAPU8[inputJson.buf + i];
@@ -635,10 +689,10 @@ async function fileEvent(inputJson) {
             }
         }
         if (inputJson.pos + inputJson.size >= MAX_LENGTH_FILE_RAM && saveToDiskFiles[filename] == null && self.settings.type_cmd === CMD_BEE_CONVERT) {
-            var file_data = self.ffmpegModule.FS.readFile(filename);
+            var file_data = ffmpegModule.FS.readFile(filename);
             if (file_data.length > 0) {
                 await callMain('saveToDisk', { filename, position: 0, data: file_data }, [file_data.buffer]);
-                self.ffmpegModule.FS.truncate(filename, 0);
+                ffmpegModule.FS.truncate(filename, 0);
             }
 
             saveToDiskFiles[filename] = filename;

@@ -97,12 +97,6 @@ app.use(express.static(publicDir, {
       return;
     }
 
-    // Assets khác (images, fonts): cache dài hạn
-    if (path.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-      return;
-    }
-
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   }
 }));
@@ -315,16 +309,16 @@ app.get("/m", (req, res) => {
 });
 
 // Cache-Control phân tách môi trường
-// app.use((req, res, next) => {
-//   const url = req.path;
+app.use((req, res, next) => {
+  const url = req.path;
 
-  // if (isDev) {
-  //   // 🚫 DEV MODE = disable cache hoàn toàn
-  //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  //   res.setHeader('Pragma', 'no-cache');
-  //   res.setHeader('Expires', '0');
-  //   return next();
-  // }
+  if (isDev) {
+    // 🚫 DEV MODE = disable cache hoàn toàn
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    return next();
+  }
 
   // 🟢 PRODUCTION MODE
   // if (url.endsWith('.html')) {
@@ -342,8 +336,8 @@ app.get("/m", (req, res) => {
   //   res.setHeader('Cache-Control', 'public, max-age=31536000');
   // }
 
-//   next();
-// });
+  next();
+});
 
 module.exports = app;
 

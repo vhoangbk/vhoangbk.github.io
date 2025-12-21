@@ -1,6 +1,7 @@
 const mainBroadcastChannel = new BroadcastChannel("app_channel");
 mainBroadcastChannel.onmessage = async (event) => {
     if (event.data && event.data.type_cmd === CMD_BEE_ERROR_CONFIG_CODER) {
+        debugger;
         var is_encoder = event.data.is_encoder;
         if (is_encoder == false && self.settings.videodecoder_enabled != false) {
             convertFileWithOptions_New(self.inputOptions, { videodecoder_enabled: false })
@@ -16,8 +17,9 @@ mainBroadcastChannel.onmessage = async (event) => {
     }
 };
 
-let currentWorker = null;
+self.currentWorker = null;
 self.fileInfoMap = {};
+var isReadyLib = false;
 
 
 function saveToDisk(worker, filename, position, data, writable) {
@@ -67,6 +69,9 @@ function saveToDisk(worker, filename, position, data, writable) {
     }
 }
 
+var worker_pool = [];
+
+let indexWorker = 0;
 /**
  * on main thread.
  * @param {*} command
@@ -81,13 +86,11 @@ function saveToDisk(worker, filename, position, data, writable) {
 async function runFFmpegCommand(command, settings, onCallBack) {
     return new Promise(async (resolve, reject) => {
 
-        if (currentWorker != null) {
-            currentWorker.terminate();
-            currentWorker = null;
+        if (!currentWorker) {
+            currentWorker = new Worker(MAIN_THREAD_URL);
         }
-        currentWorker = new Worker(MAIN_THREAD_URL);
-        currentWorker.dataSaveQueue = [];
 
+        currentWorker.dataSaveQueue = [];
         currentWorker.onmessage = async function (intent) {
             var type_cmd = intent.data.type_cmd;
             if (type_cmd === CMD_BEE_GET_DATA) {
@@ -114,11 +117,6 @@ async function runFFmpegCommand(command, settings, onCallBack) {
                         if (intent.target.fsFile == null) {
                             intent.target.fsFile = await getFSFileByName(payload.filename);
                             if (!(intent.target.fsFile instanceof FileSystemFileHandle)) {
-
-                                if (currentWorker != null) {
-                                    currentWorker.terminate();
-                                    currentWorker = null;
-                                }
                                 hideProgressDialog();
                                 hideLoadingDialog();
                                 if (typeof intent.target.fsFile == 'string') {
@@ -151,6 +149,11 @@ async function runFFmpegCommand(command, settings, onCallBack) {
                 return;
             }
 
+            if (type_cmd === CMD_BEE_READY) {
+                isReadyLib = true;
+                return;
+            }
+
             if (type_cmd === CMD_BEE_UPDATE_PROGRESS || type_cmd === CMD_BEE_ERROR || type_cmd === CMD_BEE_WRITE_FILE) {
                 onCallBack && onCallBack(intent.data);
                 return;
@@ -163,22 +166,14 @@ async function runFFmpegCommand(command, settings, onCallBack) {
             reject(err);
         };
 
-        if (!self.ffmpeg_url) {
-            self.ffmpeg_url = await getBlobUrlOnLib(FFMPEG_BEE_LIB_URL);
-        }
-
-        if (!self.wasm_url) {
-            self.wasm_url = await getBlobUrlOnLib(WASM_BEE_LIB_URL);
-        }
 
         start_time = Date.now();
         self.settings = settings;
         self.command = command;
         self.onCallBack = onCallBack;
+
         currentWorker.postMessage({
             command: command,
-            wasm_url: self.wasm_url,
-            ffmpeg_url: self.ffmpeg_url,
             settings: settings
         });
 
@@ -195,7 +190,7 @@ async function getFileInfo(fileUrl, device = "DESKTOP") {
     if (self.fileInfoMap[fileUrl]) {
         return self.fileInfoMap[fileUrl];
     }
-    let array_cmd = ['-loglevel', 'info', '-i', fileUrl, '-vframes', '1', '-vf', `thumbnail=4,scale=${getScaleWidth(device)}:-1`, '-f', 'mjpeg', 'thumbnail.jpg'];
+    let array_cmd = ['-loglevel', 'info', '-i', fileUrl, '-vframes', '1', '-vf', `thumbnail=8,scale=${getScaleWidth(device)}:-1`, '-f', 'mjpeg', 'thumbnail.jpg'];
 
     var runResult = await runFFmpegCommand(array_cmd, settings = {
         type_cmd: CMD_BEE_GET_INFO
@@ -209,9 +204,13 @@ async function getFileInfo(fileUrl, device = "DESKTOP") {
         }
         fileInfo.videoBitRate = fileInfo.bitrateTotal - fileInfo.audioBitRate;
     }
-    const outputFile = runResult.outputFiles[0];
-    const blob = new Blob([outputFile.data], { type: 'image/jpeg' });
-    fileInfo.thumbnail = createBlobUrl(blob, 'thumbnail');
+    //debugger;
+    if (runResult.outputFiles.length > 0) {
+        const outputFile = runResult.outputFiles[0];
+        const blob = new Blob([outputFile.data], { type: 'image/jpeg' });
+        fileInfo.thumbnail = createBlobUrl(blob, 'thumbnail');
+    }
+
     fileInfo.input_url = fileUrl;
     self.fileInfoMap[fileUrl] = fileInfo;
     return fileInfo;
@@ -253,15 +252,16 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
     self.inputOptions = inputOptions;
     window.savedFileUrl = null;
 
+
     const msg = validateObj(inputOptions);
     if (msg) {
         throw new Error(msg);
     }
 
-  //  debugger;
+    //  debugger;
     const checkBitrate = inputOptions.target_size ? true : false;
     var { command, settings } = await convertUserOptionsToCommand(inputOptions, checkBitrate, 1);
-    settings = { ...defaultOptions, ...settings };
+
     if (command === null) {
         showAppError("Video conversion failed. Please choose compatible video settings and try again.");
         return;
@@ -275,17 +275,11 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
         }
     }
 
-    
+    settings = { ...defaultOptions, ...settings };
 
     showProgressDialog(async function () {
         hideProgressDialog();
-        //await executeCommand(CMD_CANCEL_CONVERT);//terminate previous convert worker if any
-
-        if (currentWorker != null) {
-            currentWorker.terminate();
-            currentWorker = null;
-        }
-
+        currentWorker.postMessage({ type_cmd: CMD_BEE_CANCEL_CONVERT });
         notificationAndroid('cancel')
         if (typeof releaseWakeLock === 'function') {
             releaseWakeLock();
@@ -296,7 +290,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
 
     notificationAndroid('start')
 
-    if (checkBitrate == true && 1>0) {
+    if (checkBitrate == true && 1 > 0) {
         var runResult = await runFFmpegCommand(command, settings = { type_cmd: CMD_BEE_CONVERT, start_time: Date.now(), ...settings }, function (data) {
             if (data.type_cmd === CMD_BEE_ERROR) {
                 hideProgressDialog();
@@ -304,26 +298,23 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
                 if (typeof releaseWakeLock === 'function') {
                     releaseWakeLock();
                 }
-                if (currentWorker != null) {
-                    currentWorker.terminate();
-                    currentWorker = null;
-                }
 
                 return;
             }
         });
 
-        if (currentWorker != null) {
-            currentWorker.terminate();
-            currentWorker = null;
-        }
+
+        // if(1>0){
+        //     return;
+        // }
+
 
         var bitrateScale = settings.videoBitRate / runResult.output_info.bitrate;
         //bitrateScale = bitrateScale * 0.9;
         var { command, settings } = await convertUserOptionsToCommand(inputOptions, false, bitrateScale);
-        settings = { ...defaultOptions, ...settings };
+
     }
-    
+    var { command, settings } = await convertUserOptionsToCommand(inputOptions, false, 1);
     var runResult = await runFFmpegCommand(command, settings = { type_cmd: CMD_BEE_CONVERT, start_time: Date.now(), ...settings }, function (data) {
         console.log('write file:', data.type_cmd);
 
@@ -338,11 +329,6 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
             }
         }
     });
-
-    if (currentWorker != null) {
-        currentWorker.terminate();
-        currentWorker = null;
-    }
 
     notificationAndroid('finish')
 
@@ -363,10 +349,23 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
 
         var newFileInfo = await getFileInfo(url);
 
+        // hideProgressDialog();
+        // hideLoadingDialog();
+        // setTimeout(() => {
+
+        //     const button = document.querySelector('.dialog-video-cancel');
+
+        //     if (button) button.click();
+        //     clickStartConvert();
+        // }, 3500);
+        // if(1>0){
+        //     return;
+        // }
+
         // ✅ Mở VideoCompleteDialog TRƯỚC khi đóng ProgressDialog
         // để tránh race condition restore scroll
         let platform = detectPlatform();
-        const videoCompleteDialog = showVideoDetailDialog(newFileInfo, 'test123.mp4', async function (url, name) {
+        const videoCompleteDialog = showVideoDetailDialog(newFileInfo, settings.output_filename, async function (url, name) {
             //khi người dùng bấm nút save.
             if (!outputFile) {
                 console.error('outputFile is undefined');
@@ -375,7 +374,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
                 } else {
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'test123.mp4';
+                    a.download = settings.output_filename || name;
                     a.click();
                 }
                 return;
@@ -392,7 +391,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
                 } else {
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'test123.mp4';
+                    a.download = settings.output_filename || name;
                     a.click();
                 }
             }
@@ -416,6 +415,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
             }
         }, "Save", platform.isBeeConvertApp ? 'muted' : '');
 
+
         // ✅ Đóng ProgressDialog SAU KHI VideoCompleteDialog đã mở
         // Sử dụng requestAnimationFrame để đảm bảo VideoCompleteDialog đã render
         requestAnimationFrame(() => {
@@ -432,3 +432,5 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
         }
     }
 }
+if(isReadyLib==false)
+runFFmpegCommand([], settings = { type_cmd: CMD_BEE_READY }, null);

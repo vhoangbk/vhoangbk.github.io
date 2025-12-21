@@ -2,6 +2,7 @@ importScripts("app_settings.js");//không có ?v=...
 importScripts(COMMON_UTILS_URL);
 importScripts(CODEC_HELPER_URL);
 
+
 var coder_map = {}; //{name:(videodecoder|videoencoder)}
 const ex_decoder_key = 'ex_decoder_key';
 const ex_encoder_key = 'ex_encoder_key';
@@ -16,13 +17,15 @@ var ex_mime_codec;
                 var coder = coder_map[keys[i]];
 
                 if (coder.pendding_inputs.length == 0) {
-                    if (coder.request_flush == 1) {
+                    //console.log('No pending inputs for coder:', coder.name);
+                    if (coder.request_flush == 1 && coder.state == 'configured') {
 
                         if (coder.is_encoder && coder.name != ex_encoder_key) {
                             coder.request_flush = 2;
                             const targetCoder = coder;
                             targetCoder.flush().then(() => {
                                 targetCoder.close();
+                                console.log(coder.name + ' flushed and closed');
                                 postMessage({ type_cmd: CMD_BEE_FLUSH });
                             });
                         } else if (!coder.is_encoder && coder.name != ex_decoder_key) {
@@ -42,6 +45,7 @@ var ex_mime_codec;
                             const targetCoder = coder;
                             targetCoder.flush().then(() => {
                                 targetCoder.close();
+                                console.log('ex_encoder_key flushed and closed');
                                 coder_map[ex_decoder_key].request_flush = 1;
                             });
 
@@ -50,6 +54,7 @@ var ex_mime_codec;
                             const targetCoder = coder;
                             targetCoder.flush().then(() => {
                                 targetCoder.close();
+                                console.log('ex_decoder_key flushed and closed');
                                 postMessage({ type_cmd: CMD_BEE_FLUSH });
                             });
                         }
@@ -120,8 +125,8 @@ var ex_mime_codec;
                     //encodeOptions.avc = { quantizer: 12 };
                     // encodeOptions.hevc = { quantizer: 12 };
                     encodeOptions.key = is_keyframe;
-                    if(coder.settings &&coder.settings.quantizer){
-                        if(coder.settings.format_name ==='av1' || coder.settings.format_name ==='vp9'){
+                    if (coder.settings && coder.settings.quantizer) {
+                        if (coder.settings.format_name === 'av1' || coder.settings.format_name === 'vp9') {
                             encodeOptions[coder.settings.format_name] = { quantizer: coder.settings.quantizer };
                         }
                     }
@@ -132,14 +137,17 @@ var ex_mime_codec;
                     i = i - 1;
                     continue;
                 } else {
-                    coder.decode(coder.pendding_inputs.shift());
+                   //  debugger;
+                    var chunk = coder.pendding_inputs.shift();
+                    coder.decode(chunk);
                     coder.count_decode = coder.count_decode + 1;
+                   
                     i = i - 1;
                     continue;
                 }
 
             }
-            await new Promise(r => setTimeout(r, 1));
+            await new Promise(r => setTimeout(r, 10));
         }
     }
 )();
@@ -211,6 +219,8 @@ function postFrame(frame) {
 
 function handleFrame(coder, frame) {
 
+   // console.log('handleFrame called for:', coder.name, 'frame format:', frame.format);
+
     if (coder.name == ex_decoder_key) {
         postFrame(frame);
     } else {
@@ -263,10 +273,15 @@ async function config_coder(coder, sample) {
             coder.current_config = config.config;
 
 
-            console.log("encoder config===", JSON.stringify(config.config));
+           // console.log("encoder config===", JSON.stringify(config.config));
         } else {
-            var config = await findBestVideoDecoderConfig(coder.config.codec_id, sample, coder.config.dec_width, coder.config.dec_height);
+
+           // console.log('configure=====0000');
+             var config = await findBestVideoDecoderConfig(coder.config.codec_id, sample, coder.config.dec_width, coder.config.dec_height);
+            // console.log("decoder config===", JSON.stringify(config.config));
+            //coder.configure({ "codec": "avc1.640034", "hardwareAcceleration": "prefer-software", "codedWidth": 1920, "codedHeight": 804 });
             coder.configure(config.config);
+            console.log('configure=====' + coder.name,config.config);
         }
 
     } catch (error) {
@@ -340,7 +355,7 @@ self.onmessage = async function (intent) {
             worker_name: intent.data.worker_name
         });
     } else if (cmd == 'setup_decoder') {
-        console.log('setup_decoder called===', intent.data.worker_name, intent.data.config);
+       // console.log('setup_decoder called===', intent.data.worker_name, intent.data.config);
         self.app_settings = intent.data.app_settings;
         create_coder(intent.data.config, intent.data.worker_name, false);
         postMessage({
@@ -358,6 +373,7 @@ self.onmessage = async function (intent) {
 
     } else if (cmd == 'request_decode') {
 
+       // console.log('request_decode called with worker_name:', intent.data.worker_name);
         let pts = Number(intent.data.pts);
         let duration = Number(intent.data.duration);
         if (!Number.isFinite(pts) || Math.abs(pts) >= 9e18) {
@@ -382,6 +398,11 @@ self.onmessage = async function (intent) {
         coder.count_input = coder.count_input + 1;
 
     } else if (cmd == CMD_BEE_FLUSH) {
+        console.log('CMD_BEE_FLUSH received for worker:', coder_map[intent.data.worker_name]);
+        if(coder_map[intent.data.worker_name].count_input ==0){
+            postMessage({ type_cmd: CMD_BEE_FLUSH });
+            return;
+        }
         coder_map[intent.data.worker_name].request_flush = 1;
     } else if (cmd == 'check_ready') {
         postMessage({

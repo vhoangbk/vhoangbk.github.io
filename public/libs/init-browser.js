@@ -41,15 +41,9 @@ async function loadVideoEncoderSettings() {
         Array.from({ length: bitmapCount }, () => createRandomBitmap(w, h))
     );
 
-    // ✅ Khai báo biến để tránh global pollution
-    let byteLengthTotal = 0;
-    let count_output = 0;
-    let last_time_output = 0;
-
     async function buildAndConfigureEncoder(mimeCodec) {
-        let videoEncoder = null;
         try {
-            videoEncoder = new VideoEncoder({
+            const videoEncoder = new VideoEncoder({
                 output: chunk => {
                     if (count_output == 0 && chunk.type !== 'key') {
                         //trên 1 số thiết bị iPhone cũ, frame đầu tiên không phải keyframe nên bỏ qua
@@ -59,17 +53,7 @@ async function loadVideoEncoderSettings() {
                     byteLengthTotal += chunk.byteLength;
                     count_output++;
                 },
-                error: error => {
-                    console.error("onCodecError", error);
-                    // ✅ Cleanup khi có lỗi
-                    if (videoEncoder && videoEncoder.state !== "closed") {
-                        try {
-                            videoEncoder.close();
-                        } catch (e) {
-                            console.error("Error closing encoder on error:", e);
-                        }
-                    }
-                }
+                error: error => console.log("onCodecError", error)
             });
             if (mimeCodec) {
                 const init = { codec: mimeCodec, width: w, height: h, framerate: fps, bitrate: 1000 };
@@ -78,24 +62,9 @@ async function loadVideoEncoderSettings() {
                     videoEncoder.configure(init);
                     videoEncoder.mime_code = mimeCodec;
                     return videoEncoder;
-                } else {
-                    // ✅ Cleanup nếu không support
-                    if (videoEncoder.state !== "closed") {
-                        videoEncoder.close();
-                    }
                 }
             }
-        } catch (e) {
-            console.error("Error building encoder:", e);
-            // ✅ Cleanup khi có exception
-            if (videoEncoder && videoEncoder.state !== "closed") {
-                try {
-                    videoEncoder.close();
-                } catch (closeError) {
-                    console.error("Error closing encoder:", closeError);
-                }
-            }
-        }
+        } catch (e) { }
         return null;
     }
 
@@ -131,23 +100,12 @@ async function loadVideoEncoderSettings() {
     var isNotSupported = typeof VideoEncoder == 'undefined';
 
     if (!isNotSupported) {
-        // ✅ Detect Windows để skip một số codec có vấn đề
-        const isWindows = navigator.platform.toLowerCase().includes('win') || 
-                         navigator.userAgent.toLowerCase().includes('windows');
-        
         const codecIds = [27, 173, 226, 167];
         const codecNames = ['h264', 'h265', 'av1', 'vp9'];
         let indexImage = 0;
 
         for (let c = 0; c < codecIds.length; c++) {
             const codecName = codecNames[c];
-            
-            // ✅ Skip h265 và av1 trên Windows Chrome vì có thể gây crash
-            if (isWindows && (codecName === 'h265' || codecName === 'av1')) {
-                console.log(`Skipping ${codecName} on Windows Chrome`);
-                continue;
-            }
-            
             const profiles = Object.keys(all_codecs[codecName]);
             for (const profile of profiles) {
                 let countTimeout = 0;
@@ -159,34 +117,11 @@ async function loadVideoEncoderSettings() {
                     if (!videoEncoder) continue;
 
                     last_time_output = Date.now();
-                    
-                    try {
-                        for (let i = 0; i < totalFrames; i++) {
-                            await drawFrame(i / totalFrames, videoEncoder, indexImage++);
-                            await new Promise(r => setTimeout(r, 1));
-                        }
-                        
-                        // ✅ Tăng timeout và thêm error handling cho flush
-                        try {
-                            await withTimeout(videoEncoder.flush(), 2000); // Tăng từ 500ms lên 2000ms
-                        } catch (flushError) {
-                            console.error("Flush error:", flushError);
-                            // Continue để cleanup
-                        }
-                    } catch (encodeError) {
-                        console.error("Encode error:", encodeError);
-                        // ✅ Cleanup khi có lỗi trong quá trình encode
-                        if (videoEncoder.state !== "closed") {
-                            try {
-                                videoEncoder.close();
-                            } catch (closeError) {
-                                console.error("Error closing encoder after encode error:", closeError);
-                            }
-                        }
-                        countTimeout++;
-                        if (countTimeout > 2) break;
-                        continue;
+                    for (let i = 0; i < totalFrames; i++) {
+                        await drawFrame(i / totalFrames, videoEncoder, indexImage++);
+                        await new Promise(r => setTimeout(r, 1));
                     }
+                    await withTimeout(videoEncoder.flush(), 500);
 
                     if (byteLengthTotal > 0) {
                         if (videoEncoder.state != "closed")

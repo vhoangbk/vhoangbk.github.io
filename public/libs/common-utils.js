@@ -786,6 +786,9 @@ function getScaleWidth(device = "DESKTOP") {
 	}
 	return scaleWidth;
 }
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 function isSafari() {
 	const ua = navigator.userAgent;
 	const isSafari = /Safari/.test(ua)
@@ -896,7 +899,7 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 
 
 	if (checkBitrate == true) {
-		if (outputDuration <= 4) {
+		if (outputDuration <= 14) {
 
 			cmd_array.push('-ss', startTime);
 			cmd_array.push('-r', fileInfo.fps);
@@ -906,7 +909,7 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 			cmd_array.push('-map', `[outv]`);
 		} else {
 			const segmentDuration = 2;
-			cmd_array.push('-ss', startTime + 1);
+			cmd_array.push('-ss', startTime + 2);
 			cmd_array.push('-r', fileInfo.fps);
 			cmd_array.push('-i', userOptions.input_url);
 
@@ -914,13 +917,19 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 			cmd_array.push('-r', fileInfo.fps);
 			cmd_array.push('-i', userOptions.input_url);
 
-			cmd_array.push('-ss', (startTime + outputDuration - segmentDuration - 1) & ~0);
-			cmd_array.push('-r', fileInfo.fps);
-			cmd_array.push('-i', userOptions.input_url);
+			// cmd_array.push('-ss', (startTime + outputDuration  - segmentDuration - 2) & ~0);
+			// cmd_array.push('-r', fileInfo.fps);
+			// cmd_array.push('-i', userOptions.input_url);
 
 
-			cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[1:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v2];[2:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v3];[v1][v2][v3]concat=n=3:v=1[outv]`);
+			// cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[1:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v2];[2:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v3];[v1][v2][v3]concat=n=3:v=1[outv]`);
+
+			cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[1:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v2];[v1][v2]concat=n=2:v=1[outv]`);
 			cmd_array.push('-map', `[outv]`);
+
+
+			// cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[v1]concat=n=1:v=1[outv]`);
+			// cmd_array.push('-map', `[outv]`);
 		}
 
 	} else {
