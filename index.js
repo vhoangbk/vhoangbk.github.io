@@ -73,30 +73,11 @@ app.use(express.static(publicDir, {
   lastModified: true,
   etag: true,
   setHeaders: (res, path) => {
-    // if (path.endsWith('.html')) {
-    //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    // } else {
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000'); 
-    // }
 
-    // if (path.match(/\.(js|css)$/)) {
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
-    // }
+    if (path.match(/\.(js|css)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
 
-    // if (path.endsWith('.webp')) {
-    //   res.setHeader('Content-Type', 'image/webp');
-    // }
-    // if (path.endsWith('.wasm')) {
-    //   res.setHeader('Content-Type', 'application/wasm');
-    //   res.setHeader('Cache-Control', 'public, max-age=31536000');
-    //   res.setHeader('ETag', `"${path}-${Date.now()}"`);
-    // }
-    // if (path.endsWith('.js')) {
-    //   res.setHeader('Content-Type', 'application/javascript');
-    // }
-    // if (path.endsWith('.css')) {
-    //   res.setHeader('Content-Type', 'text/css');
-    // }
     if (path.endsWith('app_settings.js')) {
       res.setHeader('Cache-Control', 'public, max-age=60'); // 60 giây = 1 phút
       res.setHeader('ETag', `"${Date.now()}"`); // ETag động để force revalidate
