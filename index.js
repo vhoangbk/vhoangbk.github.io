@@ -78,6 +78,10 @@ app.use(express.static(publicDir, {
       return;
     }
 
+    if (path.endsWith('.wasm')) {
+      res.setHeader('Content-Type', 'application/wasm');
+    }
+
     // File có version trong URL (?v=xxx): cache dài hạn, immutable
     if (path.match(/\.(js|css|wasm)/) && path.includes('?v=')) {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
