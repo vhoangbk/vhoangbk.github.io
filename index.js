@@ -79,7 +79,7 @@ app.use(express.static(publicDir, {
     //   res.setHeader('Cache-Control', 'public, max-age=31536000'); 
     // }
 
-    if (url.match(/\.(js|css)$/)) {
+    if (path.match(/\.(js|css)$/)) {
       res.setHeader('Cache-Control', 'public, max-age=31536000');
     }
 
