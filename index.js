@@ -74,7 +74,7 @@ app.use(express.static(publicDir, {
   etag: true,
   setHeaders: (res, path) => {
 
-    if (url.endsWith('.html') || url.endsWith('/')) {
+    if (path.endsWith('.html') || path.endsWith('/')) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
