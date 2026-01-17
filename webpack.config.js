@@ -60,8 +60,8 @@ module.exports = {
           }
         },
         { from: 'index.js', to: 'index.js', noErrorOnMissing: true },
-        { from: 'update-version.js', to: 'update-version.js', noErrorOnMissing: true },
-        { from: 'tracking-service.js', to: 'tracking-service.js', noErrorOnMissing: true },
+        // { from: 'update-version.js', to: 'update-version.js', noErrorOnMissing: true },
+        // { from: 'tracking-service.js', to: 'tracking-service.js', noErrorOnMissing: true },
       ]
     }),
   ],
