@@ -21,10 +21,10 @@ app.use(bodyParser.raw({
 
 // const isVercelProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
 // const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
-// const distPublicDir = path.join(__dirname, "dist", "public");
+const distPublicDir = path.join(__dirname, "dist", "public");
 const fallbackPublicDir = path.join(__dirname, "public");
 
-let publicDir = fallbackPublicDir;
+let publicDir = process.env.NODE_ENV === 'production' ? distPublicDir : fallbackPublicDir;
 // if (isVercelProd) {
 //   // Trên Vercel, luôn dùng dist/public
 //   publicDir = distPublicDir;
