@@ -3,7 +3,14 @@
   "installCommand": "npm install",
   "buildCommand": "node vercel-build.js",
   "routes": [
-    { "src": "/(.*)", "dest": "/dist/(.*)" }
+    {
+      "src": "/dist/public/(.*)",
+      "dest": "/dist/public/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable no-cache"
+      }
+    },
+    { "src": "/(.*)", "dest": "dist/index.js" }
   ],
   "env": {
     "NODE_ENV": "production",
