@@ -1,7 +1,7 @@
 importScripts(self.location.origin + "/libs/app_settings.js");//không có ?v=...
 //khai báo
 const MAX_DELAY_CODEC = 30;
-var CONSOLE_ENABLE = 1;
+var CONSOLE_ENABLE = 0;
 
 var requestManager = {};
 var flag_addr = 0;

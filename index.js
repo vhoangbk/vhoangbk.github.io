@@ -19,21 +19,21 @@ app.use(bodyParser.raw({
   limit: '50000mb'
 }));
 
-const isVercelProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
-const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
-const distPublicDir = path.join(__dirname, "dist", "public");
+// const isVercelProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+// const isDev = !isVercelProd && process.env.NODE_ENV !== 'production';
+// const distPublicDir = path.join(__dirname, "dist", "public");
 const fallbackPublicDir = path.join(__dirname, "public");
 
 let publicDir = fallbackPublicDir;
-if (isVercelProd) {
-  // Trên Vercel, luôn dùng dist/public
-  publicDir = distPublicDir;
-  console.log(`📁 Serving static assets from ${publicDir}`);
-} else {
-  // Local dev, dùng public
-  publicDir = fallbackPublicDir;
-  console.log(`📁 Serving static assets from ${fallbackPublicDir}`);
-}
+// if (isVercelProd) {
+//   // Trên Vercel, luôn dùng dist/public
+//   publicDir = distPublicDir;
+//   console.log(`📁 Serving static assets from ${publicDir}`);
+// } else {
+//   // Local dev, dùng public
+//   publicDir = fallbackPublicDir;
+//   console.log(`📁 Serving static assets from ${fallbackPublicDir}`);
+// }
 
 const multer = require('multer');
 

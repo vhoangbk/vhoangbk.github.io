@@ -121,6 +121,7 @@ async function runFFmpegCommand(command, settings, onCallBack) {
         currentWorker.dataSaveQueue = [];
         totalBytes = 0;
         currentWorker.onmessage = async function (intent) {
+            console.log('bee-api receive message from main-thread:', intent.data);
             stopTimeoutConversion()
             var type_cmd = intent.data.type_cmd;
 
