@@ -389,7 +389,7 @@ function handleConversionError(msg) {
 }
 
 async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
-
+    console.log('convertFileWithOptions_New', inputOptions, defaultOptions, 'isConverting',isConverting);
     if (isConverting == true) {
         nextTask = {
             inputOptions,
@@ -523,7 +523,7 @@ async function convertFileWithOptions_New(inputOptions, defaultOptions = {}) {
 
         var newFileInfo = await getFileInfo(url);
 
-        if (newFileInfo === undefined) {
+        if (newFileInfo === undefined || newFileInfo === null) {
             handleConversionError('An error occurred, please try again (104)'); 
             return;
         }
