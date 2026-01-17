@@ -21,7 +21,29 @@ class DualRange {
     this.updateTrack();
   }
 
+  hasCSSClass(className) {
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try {
+        rules = sheet.cssRules;
+      } catch (e) {
+        continue;
+      }
+
+      for (const rule of rules) {
+        if (rule.selectorText?.includes(`.${className}`)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   addStyle = () => {
+    let hasStyle = this.hasCSSClass('range-container');
+    if (hasStyle) {
+      return
+    }
     const style = document.createElement("style");
     style.innerHTML = `
       .range-container {
@@ -34,6 +56,9 @@ class DualRange {
         width: 100%;
         pointer-events: none;
         appearance: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        accent-color: unset;
         height: 5px;
         margin: 0;
         padding: 0;
@@ -42,6 +67,19 @@ class DualRange {
       }
 
       .range-container input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        pointer-events: all;
+        width: ${this.thumbWidth}px;
+        height: ${this.thumbWidth}px;
+        border-radius: 50%;
+        background: #ffd134;
+        border: 2px solid #f7af1a;
+        cursor: pointer;
+        appearance: none;
+      }
+
+      .range-container input[type="range"]::-moz-range-thumb {
+        -webkit-appearance: none;
         pointer-events: all;
         width: ${this.thumbWidth}px;
         height: ${this.thumbWidth}px;
@@ -53,6 +91,13 @@ class DualRange {
       }
       
       .range-container input[type="range"]:disabled::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        background: #fbe49f;
+        border-color: #f8d495;
+      }
+
+      .range-container input[type="range"]:disabled::-moz-range-thumb {
+        -webkit-appearance: none;
         background: #fbe49f;
         border-color: #f8d495;
       }

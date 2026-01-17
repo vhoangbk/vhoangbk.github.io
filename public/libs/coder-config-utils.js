@@ -1,275 +1,34 @@
-async function fix_format_null(frame) {
 
-    const bitmap = await createImageBitmap(frame);
-    const outputFrame = new VideoFrame(bitmap, {
-        timestamp: frame.timestamp,
-    });
-    frame.close();
-    bitmap.close();
-    return outputFrame;
-}
-
-/**
- * Tìm cấu hình VideoDecoder tốt nhất cho keyframe đã cho.
- * ✅ Ưu tiên số 1: Format I420/NV12/NV21 (kiểm tra THỰC TẾ từ decoded frame)
- * ✅ Ưu tiên số 2: Hardware acceleration
- * ✅ Tự động phát hiện codec từ keyframe data
- * ✅ Hỗ trợ: 360p đến 8K, tất cả thiết bị
- * 
- * @param {number} codecId - 27: h264, 173: h265, 226: av1, 167: vp9
- * @param {EncodedVideoChunk} keyframeChunk - Keyframe chunk (bắt buộc)
- * @param {number} [width] - Video width (optional, sẽ auto-detect nếu không có)
- * @param {number} [height] - Video height (optional, sẽ auto-detect nếu không có)
- * @returns {Promise<Object|null>} - {codec, hardwareAcceleration, format, config, score, detectedCodecId}
- */
-async function findBestVideoDecoderConfig(codecId, keyframeChunk, width = null, height = null) {
-    // ✅ Validate input
-    if (!keyframeChunk || !(keyframeChunk instanceof EncodedVideoChunk)) {
-        console.error('❌ keyframeChunk must be an EncodedVideoChunk instance');
-        return null;
+const REFERENCE_BPP_VALUES = {
+    // H.264 (baseline)
+    h264: {
+        low: { bpp: 0.075, quality: 'Low' },
+        medium: { bpp: 0.100, quality: 'Medium' },    // ← Most common
+        high: { bpp: 0.135, quality: 'High' },
+        ultra: { bpp: 0.200, quality: 'Ultra' }
+    },
+    // H.265 (HEVC)
+    h265: {
+        low: { bpp: 0.050, quality: 'Low' },
+        medium: { bpp: 0.070, quality: 'Medium' },    // ← Most common
+        high: { bpp: 0.095, quality: 'High' },
+        ultra: { bpp: 0.140, quality: 'Ultra' }
+    },
+    // VP9
+    vp9: {
+        low: { bpp: 0.055, quality: 'Low' },
+        medium: { bpp: 0.075, quality: 'Medium' },    // ← Most common
+        high: { bpp: 0.100, quality: 'High' },
+        ultra: { bpp: 0.145, quality: 'Ultra' }
+    },
+    // AV1
+    av1: {
+        low: { bpp: 0.040, quality: 'Low' },
+        medium: { bpp: 0.055, quality: 'Medium' },    // ← Most common
+        high: { bpp: 0.075, quality: 'High' },
+        ultra: { bpp: 0.110, quality: 'Ultra' }
     }
-
-    if (keyframeChunk.type !== 'key') {
-        console.warn('⚠️ Warning: chunk is not a keyframe, may fail to decode');
-    }
-
-    console.log("findBestVideoDecoderConfig received:", {
-        type: keyframeChunk.type,
-        timestamp: keyframeChunk.timestamp,
-        duration: keyframeChunk.duration,
-        byteLength: keyframeChunk.byteLength,
-        codecId: codecId
-    });
-
-    // ✅ Extract data từ EncodedVideoChunk để auto-detect codec (nếu cần)
-    let chunkData = null;
-    if (codecId === null) {
-        // Copy data ra để detect codec
-        chunkData = new Uint8Array(keyframeChunk.byteLength);
-        keyframeChunk.copyTo(chunkData);
-
-        codecId = detectCodecFromKeyframe(chunkData);
-        if (!codecId) {
-            console.error('❌ Cannot detect codec from keyframe data');
-            return null;
-        }
-        console.log(`🔍 Auto-detected codecId: ${codecId} (${getCodecName(codecId)})`);
-    }
-
-    const codecLists = {
-        27: [ // H.264
-            'avc1.640034', 'avc1.640033', 'avc1.640032', 'avc1.640028', 'avc1.64001f',
-            'avc1.4d0034', 'avc1.4d0033', 'avc1.4d0032', 'avc1.4d0028', 'avc1.4d001f',
-            'avc1.42E034', 'avc1.42E028', 'avc1.42E01E',
-        ],
-        173: [ // H.265
-            'hev1.1.6.L186.B0', 'hev1.1.6.L183.B0', 'hev1.1.6.L180.B0',
-            'hev1.1.6.L156.B0', 'hev1.1.6.L153.B0', 'hev1.1.6.L150.B0',
-            'hev1.1.6.L120.B0', 'hev1.1.6.L93.B0',
-            'hvc1.1.6.L186.B0', 'hvc1.1.6.L183.B0', 'hvc1.1.6.L180.B0',
-            'hvc1.1.6.L156.B0', 'hvc1.1.6.L153.B0', 'hvc1.1.6.L150.B0',
-            'hvc1.1.6.L120.B0', 'hvc1.1.6.L93.B0',
-        ],
-        226: [ // AV1
-            'av01.0.13M.08', 'av01.0.12M.08', 'av01.0.09M.08',
-            'av01.0.08M.08', 'av01.0.05M.08', 'av01.0.04M.08',
-        ],
-        167: [ // VP9
-            'vp09.00.51.08', 'vp09.00.50.08', 'vp09.00.41.08',
-            'vp09.00.40.08', 'vp09.00.31.08', 'vp09.00.21.08', 'vp09.00.10.08',
-        ]
-    };
-
-    let codecList = codecLists[codecId];
-    if (!codecList) {
-        console.error(`❌ Unsupported codecId: ${codecId}`);
-        return null;
-    }
-
-    const hardwareAccelerationMethods = ['prefer-hardware', 'prefer-software'];
-    const preferredFormats = ['I420', 'NV12', 'NV21'];
-
-    const hasResolution = width !== null && height !== null;
-
-    console.log(`🔍 Finding best VideoDecoder for ${getCodecName(codecId)}${hasResolution ? ` (${width}x${height})` : ''}...`);
-
-    let testedCount = 0;
-    const hwResults = {}; // ✅ Lưu kết quả cho mỗi hardwareAcceleration
-
-    // ✅ MINIMAL TESTING: Chỉ test 1 codec đầu tiên cho mỗi hwMethod để xác định format
-    // Giả sử: format trả về giống nhau cho cùng hardwareAcceleration (nếu supported)
-    for (const hwMethod of hardwareAccelerationMethods) {
-        console.log(`🔍 Testing ${hwMethod} (minimal test)...`);
-
-        // ✅ Chỉ test codec đầu tiên để xác định format cho hwMethod này
-        let detectedFormat = null;
-        let detectedWidth = width;
-        let detectedHeight = height;
-
-        for (const codecString of codecList) {
-            const config = {
-                codec: codecString,
-                hardwareAcceleration: hwMethod
-            };
-
-            if (hasResolution) {
-                config.codedWidth = width;
-                config.codedHeight = height;
-            }
-
-            try {
-                const support = await VideoDecoder.isConfigSupported(config);
-
-                if (!support.supported) {
-                    console.log(`❌ ${codecString} (${hwMethod}) not supported`);
-                    continue;
-                }
-
-                // ✅ TEST THỰC TẾ: Decode để xác định format (chỉ 1 lần cho hwMethod này)
-                try {
-                    const testResult = await testDecoderWithKeyframeChunk(config, keyframeChunk);
-                    testedCount++;
-                    if (testResult.format == null) testResult.format = 'unknown';
-                    if (!testResult || !testResult.format) {
-                        console.warn(`⚠️ Failed to decode with ${codecString} (${hwMethod} ${testResult.format})`);
-                        continue;
-                    }
-
-                    const { format, actualWidth, actualHeight } = testResult;
-
-                    console.log(`✅ ${codecString} (${hwMethod}): format=${format}, resolution=${actualWidth}x${actualHeight}`);
-
-                    // ✅ Lưu format và resolution cho hwMethod này
-                    detectedFormat = format;
-                    detectedWidth = actualWidth;
-                    detectedHeight = actualHeight;
-
-                    // ✅ Cập nhật width/height nếu chưa có
-                    if (!hasResolution) {
-                        width = actualWidth;
-                        height = actualHeight;
-                    }
-
-                    console.log(`🚀 Found format for ${hwMethod}: ${format}, testing stopped`);
-                    break; // ✅ Dừng ngay sau khi xác định được format
-
-                } catch (e) {
-                    console.warn(`⚠️ Failed to test decode ${codecString} (${hwMethod}): ${e.message}`);
-                    continue;
-                }
-
-            } catch (error) {
-                // Bỏ qua codec không support
-            }
-        }
-
-        // ✅ Nếu xác định được format cho hwMethod này, chọn codec tốt nhất
-        if (detectedFormat) {
-            // ✅ Tìm codec tốt nhất cho hwMethod này (không cần test thêm)
-            let bestCodecForHw = null;
-            for (const codecString of codecList) {
-                const config = {
-                    codec: codecString,
-                    hardwareAcceleration: hwMethod
-                };
-
-                if (hasResolution) {
-                    config.codedWidth = width;
-                    config.codedHeight = height;
-                }
-
-                try {
-                    const support = await VideoDecoder.isConfigSupported(config);
-                    if (support.supported) {
-                        bestCodecForHw = codecString;
-                        break; // ✅ Chọn codec đầu tiên support (là codec tốt nhất)
-                    }
-                } catch (error) {
-                    // Continue to next codec
-                }
-            }
-
-            if (bestCodecForHw) {
-                // ✅ Score dựa trên format đã xác định
-                let formatScore = 0;
-                const formatIndex = preferredFormats.indexOf(detectedFormat);
-                if (formatIndex !== -1) {
-                    formatScore = (preferredFormats.length - formatIndex) * 1000;
-                } else {
-                    formatScore = 100; // Format khác vẫn được chấp nhận
-                }
-
-                // ✅ Calculate total score
-                let score = formatScore;
-
-                // Hardware acceleration bonus (chỉ khi format đạt yêu cầu)
-                if (hwMethod === 'prefer-hardware' && formatScore >= 1000) {
-                    score += 500;
-                }
-
-                // Codec mới hơn bonus
-                const codecIndex = codecList.indexOf(bestCodecForHw);
-                score += (codecList.length - codecIndex) * 10;
-
-                // ✅ Lưu kết quả cho hwMethod này
-                const finalConfig = {
-                    codec: bestCodecForHw,
-                    hardwareAcceleration: hwMethod
-                };
-                if (hasResolution) {
-                    finalConfig.codedWidth = width;
-                    finalConfig.codedHeight = height;
-                }
-
-                hwResults[hwMethod] = {
-                    codec: bestCodecForHw,
-                    hardwareAcceleration: hwMethod,
-                    format: detectedFormat,
-                    config: finalConfig,
-                    score: score,
-                    width: detectedWidth,
-                    height: detectedHeight,
-                    detectedCodecId: codecId,
-                    codecName: getCodecName(codecId)
-                };
-
-                console.log(`✅ Selected best codec for ${hwMethod}: ${bestCodecForHw} (format=${detectedFormat}, score=${score})`);
-
-                // ✅ Early exit nếu tìm thấy I420 hardware (config hoàn hảo)
-                if (detectedFormat === 'I420' && hwMethod === 'prefer-hardware') {
-                    console.log(`🎯 Found optimal config: ${bestCodecForHw} (hardware, I420)`);
-                    return hwResults[hwMethod];
-                }
-            }
-        }
-    }
-
-    // ✅ So sánh tất cả kết quả và chọn config tốt nhất
-    let bestConfig = null;
-    let bestScore = -1;
-
-    for (const hwMethod of hardwareAccelerationMethods) {
-        if (hwResults[hwMethod] && hwResults[hwMethod].score > bestScore) {
-            bestScore = hwResults[hwMethod].score;
-            bestConfig = hwResults[hwMethod];
-        }
-    }
-
-    if (bestConfig) {
-        console.log(`✅ Best VideoDecoder config (tested ${testedCount} configs):`, {
-            codec: bestConfig.codec,
-            codecName: bestConfig.codecName,
-            hardwareAcceleration: bestConfig.hardwareAcceleration,
-            format: bestConfig.format,
-            resolution: `${bestConfig.width}x${bestConfig.height}`,
-            score: bestConfig.score
-        });
-    } else {
-        console.error(`❌ No suitable VideoDecoder found for codecId ${codecId}`);
-    }
-
-    return bestConfig;
-}
+};
 
 /**
  * ✅ TEST THỰC TẾ: Decode keyframe chunk để lấy format + resolution
@@ -360,67 +119,6 @@ async function testDecoderWithKeyframeChunk(config, keyframeChunk) {
     });
 }
 
-/**
- * ✅ Tự động phát hiện codec từ keyframe data
- * @param {Uint8Array} data - Keyframe data
- * @returns {number|null} - codecId (27: h264, 173: h265, 226: av1, 167: vp9)
- */
-function detectCodecFromKeyframe(data) {
-    if (!data || data.length < 5) return null;
-
-    // H.264: NAL unit start code 0x00 0x00 0x00 0x01 hoặc 0x00 0x00 0x01
-    // Keyframe: NAL type 5 (0x65) hoặc 7 (SPS, 0x67)
-    if ((data[0] === 0x00 && data[1] === 0x00 && data[2] === 0x00 && data[3] === 0x01) ||
-        (data[0] === 0x00 && data[1] === 0x00 && data[2] === 0x01)) {
-        const nalTypeIndex = (data[2] === 0x01) ? 3 : 4;
-        const nalType = data[nalTypeIndex] & 0x1F;
-        if (nalType === 5 || nalType === 7 || nalType === 8) {
-            return 27; // H.264
-        }
-    }
-
-    // H.265: NAL unit start code + NAL type (19-21 = IRAP frames)
-    if ((data[0] === 0x00 && data[1] === 0x00 && data[2] === 0x00 && data[3] === 0x01) ||
-        (data[0] === 0x00 && data[1] === 0x00 && data[2] === 0x01)) {
-        const nalTypeIndex = (data[2] === 0x01) ? 3 : 4;
-        const nalType = (data[nalTypeIndex] >> 1) & 0x3F;
-        if ((nalType >= 16 && nalType <= 23) || nalType === 32 || nalType === 33) {
-            return 173; // H.265
-        }
-    }
-
-    // VP9: Uncompressed header
-    // Frame marker (0b10) + profile (0-3) + show_existing_frame (0/1)
-    if ((data[0] & 0xC0) === 0x80) {
-        return 167; // VP9
-    }
-
-    // AV1: OBU header
-    // obu_forbidden_bit (0) + obu_type (1-6)
-    if ((data[0] & 0x80) === 0x00) {
-        const obuType = (data[0] >> 3) & 0x0F;
-        if (obuType >= 1 && obuType <= 6) {
-            return 226; // AV1
-        }
-    }
-
-    return null; // Không phát hiện được
-}
-
-/**
- * ✅ HELPER: Lấy tên codec từ codecId
- * @param {number} codecId
- * @returns {string}
- */
-function getCodecName(codecId) {
-    const names = {
-        27: 'H.264',
-        173: 'H.265',
-        226: 'AV1',
-        167: 'VP9'
-    };
-    return names[codecId] || `Unknown(${codecId})`;
-}
 
 
 
@@ -567,24 +265,80 @@ function findMaxBitrate(width, height, fps, codecId = 27) {
     return result;
 }
 
-async function findBestVideoEncoderConfigForTargetBitrate(format, originalWidth, originalHeight, targetBitrate, fps) {
 
+function calculateBitrateFromBpp(bpp, width, height, fps = 30) {
+    const pixels = width * height;
+    const pixelsPerSecond = pixels * fps;
+    const bitrate = pixelsPerSecond * bpp;
+
+    console.log(`💰 Bitrate: ${(bitrate / 1000000).toFixed(2)} Mbps (${bpp} bpp × ${width}×${height}@${fps}fps)`);
+
+    return Math.round(bitrate);
+}
+
+/**
+ * ✅ Enhanced bitrate selection cho video encoding
+ * Chọn bitrate tối ưu dựa vào codec, resolution, quality và framerate
+ * @param {string} codec - 'av1', 'vp9', 'h264', 'h265'
+ * @param {number} width - Video width
+ * @param {number} height - Video height 
+ * @param {string} quality - 'low', 'medium', 'high', 'ultra'
+ * @param {number} fps - Frame rate (optional, default: 30)
+ * @param {string} usage - 'streaming', 'storage', 'broadcast' (optional)
+ * @returns {number} bitrate in bps (bits per second)
+ */
+function selectBitrateByCodec(codec, width, height, quality = 'medium', fps = 30, usage = 'streaming') {
+
+    quality = quality.toLowerCase();
+
+    var bpp = 1.0;
+    if (quality === 'low') {
+        bpp = (self.browser_settings[codec].bpp + self.browser_settings[codec].min_bpp) / 2;
+    } else if (quality === 'medium') {
+        bpp = self.browser_settings[codec].bpp;
+    } else if (quality === 'high') {
+        bpp = (self.browser_settings[codec].bpp + self.browser_settings[codec].max_bpp) / 2;
+    }
+
+    var bitrateInBps = calculateBitrateFromBpp(bpp, width, height, fps);
+    return bitrateInBps;
+}
+
+
+
+async function findBestVideoEncoderConfigForTargetSize(format, originalWidth, originalHeight, targetBitrate, fps, isTargetSize = false) {
+
+    console.log('findBestVideoEncoderConfigForTargetBitrate===', { format, originalWidth, originalHeight, targetBitrate, fps });
     const formatToCodecId = { h264: 27, h265: 173, av1: 226, vp9: 167 };
     var codecId = formatToCodecId[format];
 
 
+
     // ✅ Constants
-    const minWidth = 320, maxWidth = 3840;
-    const minHeight = 240, maxHeight = 2160;
+    const minWidth = originalWidth > originalHeight ? 320 : 240, maxWidth = originalWidth > originalHeight ? 3840 : 2160;
+    const minHeight = originalWidth > originalHeight ? 240 : 320, maxHeight = originalWidth > originalHeight ? 2160 : 3840;
     const targetFps = fps || 24; // Fixed FPS
-    const targetBpp = 0.1; // Fixed bits per pixel
+    const targetBpp = self.browser_settings[format].bpp; // Fixed bits per pixel
+
     const aspectRatio = originalWidth / originalHeight;
     var newWidth = originalWidth;
     var newHeight = originalHeight;
-    if (targetBitrate > 0) {
+    if (isTargetSize === true) {
+        
         const totalPixels = targetBitrate / (targetFps * targetBpp);
-        var baseWidth = Math.sqrt(totalPixels * aspectRatio) & ~1;
-        var baseHeight = Math.sqrt(totalPixels / aspectRatio) & ~1;
+        var baseWidth = Math.sqrt(totalPixels * aspectRatio);
+        var baseHeight = Math.sqrt(totalPixels / aspectRatio);
+        if (baseWidth < 40) {
+            baseWidth = 40;
+            baseHeight = 40 / aspectRatio;
+        }
+
+        if (baseHeight < 40) {
+            baseHeight = 40;
+            baseWidth = 40 * aspectRatio;
+        }
+        baseWidth = baseWidth & ~1;
+        baseHeight = baseHeight & ~1;
     } else {
         var baseWidth = originalWidth;
         var baseHeight = originalHeight;
@@ -600,16 +354,21 @@ async function findBestVideoEncoderConfigForTargetBitrate(format, originalWidth,
         if (newWidth < minWidth || newHeight < minHeight) {
             break;
         }
-
+        if (newWidth > maxWidth || newHeight > maxHeight) {
+            scale -= 0.05;
+            continue;
+        }
         try {
-            const support = await isVideoEncoderConfigSupported(codecId, newWidth, newHeight, targetFps, targetBitrate);
+            var maxBitrate = 10 * findMaxBitrate(newWidth, newHeight, targetFps, codecId);
+            var br = Math.max(100000, Math.min(maxBitrate, targetBitrate));
+            const support = await isVideoEncoderConfigSupported(codecId, newWidth, newHeight, targetFps, br);
             if (support === true) {
-                var maxBitrate = findMaxBitrate(newWidth, newHeight, targetFps, codecId);
+
                 return {
                     width: newWidth,
                     height: newHeight,
                     framerate: targetFps,
-                    bitrate: Math.min(maxBitrate, targetBitrate)
+                    max_bitrate: br
                 };
             }
         } catch (e) { }
@@ -625,14 +384,17 @@ async function findBestVideoEncoderConfigForTargetBitrate(format, originalWidth,
         }
 
         try {
-            const support = await isVideoEncoderConfigSupported(codecId, newWidth, newHeight, targetFps, targetBitrate);
+            var maxBitrate = 10 * findMaxBitrate(newWidth, newHeight, targetFps, codecId);
+            var br = Math.max(100000, Math.min(maxBitrate, targetBitrate));
+            const support = await isVideoEncoderConfigSupported(codecId, newWidth, newHeight, targetFps, br);
+            console.log('isVideoEncoderConfigSupported:', { codecId, newWidth, newHeight, targetFps, br, support, scale });
             if (support === true) {
                 var maxBitrate = findMaxBitrate(newWidth, newHeight, targetFps, codecId);
                 return {
                     width: newWidth,
                     height: newHeight,
                     framerate: targetFps,
-                    bitrate: Math.min(maxBitrate, targetBitrate)
+                    max_bitrate: br
                 };
             }
         } catch (e) { }
@@ -642,13 +404,11 @@ async function findBestVideoEncoderConfigForTargetBitrate(format, originalWidth,
 }
 
 
-
 ///======
 /**
- * ✅ Tìm cấu hình VideoEncoder tốt nhất bằng test thực tế tốc độ encode
- * Ưu tiên: tốc độ encode nhanh nhất (đo thực tế), hardware acceleration, codec mới hơn.
- * Loop order: Codec -> Hardware -> BitrateMode -> LatencyMode
- * Early exit: Chỉ test codec support đầu tiên, không test hết tất cả codec
+ * ✅ Tìm cấu hình VideoEncoder tốt nhất - UU TIÊN HARDWARE ACCELERATION
+ * Ưu tiên: Hardware > Software, codec mới hơn, không so sánh tốc độ
+ * Early exit: Tìm thấy hardware config → return ngay, không test software
  * 
  * @param {number} codecId - 27: h264, 173: h265, 226: av1, 167: vp9
  * @param {number} width - Video width
@@ -656,17 +416,16 @@ async function findBestVideoEncoderConfigForTargetBitrate(format, originalWidth,
  * @param {number} [fps=25] - Frame rate
  * @param {number} [bitrate=0] - Target bitrate (0 = auto calculate)
  * @param {VideoFrame} sampleFrame - Sample VideoFrame để test encode
- * @returns {Promise<Object|null>} - {codec, hardwareAcceleration, bitrateMode, latencyMode, config, score, encodeTimeMs, encodeFps}
+ * @returns {Promise<Object|null>} - {codec, hardwareAcceleration, bitrateMode, latencyMode, config}
  */
-async function findBestVideoEncoderConfigWithRealTest(codecId, width, height, fps = 25, bitrate = 0, sampleFrame) {
-    // ✅ Validate input
-    if (!sampleFrame || !(sampleFrame instanceof VideoFrame)) {
-        console.error('❌ sampleFrame must be a VideoFrame instance');
-        return null;
+async function findVideoEncoderConfig(settings, codecId, width, height, fps, bitrate) {
+    if (bitrate <= 0 || fps <= 0) {
+        throw new Error('bitrate and fps must be greater than 0');
     }
 
+    var setting = settings[{ 27: 'h264', 173: 'h265', 226: 'av1', 167: 'vp9' }[codecId]] || {};
 
-    // ✅ 1. Tạo danh sách codec strings (ưu tiên codec mới hơn)
+    // ✅ 1. Codec lists (ưu tiên codec mới hơn)
     const codecLists = {
         27: [ // H.264 - High > Main > Baseline
             'avc1.640034', 'avc1.640033', 'avc1.640032', 'avc1.640028', 'avc1.64001f',
@@ -691,242 +450,44 @@ async function findBestVideoEncoderConfigWithRealTest(codecId, width, height, fp
         ]
     };
 
-    const codecList = codecLists[codecId];
-    if (!codecList) {
-        console.error(`❌ Unsupported codecId: ${codecId}`);
-        return null;
-    }
+    for (const codecString of codecLists[codecId]) {
+        var config = {
+            codec: codecString,
+            width: width,
+            height: height,
+            framerate: fps,
+            bitrate: bitrate,
+            hardwareAcceleration: setting.hardwareAcceleration || 'prefer-hardware',
+            bitrateMode:  'variable',
+            latencyMode: setting.latencyMode || 'quality'
+        };
 
-    var isCloned = false;
-    const formats = ['I420', 'NV12', 'NV21', 'RGBA', 'RGBX', 'BGRA', 'BGRX'];
-    if (!formats.includes(sampleFrame.format)) {
-        //  debugger;
-        sampleFrame = sampleFrame.clone();
-        sampleFrame = await fix_format_null(sampleFrame);
-        isCloned = true;
-    }
-
-
-
-    // ✅ 2. Loop order: Codec -> Hardware -> BitrateMode -> LatencyMode
-    const hardwareAccelerationMethods = ['prefer-hardware', 'prefer-software'];
-    const bitrateModes = ['variable'];
-    const latencyModes = ['quality'];
-
-    let bestConfig = null;
-    let fastestEncodeTime = Infinity;
-    let testedCount = 0;
-
-    console.log(`🔍 Testing VideoEncoder configs for codecId ${codecId} (${width}x${height}@${fps}fps)...`);
-
-    // ✅ Loop: Codec -> Hardware -> BitrateMode -> LatencyMode
-    for (const codecString of codecList) {
-        let codecSupported = false; // Track nếu codec này được support
-        let hardwareSupported = false; // Track nếu hardware được support
-
-        for (const hwMethod of hardwareAccelerationMethods) {
-            // ✅ Skip software nếu hardware đã được support
-            if (hwMethod === 'prefer-software' && hardwareSupported) {
-                console.log(`⏭️ Skipping software test for ${codecString} (hardware already supported)`);
-                break;
-            }
-
-            for (const bitrateMode of bitrateModes) {
-                for (const latencyMode of latencyModes) {
-                    const config = {
-                        codec: codecString,
-                        width: width,
-                        height: height,
-                        framerate: fps,
-                        ...(bitrate > 0 ? { bitrate: bitrate } : {}),
-                        hardwareAcceleration: hwMethod,
-                        bitrateMode: bitrateMode,
-                        latencyMode: latencyMode
-                    };
-
-                    // ✅ Thêm format config cho Safari/Chrome
-                    if (codecId === 27) {
-                        config.avc = { format: 'annexb' };
-                    } else if (codecId === 173) {
-                        if (is_safari == true) {
-                            config.avc = { format: 'annexb' };
-                        } else {
-                            config.hevc = { format: 'annexb' };
-                        }
-                    }
-
-                    try {
-                        // ✅ Check support
-                        const support = await VideoEncoder.isConfigSupported(config);
-                        if (!support.supported) continue;
-
-                        codecSupported = true; // ✅ Codec này được support
-
-                        // ✅ Track hardware support
-                        if (hwMethod === 'prefer-hardware') {
-                            hardwareSupported = true;
-                        }
-
-                        testedCount++;
-
-                        // ✅ 3. Test encode thực tế với sampleFrame
-                        const testResult = await testEncoderWithFrame(config, sampleFrame);
-
-                        if (!testResult.success) {
-                            console.warn(`⚠️ Encode test failed: ${codecString} (${hwMethod}, ${bitrateMode}, ${latencyMode})`);
-                            continue;
-                        }
-
-                        const { encodeTimeMs } = testResult;
-
-                        console.log(`✅ Tested ${codecString} (${hwMethod}, ${bitrateMode}, ${latencyMode}): ${encodeTimeMs.toFixed(2)}ms`);
-
-                        // ✅ 4. Lưu config nhanh nhất
-                        if (encodeTimeMs < fastestEncodeTime) {
-                            fastestEncodeTime = encodeTimeMs;
-
-                            const encodeFps = encodeTimeMs > 0 ? (1000 / encodeTimeMs) : 0;
-
-                            bestConfig = {
-                                codec: codecString,
-                                hardwareAcceleration: hwMethod,
-                                bitrateMode: bitrateMode,
-                                latencyMode: latencyMode,
-                                config: config,
-                                encodeTimeMs: encodeTimeMs,
-                                encodeFps: encodeFps,
-                                score: 1000000 / encodeTimeMs, // Score cao hơn = nhanh hơn
-                                testedCount: testedCount
-                            };
-                        }
-
-                    } catch (error) {
-                        console.warn(`⚠️ Error testing ${codecString}: ${error.message}`);
-                        continue;
-                    }
-                }
+        if (codecId === 27) {
+            config.avc = { format: 'annexb' };
+        } else if (codecId === 173) {
+            if (typeof is_safari !== 'undefined' && is_safari === true) {
+                config.avc = { format: 'annexb' };
+            } else {
+                config.hevc = { format: 'annexb' };
             }
         }
 
-        // ✅ 5. Early exit: Nếu codec này được support và đã tìm thấy config, return ngay
-        if (codecSupported && bestConfig) {
-            console.log(`🎯 Found supported codec: ${codecString}, stopping search`);
-            break; // ✅ Không test các codec tiếp theo
-        }
-    }
-
-    if (bestConfig) {
-        console.log(`✅ Best VideoEncoder config (tested ${testedCount} configs):`, {
-            codec: bestConfig.codec,
-            hardwareAcceleration: bestConfig.hardwareAcceleration,
-            bitrateMode: bestConfig.bitrateMode,
-            latencyMode: bestConfig.latencyMode,
-            resolution: `${width}x${height}`,
-            encodeTime: `${bestConfig.encodeTimeMs.toFixed(2)}ms`,
-            encodeFps: `${bestConfig.encodeFps.toFixed(1)}fps`,
-            score: bestConfig.score.toFixed(0)
-        });
-    } else {
-        console.error(`❌ No suitable VideoEncoder found for codecId ${codecId}`);
-        throw new Error(`No suitable VideoEncoder found for codecId ${codecId}`);
-    }
-
-    if (isCloned && sampleFrame) {
-        sampleFrame.close();
-    }
-
-    return bestConfig;
-}
-
-/**
- * ✅ Test encode thực tế với 1 frame
- * @param {Object} config - VideoEncoder config
- * @param {VideoFrame} sampleFrame - Sample VideoFrame
- * @returns {Promise<Object>} - {success, encodeTimeMs, outputSize}
- */
-async function testEncoderWithFrame(config, sampleFrame) {
-    return new Promise((resolve) => {
-        let encoder = null;
-        let resolved = false;
-        let startTime = 0;
-        let outputSize = 0;
-
-        // ✅ Timeout sau 5 giây
-        const timeout = setTimeout(() => {
-            if (!resolved) {
-                resolved = true;
-                if (encoder?.state !== 'closed') {
-                    encoder?.close();
-                }
-                resolve({ success: false, encodeTimeMs: Infinity, outputSize: 0 });
-            }
-        }, 5000);
 
         try {
-            encoder = new VideoEncoder({
-                output: (chunk) => {
-                    if (resolved) return;
-
-                    // ✅ Đo thời gian encode
-                    const encodeTimeMs = performance.now() - startTime;
-                    outputSize += chunk.byteLength;
-
-                    // ✅ Resolve ngay sau chunk đầu tiên
-                    clearTimeout(timeout);
-                    resolved = true;
-
-                    // ✅ Close encoder
-                    Promise.resolve().then(() => {
-                        if (encoder?.state !== 'closed') {
-                            encoder.close();
-                        }
-                    });
-
-                    resolve({
-                        success: true,
-                        encodeTimeMs: encodeTimeMs,
-                        outputSize: outputSize
-                    });
-                },
-                error: (e) => {
-                    if (!resolved) {
-                        resolved = true;
-                        clearTimeout(timeout);
-                        if (encoder?.state !== 'closed') {
-                            encoder?.close();
-                        }
-                        resolve({ success: false, encodeTimeMs: Infinity, outputSize: 0 });
-                    }
-                }
-            });
-
-            encoder.configure(config);
-
-            // ✅ Encode sample frame trực tiếp (không cần clone)
-            startTime = performance.now();
-            encoder.encode(sampleFrame, { keyFrame: true });
-
-            // ✅ Flush để đảm bảo encode hoàn thành
-            encoder.flush().catch((e) => {
-                if (!resolved) {
-                    resolved = true;
-                    clearTimeout(timeout);
-                    resolve({ success: false, encodeTimeMs: Infinity, outputSize: 0 });
-                }
-            });
-
-        } catch (e) {
-            if (!resolved) {
-                resolved = true;
-                clearTimeout(timeout);
-                if (encoder?.state !== 'closed') {
-                    encoder?.close();
-                }
-                resolve({ success: false, encodeTimeMs: Infinity, outputSize: 0 });
+            // ✅ Check support
+            const support = await VideoEncoder.isConfigSupported(config);
+            if (support.supported) {
+                return config;
             }
+
+        } catch (error) {
+            console.warn(`⚠️ Error testing hardware ${codecString}: ${error.message}`);
+            continue;
         }
-    });
+    }
+
 }
+
 
 
 /**
@@ -940,8 +501,9 @@ async function testEncoderWithFrame(config, sampleFrame) {
  * @returns {Promise<boolean>} - true nếu được hỗ trợ, false nếu không
  */
 async function isVideoEncoderConfigSupported(codecId, width, height, fps, bitrate) {
-    if (typeof codecId === 'string') {
-        const formatToCodecId = { h264: 27, h265: 173, av1: 226, vp9: 167 };
+
+    if (typeof codecId !== 'string') {
+        const formatToCodecId = { 27: 'h264', 173: 'h265', 226: 'av1', 167: 'vp9' };
         codecId = formatToCodecId[codecId];
     }
 
@@ -960,24 +522,24 @@ async function isVideoEncoderConfigSupported(codecId, width, height, fps, bitrat
 
         // ✅ Map codecId to codec strings (sử dụng codec strings tốt nhất)
         const codecMaps = {
-            27: [ // H.264 - Thử từ cao xuống thấp
+            h264: [ // H.264 - Thử từ cao xuống thấp
                 'avc1.640034', // High Profile Level 5.2
                 'avc1.640028', // High Profile Level 4.0
                 'avc1.4d0028', // Main Profile Level 4.0
                 'avc1.42E028'  // Baseline Profile Level 4.0
             ],
-            173: [ // H.265
+            h265: [ // H.265
                 'hev1.1.6.L156.B0', // Main Profile Level 5.1
                 'hev1.1.6.L150.B0', // Main Profile Level 5.0
                 'hvc1.1.6.L156.B0', // Alternative format
                 'hvc1.1.6.L150.B0'
             ],
-            226: [ // AV1
+            av1: [ // AV1
                 'av01.0.08M.08', // Main Profile Level 4.0
                 'av01.0.05M.08', // Main Profile Level 3.1
                 'av01.0.04M.08'  // Main Profile Level 3.0
             ],
-            167: [ // VP9
+            vp9: [ // VP9
                 'vp09.00.51.08', // Profile 0 Level 5.1
                 'vp09.00.41.08', // Profile 0 Level 4.1
                 'vp09.00.31.08'  // Profile 0 Level 3.1
@@ -992,6 +554,7 @@ async function isVideoEncoderConfigSupported(codecId, width, height, fps, bitrat
         }
 
 
+        //debugger;
         // ✅ Test từng codec string cho đến khi tìm thấy support
         for (const codecString of codecStrings) {
             const config = {
@@ -999,6 +562,9 @@ async function isVideoEncoderConfigSupported(codecId, width, height, fps, bitrat
                 width: width,
                 height: height,
                 framerate: fps,
+                hardwareAcceleration: self.browser_settings[codecId].hardwareAcceleration,
+                bitrateMode: self.browser_settings[codecId].bitrateMode,
+                latencyMode: 'quality',
                 ...(bitrate > 0 ? { bitrate: bitrate } : {}),
             };
 
@@ -1029,4 +595,195 @@ async function isVideoEncoderConfigSupported(codecId, width, height, fps, bitrat
         console.error('❌ Error in isVideoEncoderConfigSupported:', error);
         return false;
     }
+}
+//ok
+
+
+
+async function findBestVideoDecoderConfig(codecId, keyframeChunk, width = null, height = null) {
+    // ✅ Validate input
+    if (!keyframeChunk || !(keyframeChunk instanceof EncodedVideoChunk)) {
+        console.error('❌ keyframeChunk must be an EncodedVideoChunk instance');
+        return null;
+    }
+
+    if (keyframeChunk.type !== 'key') {
+        console.warn('⚠️ Warning: chunk is not a keyframe, may fail to decode');
+    }
+
+    console.log("🔍 Finding best VideoDecoder config:", {
+        type: keyframeChunk.type,
+        timestamp: keyframeChunk.timestamp,
+        duration: keyframeChunk.duration,
+        byteLength: keyframeChunk.byteLength,
+        codecId: codecId
+    });
+
+
+
+    // ✅ Codec lists (ưu tiên codec mới nhất)
+    const codecLists = {
+        27: [ // H.264 - High > Main > Baseline (QUALITY PRIORITY)
+            // 🟢 BEST QUALITY: High Profile
+            'avc1.640034', 'avc1.640033', 'avc1.640032', 'avc1.640028', 'avc1.64001f',
+            // 🟡 MEDIUM QUALITY: Main Profile  
+            'avc1.4d0034', 'avc1.4d0033', 'avc1.4d0032', 'avc1.4d0028', 'avc1.4d001f',
+            // 🔴 BASIC QUALITY: Baseline Profile
+            'avc1.42E034', 'avc1.42E028', 'avc1.42E01E'
+        ],
+        173: [ // H.265 - Level cao trước (newer standards)
+            'hev1.1.6.L186.B0', 'hev1.1.6.L183.B0', 'hev1.1.6.L180.B0',
+            'hev1.1.6.L156.B0', 'hev1.1.6.L153.B0', 'hev1.1.6.L150.B0',
+            'hev1.1.6.L120.B0', 'hev1.1.6.L93.B0',
+            'hvc1.1.6.L186.B0', 'hvc1.1.6.L183.B0', 'hvc1.1.6.L180.B0',
+            'hvc1.1.6.L156.B0', 'hvc1.1.6.L153.B0', 'hvc1.1.6.L150.B0',
+            'hvc1.1.6.L120.B0', 'hvc1.1.6.L93.B0'
+        ],
+        226: [ // AV1 - Level cao trước (advanced features)
+            'av01.0.13M.08', 'av01.0.12M.08', 'av01.0.09M.08',
+            'av01.0.08M.08', 'av01.0.05M.08', 'av01.0.04M.08'
+        ],
+        167: [ // VP9 - Profile cao trước (better compression)
+            'vp09.00.51.08', 'vp09.00.50.08', 'vp09.00.41.08',
+            'vp09.00.40.08', 'vp09.00.31.08', 'vp09.00.21.08', 'vp09.00.10.08'
+        ]
+    };
+
+
+    const codecList = codecLists[codecId];
+    if (!codecList) {
+        console.error(`❌ Unsupported codecId: ${codecId}`);
+        return null;
+    }
+
+    var supportedMethods = [];
+    // ✅ Hardware acceleration methods
+    const hardwareAccelerationMethods = ['prefer-hardware', 'prefer-software'];
+
+    // ✅ Preferred formats (YUV formats có hardware support tốt)
+    const preferredFormats = ['I420', 'NV12', 'NV21'];
+
+    // ✅ Test TẤT CẢ combinations: hwMethod × codec
+    for (const hwMethod of hardwareAccelerationMethods) {
+        console.log(`🔍 Testing ${hwMethod}...`);
+        var decodeFailedCount = 0;
+        for (let codecIndex = 0; codecIndex < codecList.length; codecIndex++) {
+            const codecString = codecList[codecIndex];
+
+            const config = {
+                codec: codecString,
+                hardwareAcceleration: hwMethod,
+
+            };
+
+            try {
+                // ✅ Check basic support
+                const support = await VideoDecoder.isConfigSupported(config);
+                if (!support.supported) {
+                    console.log(`❌ ${codecString} (${hwMethod}) not supported`);
+                    continue;
+                }
+
+                // ✅ TEST THỰC TẾ: Decode để lấy format
+                try {
+                    console.log(`🧪 Testing decode: ${codecString} (${hwMethod})`);
+                    const testResult = await testDecoderWithKeyframeChunk(config, keyframeChunk);
+                    if (!testResult) {
+                        console.warn(`⚠️ Failed to decode with ${codecString} (${hwMethod})`);
+                        decodeFailedCount++;
+                        // Nếu decode fail liên tục với nhiều codec, có thể do hwMethod không support
+                        if (decodeFailedCount >= 3) {
+                            console.warn(`⚠️ Multiple decode failures with ${hwMethod}, skipping further tests`);
+                            break;
+                        }
+                        continue;
+                    }
+
+
+
+                    // 🏆 Ưu tiên số 1: Hardware + Format YUV = 10000+ points
+                    const isHardware = hwMethod === 'prefer-hardware';
+                    const isYuvFormat = preferredFormats.includes(testResult.format);
+
+                    if (isHardware && isYuvFormat) {
+                        // return ngay config tốt nhất                        
+                        const result = {
+                            codec: codecString,
+                            hardwareAcceleration: hwMethod,
+                            format: testResult.format,
+                            config: config,
+                        };
+                        return result;
+                    }
+
+                    if (testResult && !supportedMethods.includes(hwMethod)) {
+                        supportedMethods.push({
+                            method: hwMethod,
+                            codec: codecString,
+                            format: testResult.format,
+                            config: config,
+                        });
+                        break; // Không cần test các codec thấp hơn
+                    }
+
+                } catch (e) {
+                    console.warn(`⚠️ Failed to test decode ${codecString} (${hwMethod}): ${e.message}`);
+                    continue;
+                }
+
+            } catch (error) {
+                // Config không support, bỏ qua
+                continue;
+            }
+        }
+    }
+
+    console.log('ℹ️ Supported methods found:', supportedMethods);
+
+    // Nếu không có phương pháp nào hỗ trợ, trả về null
+    if (supportedMethods.length === 0) {
+        console.error('❌ No supported VideoDecoder configuration found');
+        return null;
+    }
+
+    // debugger;
+    // Chọn phương pháp tốt nhất từ supportedMethods
+    // Ưu tiên hardware > software, sau đó ưu tiên codec mới hơn
+    for (const methodInfo of supportedMethods) {
+        const isYuvFormat = preferredFormats.includes(methodInfo.format);
+        if (isYuvFormat) {
+            return {
+                codec: methodInfo.codec,
+                hardwareAcceleration: methodInfo.method,
+                format: methodInfo.format,
+                config: methodInfo.config,
+            };
+        }
+    }
+
+    for (const methodInfo of supportedMethods) {
+        const isHardware = methodInfo.method === 'prefer-hardware';
+        if (isHardware) {
+            return {
+                codec: methodInfo.codec,
+                hardwareAcceleration: methodInfo.method,
+                format: methodInfo.format,
+                config: methodInfo.config,
+            };
+        }
+    }
+
+    if (supportedMethods.length > 0) {
+        const methodInfo = supportedMethods[0];
+        return {
+            codec: methodInfo.codec,
+            hardwareAcceleration: methodInfo.method,
+            format: methodInfo.format,
+            config: methodInfo.config,
+        };
+    }
+
+    console.error('❌ No suitable VideoDecoder configuration found after testing');
+    return null;
+
 }

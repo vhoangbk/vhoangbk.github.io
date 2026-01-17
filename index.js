@@ -4,6 +4,8 @@ const compression = require('compression');
 const cors = require("cors");
 const bodyParser = require('body-parser');
 const fs = require("fs");
+require('dotenv').config();
+const { kv } = require('@vercel/kv');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -12,9 +14,9 @@ app.use(cors());
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.raw({ 
-  type: 'application/octet-stream', 
-  limit: '50000mb' 
+app.use(bodyParser.raw({
+  type: 'application/octet-stream',
+  limit: '50000mb'
 }));
 
 const isVercelProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
@@ -35,9 +37,9 @@ if (isVercelProd) {
 
 const multer = require('multer');
 
-app.use(bodyParser.raw({ 
-  type: 'application/octet-stream', 
-  limit: '50000mb' 
+app.use(bodyParser.raw({
+  type: 'application/octet-stream',
+  limit: '50000mb'
 }));
 
 
@@ -45,7 +47,7 @@ app.use(bodyParser.raw({
 const openFiles = new Map();
 
 // Cấu hình multer để xử lý file upload
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 50000 * 1024 * 1024 // 500MB
@@ -54,7 +56,7 @@ const upload = multer({
 
 //=======
 app.use((req, res, next) => {
- // console.log('Setting COOP/COEP headers');
+  // console.log('Setting COOP/COEP headers');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
   next();
@@ -68,51 +70,54 @@ app.get('/m-index.html', (req, res) => {
   res.redirect(301, '/m');
 });
 
-app.use(express.static(publicDir, {
-  lastModified: true,
+app.use(express.static(publicDir, process.env.NODE_ENV === 'development' ? {
+  setHeaders: (res, path) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  } 
+} : {
+  maxAge: '1y',
   etag: true,
   setHeaders: (res, path) => {
-    // HTML files: không cache, luôn lấy mới
-    if (path.endsWith('.html') || path.endsWith('/')) {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-      return;
+    if (path.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
     }
-
     if (path.endsWith('.wasm')) {
       res.setHeader('Content-Type', 'application/wasm');
     }
-
-    // File có version trong URL (?v=xxx): cache dài hạn, immutable
-    if (path.match(/\.(js|css|wasm)/) && path.includes('?v=')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      return;
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
     }
-
-    // JS/CSS/WASM không có version: phải revalidate với server
-    if (path.match(/\.(js|css|wasm)$/)) {
-      res.setHeader('Cache-Control', 'public, no-cache, must-revalidate');
-      return;
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
     }
-
-    // app_settings.js: cache ngắn 60 giây
     if (path.endsWith('app_settings.js')) {
-      res.setHeader('Cache-Control', 'public, max-age=60');
-      res.setHeader('ETag', `"${Date.now()}"`);
-      return;
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    if (path.endsWith('.html') || path.endsWith('/')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+    if (path.endsWith('.json')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
   }
 }));
+
+
+// --- TRACKING API START ---
+const trackingRouter = require('./tracking-service');
+app.use('/api', trackingRouter);
+// --- TRACKING API END ---
 
 app.post('/upload-stream', upload.single('data'), async (req, res) => {
   try {
     const { filename, position, action } = req.body;
 
     if (!filename || !action) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing filename or action' 
+      return res.status(400).json({
+        success: false,
+        error: 'Missing filename or action'
       });
     }
 
@@ -125,9 +130,9 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
 
     // Kiểm tra path traversal
     if (filename.includes('..') || !filePath.startsWith(dataDir)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Invalid file path' 
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid file path'
       });
     }
 
@@ -135,15 +140,15 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
       // Xử lý ghi file
 
       if (!req.file) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'No data provided' 
+        return res.status(400).json({
+          success: false,
+          error: 'No data provided'
         });
       }
 
       const buffer = req.file.buffer;
       const writePosition = parseInt(position) || 0;
-      
+
       // Mở file để ghi nếu chưa mở
       let fd;
       if (openFiles.has(filePath)) {
@@ -154,11 +159,11 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
         openFiles.set(filePath, fd);
         console.log('📂 Opened new file descriptor for:', filename);
       }
-      
+
       // Ghi dữ liệu tại vị trí chỉ định
       fs.writeSync(fd, buffer, 0, buffer.length, writePosition);
       console.log('=============✍️ Wrote', buffer.length, 'bytes to', filename, 'at position', writePosition);
-      
+
       // Flush dữ liệu xuống disk ngay lập tức
       // try {
       //   fs.fsyncSync(fd);
@@ -166,11 +171,11 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
       // } catch (err) {
       //   console.warn('⚠️ fsyncSync warning:', err.message);
       // }
-      
+
       // KHÔNG đóng file ở đây, chờ action 'complete'
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         bytesWritten: buffer.length,
         message: 'Data written successfully, file remains open'
       });
@@ -180,7 +185,7 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
       console.log('📋 Data Complete Notification:');
       console.log('  Filename:', filename);
       console.log('  Timestamp:', new Date().toISOString());
-      
+
       // Đóng file descriptor nếu đang mở - QUAN TRỌNG: chỉ closeSync ở đây
       if (openFiles.has(filePath)) {
         const fd = openFiles.get(filePath);
@@ -188,12 +193,12 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
         openFiles.delete(filePath);
         console.log('🔒 File descriptor closed for:', filename);
       }
-      
+
       // Kiểm tra file đã được tạo thành công
       if (fs.existsSync(filePath)) {
         const stats = fs.statSync(filePath);
         console.log('  Final file size:', stats.size, 'bytes');
-        
+
         // Tạo URL đầy đủ với protocol, host và port
         const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
         const host = req.get('host') || `localhost:${PORT}`;
@@ -234,27 +239,27 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
 
         fs.unlinkSync(filePath);
         console.log('🗑️ Deleted file:', filename);
-        res.json({ 
-          success: true, 
-          message: 'File deleted successfully' 
+        res.json({
+          success: true,
+          message: 'File deleted successfully'
         });
       }
     } else {
-      res.status(400).json({ 
-        success: false, 
-        error: 'Invalid action. Only "write" and "complete" are supported.' 
+      res.status(400).json({
+        success: false,
+        error: 'Invalid action. Only "write" and "complete" are supported.'
       });
     }
 
   } catch (error) {
     console.error('❌ Error in file operation:', error);
-    
+
     // Nếu có lỗi, cần đóng file descriptor để tránh memory leak
     const { filename } = req.body;
     if (filename) {
       const dataDir = path.join(__dirname, 'data');
       const filePath = path.join(dataDir, path.basename(filename));
-      
+
       if (openFiles.has(filePath)) {
         try {
           const fd = openFiles.get(filePath);
@@ -266,10 +271,10 @@ app.post('/upload-stream', upload.single('data'), async (req, res) => {
         }
       }
     }
-    
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -309,39 +314,40 @@ app.get("/", (req, res) => {
 });
 
 app.get("/m", (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.sendFile(path.join(publicDir, "m-index.html"));
 });
 
 // Cache-Control phân tách môi trường
-app.use((req, res, next) => {
-  const url = req.path;
+// app.use((req, res, next) => {
+//   const url = req.path;
 
-  if (isDev) {
-    // 🚫 DEV MODE = disable cache hoàn toàn
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    return next();
-  }
+//   if (isDev) {
+//     // 🚫 DEV MODE = disable cache hoàn toàn
+//     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+//     res.setHeader('Pragma', 'no-cache');
+//     res.setHeader('Expires', '0');
+//     return next();
+//   }
 
-  // 🟢 PRODUCTION MODE
-  // if (url.endsWith('.html')) {
-  //   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  // }
-  // else if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/)) {
-  //   // Có version: cache dài
-  //   if (url.includes('?v=')) {
-  //     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  //   } else {
-  //     res.setHeader('Cache-Control', 'no-cache');
-  //   }
-  // }
-  // else if (url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
-  //   res.setHeader('Cache-Control', 'public, max-age=31536000');
-  // }
+//   // 🟢 PRODUCTION MODE
+//   if (url.endsWith('.html')) {
+//     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+//   }
+//   else if (url.match(/\.(css|js|wasm)(\?v=\d+)?$/)) {
+//     // Có version: cache dài
+//     if (url.includes('?v=')) {
+//       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+//     } else {
+//       res.setHeader('Cache-Control', 'no-cache');
+//     }
+//   }
+//   else if (url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/)) {
+//     res.setHeader('Cache-Control', 'public, max-age=31536000');
+//   }
 
-  next();
-});
+//   next();
+// });
 
 module.exports = app;
 
@@ -350,4 +356,3 @@ if (require.main === module) {
     console.log("✅ Server running on port:", PORT);
   });
 }
-

@@ -618,10 +618,6 @@ body.dialog-open .header-logo--container {
   color: var(--color);
 }
 
-.app-volume-control-group .app-form-label {
-  margin-top: clamp(-0.7rem, -1.8vh, -0.5rem);
-}
-
 .app-volume-config-value {
   text-align: right;
   font-size: clamp(0.8rem, 2vh, 0.95rem);
@@ -720,7 +716,7 @@ body.dialog-open .header-logo--container {
   width: 100%;
   height: var(--footer-height);
   background: var(--white);
-  border-top: 1px solid var(--border-color-line);
+  border-top: 1px solid #FFCD3580;
   z-index: 100;
   flex-shrink: 0;
   padding-bottom: var(--safe-area-bottom);

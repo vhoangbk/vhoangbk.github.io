@@ -88,18 +88,18 @@ function showCustomInput(value, selectBox) {
         highlighSelectedOption(selectBox, String(newValue));
       }
     },
-    () => {
-      const saved = JSON.parse(localStorage.getItem("convert_settings"));
-      oldTargetSize = saved?.targetSize ?? "";
+      () => {
+        const saved = JSON.parse(localStorage.getItem("convert_settings"));
+        oldTargetSize = saved?.targetSize ?? "";
 
-      trigger.textContent = oldTargetSize ? `${oldTargetSize}MB` : "None";
-      selectBox.dataset.value = oldTargetSize;
+        trigger.textContent = oldTargetSize ? `${oldTargetSize}MB` : "None";
+        selectBox.dataset.value = oldTargetSize;
 
-      APP_STATE.targetSize = oldTargetSize;
-      saveSettings();
+        APP_STATE.targetSize = oldTargetSize;
+        saveSettings();
 
-      disableOption(oldTargetSize !== "" && oldTargetSize !== "custom");
-    });
+        disableOption(oldTargetSize !== "" && oldTargetSize !== "custom");
+      });
 
     return;
   }
@@ -110,7 +110,7 @@ function showCustomInput(value, selectBox) {
   saveSettings();
 
   disableOption(value !== "" && value !== "custom");
-  if(!value) {
+  if (!value) {
     updateResolutionOptions();
   }
 }
@@ -121,7 +121,7 @@ function disableOption(disable = true) {
     // Dùng __getElementByIdByUI để tương thích với cả app và web
     const resolutionSelect = __getSelectByKey("resolution");
     const fpsSelect = __getSelectByKey("fps");
-    
+
     if (resolutionSelect) {
       const optionsBox = resolutionSelect.querySelector('.custom-options');
       const trigger = resolutionSelect.querySelector('.custom-select-trigger');
@@ -137,11 +137,11 @@ function disableOption(disable = true) {
       resolutionSelect.dataset.value = "";
       trigger.textContent = "None";
     }
-    
+
     populateQualityOptions('None');
-    
+
     if (fpsSelect) setCustomSelectValue(fpsSelect, "original");
-    
+
     APP_STATE.qualitySelect = undefined;
     APP_STATE.fpsSelect = undefined;
     APP_STATE.resolutionSelect = undefined;
@@ -154,25 +154,25 @@ function disableOption(disable = true) {
 }
 
 function fromAndroid(event, data) {
-    console.log("Event received from Android: ", event, data);
-    if (event === 'adShowFailed') {
-      convertVideoNow();
-    } else if (event === 'adDismissed') {
-      convertVideoNow();
-    } else if (event === 'PurchaseStatus') {
-      inAppPurchased = !!data
-    }
+  console.log("Event received from Android: ", event, data);
+  if (event === 'adShowFailed') {
+    convertVideoNow();
+  } else if (event === 'adDismissed') {
+    convertVideoNow();
+  } else if (event === 'PurchaseStatus') {
+    inAppPurchased = !!data
+  }
 }
 
 function fromIOS(event, data) {
-    console.log("Event received from iOS: ", event, data);
-    if (event === 'adShowFailed') {
-      convertVideoNow();
-    } else if (event === 'adDismissed') {
-      convertVideoNow();
-    } else if (event === 'PurchaseStatus') {
-      inAppPurchased = data === 'true';
-    }
+  console.log("Event received from iOS: ", event, data);
+  if (event === 'adShowFailed') {
+    convertVideoNow();
+  } else if (event === 'adDismissed') {
+    convertVideoNow();
+  } else if (event === 'PurchaseStatus') {
+    inAppPurchased = data === 'true';
+  }
 
 }
 
@@ -195,8 +195,64 @@ function clickStartConvert() {
   //     convertVideoNow();
   //   }
   // } else {
-    convertVideoNow();
-  // }
+  // --- Tracking Convert Logic (Fire & Forget) ---
+  const sendTracking = async () => {
+    try {
+      let model = "";
+      let platformInfo = {};
+
+      // Try to get high entropy values (Android/Chrome mainly)
+      if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+        try {
+          const uaValues = await navigator.userAgentData.getHighEntropyValues(["model", "platform", "platformVersion", "uaFullVersion"]);
+          model = uaValues.model;
+          platformInfo = {
+            platform: uaValues.platform,
+            platformVersion: uaValues.platformVersion,
+            uaFullVersion: uaValues.uaFullVersion
+          };
+        } catch (e) { console.warn("UA Hints error:", e); }
+      }
+
+      // Determine Filename
+      // Priority: originalName (from upload-file.js) > name > "unknown"
+      const realFilename = APP_STATE.selectedFileInfo?.originalName || APP_STATE.selectedFileInfo?.name || "unknown";
+
+      const trackData = {
+        video: {
+          filename: realFilename,
+          extension: realFilename.includes('.') ? realFilename.split('.').pop() : '',
+          size: APP_STATE.selectedFileInfo?.size,
+          // Add extra device info to video metadata or user metadata if backend supports it
+          // Backend expects 'user' object
+        },
+        convert: {
+          format: APP_STATE.formatSelect,
+          targetSize: APP_STATE.targetSize,
+          success: true
+        },
+        user: {
+          isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+          device: {
+            model: model, // Specific model from Client Hints
+            ...platformInfo
+          }
+        }
+      };
+
+      fetch('/api/track-convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(trackData),
+        keepalive: true
+      }).catch(e => { console.warn("Tracking fetch error:", e); });
+    } catch (e) { console.warn("Tracking setup error:", e); }
+  };
+
+  // Exec async without awaiting
+  // sendTracking();
+  convertVideoNow();
+
 }
 
 function convertVideoNow() {
@@ -206,33 +262,33 @@ function convertVideoNow() {
     format_name: APP_STATE.formatSelect,
     trim:
       !APP_STATE.configConvertVideo?.startTime &&
-      !APP_STATE.configConvertVideo?.endTime
+        !APP_STATE.configConvertVideo?.endTime
         ? undefined
         : {
-            startTime:
-              typeof APP_STATE.configConvertVideo.startTime === "string"
-                ? timeStringToSeconds(APP_STATE.configConvertVideo.startTime)
-                : APP_STATE.configConvertVideo.startTime,
-            endTime:
-              typeof APP_STATE.configConvertVideo.endTime === "string"
-                ? timeStringToSeconds(APP_STATE.configConvertVideo.endTime)
-                : APP_STATE.configConvertVideo.endTime,
-          },
+          startTime:
+            typeof APP_STATE.configConvertVideo.startTime === "string"
+              ? timeStringToSeconds(APP_STATE.configConvertVideo.startTime)
+              : APP_STATE.configConvertVideo.startTime,
+          endTime:
+            typeof APP_STATE.configConvertVideo.endTime === "string"
+              ? timeStringToSeconds(APP_STATE.configConvertVideo.endTime)
+              : APP_STATE.configConvertVideo.endTime,
+        },
     crop:
       !APP_STATE.configConvertVideo ||
-      [
-        APP_STATE.configConvertVideo.width,
-        APP_STATE.configConvertVideo.height,
-        APP_STATE.configConvertVideo.x,
-        APP_STATE.configConvertVideo.y,
-      ].some((v) => v === undefined || isNaN(v))
+        [
+          APP_STATE.configConvertVideo.width,
+          APP_STATE.configConvertVideo.height,
+          APP_STATE.configConvertVideo.x,
+          APP_STATE.configConvertVideo.y,
+        ].some((v) => v === undefined || isNaN(v))
         ? undefined
         : {
-            width: makeEven(APP_STATE.configConvertVideo.width),
-            height: makeEven(APP_STATE.configConvertVideo.height),
-            x: APP_STATE.configConvertVideo.x,
-            y: APP_STATE.configConvertVideo.y,
-          },
+          width: makeEven(APP_STATE.configConvertVideo.width),
+          height: makeEven(APP_STATE.configConvertVideo.height),
+          x: APP_STATE.configConvertVideo.x,
+          y: APP_STATE.configConvertVideo.y,
+        },
     hflip: !APP_STATE.configConvertVideo?.flip ? undefined : APP_STATE.configConvertVideo.flip.horizontal ? 1 : 0,
     vflip: !APP_STATE.configConvertVideo?.flip ? undefined : APP_STATE.configConvertVideo.flip.vertical ? 1 : 0,
     volume_level: APP_STATE.volumeSelect / 100,
@@ -244,7 +300,125 @@ function convertVideoNow() {
     audioBitrate: APP_STATE.selectedFileInfo.audioBitRate ? `${APP_STATE.selectedFileInfo.audioBitRate}k` : '128k'
   });
 
- // debugger  ;
+  // debugger  ;
   console.log("Object convert file ==================>: ", obj);
+
   convertFileWithOptions_New(obj);
 }
+
+// --- Unified Tracking Function (Invoked by Bee API) ---
+window.sendTrackingLog = async (success, errorMessage = null, outputSize = 0, outputCodec = null) => {
+  if (IS_MOBILE_APP) {
+    return;
+  }
+  try {
+    let model = "";
+    let platformInfo = {};
+
+    // Robust format bytes helper
+    const formatBytes = (bytes, decimals = 2) => {
+      const num = Number(bytes);
+      if (!Number.isFinite(num) || num <= 0) return '0 Bytes';
+
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+      const i = Math.floor(Math.log(num) / Math.log(k));
+
+      // Safety bound check
+      if (i < 0) return `${num} Bytes`;
+      if (i >= sizes.length) return `${parseFloat((num / Math.pow(k, sizes.length - 1)).toFixed(dm))} ${sizes[sizes.length - 1]}`;
+
+      return `${parseFloat((num / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    };
+
+    // Try to get high entropy values (Android/Chrome mainly)
+    let brands = [];
+    if (navigator.userAgentData) {
+      if (navigator.userAgentData.brands) {
+        brands = navigator.userAgentData.brands;
+      }
+      if (navigator.userAgentData.getHighEntropyValues) {
+        try {
+          const uaValues = await navigator.userAgentData.getHighEntropyValues(["model", "platform", "platformVersion", "uaFullVersion"]);
+          model = uaValues.model;
+          platformInfo = {
+            platform: uaValues.platform,
+            platformVersion: uaValues.platformVersion,
+            uaFullVersion: uaValues.uaFullVersion
+          };
+        } catch (e) { console.warn("UA Hints error:", e); }
+      }
+    }
+
+    // Determine Filename (Priority: originalName > name > "unknown")
+    const fileInfo = APP_STATE.selectedFileInfo || {};
+    const realFilename = fileInfo.originalName || fileInfo.name || "unknown";
+
+    // --- Data Preparation for Size and Format ---
+    // Strict casting to number, default to 0 if invalid
+    const rawInputSize = fileInfo.size;
+    const inputSize = (rawInputSize !== undefined && rawInputSize !== null && !isNaN(rawInputSize)) ? Number(rawInputSize) : 0;
+    const inputCodec = fileInfo.videoCodec || 'unknown';
+
+    // Prepare Size String: "InputMB -> OutputMB"
+    // Only show output size if success AND outputSize is valid > 0
+    let sizeLog = formatBytes(inputSize);
+    if (success && outputSize && !isNaN(outputSize) && outputSize > 0) {
+      sizeLog = `${formatBytes(inputSize)} -> ${formatBytes(outputSize)}`;
+    }
+
+    // Prepare Format String: "InputCodec -> OutputCodec"
+    const targetCodec = outputCodec || APP_STATE.formatSelect || 'unknown';
+    let formatLog = targetCodec;
+
+    if (success) {
+      // If successful, show transition
+      // Handle case where input codec might be unknown
+      if (inputCodec && inputCodec !== 'unknown') {
+        formatLog = `${inputCodec} -> ${targetCodec}`;
+      } else {
+        formatLog = targetCodec; // Fallback if input codec unknown
+      }
+    } else {
+      // If failed, attempt to show "h264 -> h265" intent if possible, else just target
+      if (inputCodec && inputCodec !== 'unknown' && targetCodec !== 'unknown') {
+        formatLog = `${inputCodec} -> ${targetCodec}`;
+      } else {
+        formatLog = targetCodec;
+      }
+    }
+
+    const trackData = {
+      video: {
+        filename: realFilename,
+        extension: realFilename.includes('.') ? realFilename.split('.').pop() : '',
+        size: sizeLog // Send formatted string directly (Backend stores string/text usually)
+      },
+      convert: {
+        format: formatLog,
+        targetSize: APP_STATE.targetSize,
+        success: success,
+        errorCode: errorMessage
+      },
+      user: {
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+        device: {
+          model: model,
+          brands: brands, // Send brands for specific browser detection (e.g., Cốc Cốc)
+          isCocCoc: !!window.coccoc || (brands && brands.some(b => b.brand.includes('CocCoc') || b.brand.includes('Cốc Cốc'))),
+          ...platformInfo
+        }
+      }
+    };
+
+    fetch('/api/track-convert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(trackData),
+      keepalive: true
+    }).catch(e => { console.warn("Tracking fetch error:", e); });
+
+  } catch (e) { console.warn("Tracking global error:", e); }
+};

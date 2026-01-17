@@ -97,9 +97,28 @@ class VideoPlayerDialog {
 
   stopVideo() {
     const video = this.overlay.querySelector(".dialog-video-player-player");
-    if (video) {
+    if (!video) {
+      return;
+    }
+    try {
+      // 1. Stop playback
       video.pause();
       video.currentTime = 0;
+
+      // 2. Clear sources
+      video.removeAttribute('src');
+      video.srcObject = null;
+
+      // 3. Remove source elements
+      Array.from(video.querySelectorAll('source')).forEach(source => {
+        source.removeAttribute('src');
+        source.remove();
+      });
+
+      // 6. Load empty to flush buffers
+      video.load();
+    } catch (error) {
+      console.error('❌ Error cleaning video:', error);
     }
   }
 

@@ -90,7 +90,7 @@ function renderItem(item){
         item.id
       }', '${item.displayName}', '${thumbUrl}')" style="gap: 10px; cursor: pointer; position: relative; flex-direction: row; display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #E2E2E2;">
         <div style="width: 60px; height: 60px; flex-shrink: 0; overflow: hidden; border-radius: 4px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-          ${item.thumb ? `<img class="lazy" data-src="${thumbUrl}" alt="" style="width: 100%; height: 100%; object-fit: cover;"/>` : ""}
+          ${item.thumb ? `<img class="lazy" data-src="${thumbUrl}" alt="" style="width: 100%; height: 100%; object-fit: cover;"/>` : `<img class="lazy" src="/images/play_cycle.svg" alt="" style="width: 100%; height: 100%; object-fit: cover;"/>`}
         </div>
         
         <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; ">

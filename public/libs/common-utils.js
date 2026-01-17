@@ -212,7 +212,8 @@ function getStringTime() {
 	const ss = now.getSeconds().toString().padStart(2, '0');
 	//const dateStr = `${dd}d-${mm}m-${yy}y--${hh}h-${min}m-${ss}s`;
 
-	const dateStr = `${hh}.${min}.${ss}-${dd}.${mm}.${yyyy}`;
+	//const dateStr = `${hh}.${min}.${ss}-${dd}.${mm}.${yyyy}`;
+	const dateStr = `${dd}-${mm}-${yyyy}_${hh}h${min}m${ss}s`;
 
 	return dateStr;
 }
@@ -311,17 +312,42 @@ function getFileInfoFromString(ffmpegOutput) {
 
 				streamInfo.video_stream_index = info.streams.length;
 			} else if (streamInfo.type === 'Audio') {
+				//Stream #0:1[0x2](eng): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 128 kb/s (default)
+				// Stream #0:1[0x2](eng): Audio: ac3 (ac-3 / 0x332D6361), 48000 Hz, 5.1(side), fltp, 320 kb/s (default)
 				info.audioCodec = streamInfo.codec_name || '';
 				info.audioBitRate = streamInfo.bitrate || 0;
 				const hzMatch = attr.match(/(\d+) Hz/);
 				if (hzMatch) {
 					streamInfo.hz = parseInt(hzMatch[1], 10);
 				}
+				//debugger;
+				// ✅ Fix: Parse audio channels correctly
 				if (attr.includes('stereo')) {
 					streamInfo.channels = 2;
 				} else if (attr.includes('mono')) {
 					streamInfo.channels = 1;
+				} else if (attr.includes('5.1')) {
+					streamInfo.channels = 6; // 5.1 = 6 channels (FL, FR, FC, LFE, BL, BR)
+				} else if (attr.includes('7.1')) {
+					streamInfo.channels = 8; // 7.1 = 8 channels
+				} else if (attr.includes('quad')) {
+					streamInfo.channels = 4; // Quadraphonic
+				} else if (attr.includes('3.0')) {
+					streamInfo.channels = 3; // Left, Right, Center
+				} else if (attr.includes('2.1')) {
+					streamInfo.channels = 3; // Stereo + LFE
 				}
+				//  else {
+				//     // ✅ Fallback: Parse from channel layout patterns
+				//     const channelMatch = attr.match(/(\d+)(?:\.\d+)?\s*(?:channels?|ch)/i);
+				//     if (channelMatch) {
+				//         streamInfo.channels = parseInt(channelMatch[1], 10);
+				//     } else {
+				//         // ✅ Default to stereo if not detected
+				//         streamInfo.channels = 2;
+				//     }
+				// }
+
 				streamInfo.audio_stream_index = info.streams.length;
 			}
 		});
@@ -461,21 +487,6 @@ function isUrl(str) {
 	return typeof str === 'string' && /^(https?|blob):/i.test(str);
 }
 
-async function getBlobUrlOnLib(url) {
-	if (typeof blobUrlMap === 'undefined') {
-		blobUrlMap = {};
-	}
-	if (blobUrlMap[url]) {
-		return blobUrlMap[url];
-	}
-
-	console.log('Fetching blob from URL:', url);
-	const response = await fetch(url);
-	const blob = await response.blob();
-	blobUrlMap[url] = URL.createObjectURL(blob);
-	return blobUrlMap[url];
-}
-
 function getUrlLength(originalUrl) {
 
 
@@ -518,177 +529,6 @@ function getUrlLength(originalUrl) {
 	return length;
 }
 
-/**
- * ✅ Enhanced bitrate selection cho video encoding
- * Chọn bitrate tối ưu dựa vào codec, resolution, quality và framerate
- * @param {string} codec - 'av1', 'vp9', 'h264', 'h265'
- * @param {number} width - Video width
- * @param {number} height - Video height 
- * @param {string} quality - 'low', 'medium', 'high', 'ultra'
- * @param {number} fps - Frame rate (optional, default: 30)
- * @param {string} usage - 'streaming', 'storage', 'broadcast' (optional)
- * @returns {number} bitrate in bps (bits per second)
- */
-function selectBitrateByCodec(codec, width, height, quality = 'medium', fps = 30, usage = 'streaming') {
-	// Normalize inputs
-	codec = (codec || 'h264').toLowerCase().trim();
-	quality = (quality || 'medium').toLowerCase().trim();
-	usage = (usage || 'streaming').toLowerCase().trim();
-
-	width = Math.max(1, parseInt(width) || 640);
-	height = Math.max(1, parseInt(height) || 480);
-	fps = Math.max(1, Math.min(120, parseFloat(fps) || 30));
-
-	// ✅ Comprehensive bitrate table per codec and resolution (kbps)
-	const bitrateTable = {
-		// H.264 - Most compatible, moderate efficiency
-		h264: {
-			resolutions: [
-				{ width: 426, height: 240, bitrates: { low: 300, medium: 500, high: 800, ultra: 1200 } },
-				{ width: 640, height: 360, bitrates: { low: 500, medium: 800, high: 1200, ultra: 1800 } },
-				{ width: 854, height: 480, bitrates: { low: 800, medium: 1200, high: 2000, ultra: 3000 } },
-				{ width: 1280, height: 720, bitrates: { low: 1500, medium: 2500, high: 4000, ultra: 6000 } },
-				{ width: 1920, height: 1080, bitrates: { low: 3000, medium: 5000, high: 8000, ultra: 12000 } },
-				{ width: 2560, height: 1440, bitrates: { low: 6000, medium: 9000, high: 14000, ultra: 20000 } },
-				{ width: 3840, height: 2160, bitrates: { low: 12000, medium: 18000, high: 28000, ultra: 40000 } }
-			]
-		},
-
-		// H.265/HEVC - 40-50% more efficient than H.264
-		h265: {
-			resolutions: [
-				{ width: 426, height: 240, bitrates: { low: 200, medium: 350, high: 600, ultra: 900 } },
-				{ width: 640, height: 360, bitrates: { low: 350, medium: 600, high: 900, ultra: 1400 } },
-				{ width: 854, height: 480, bitrates: { low: 600, medium: 900, high: 1500, ultra: 2200 } },
-				{ width: 1280, height: 720, bitrates: { low: 1000, medium: 1800, high: 3000, ultra: 4500 } },
-				{ width: 1920, height: 1080, bitrates: { low: 2000, medium: 3500, high: 6000, ultra: 9000 } },
-				{ width: 2560, height: 1440, bitrates: { low: 4000, medium: 6500, high: 10000, ultra: 15000 } },
-				{ width: 3840, height: 2160, bitrates: { low: 8000, medium: 13000, high: 20000, ultra: 30000 } }
-			]
-		},
-
-		// VP9 - Similar efficiency to H.265, good for web
-		vp9: {
-			resolutions: [
-				{ width: 426, height: 240, bitrates: { low: 250, medium: 400, high: 650, ultra: 950 } },
-				{ width: 640, height: 360, bitrates: { low: 400, medium: 650, high: 1000, ultra: 1500 } },
-				{ width: 854, height: 480, bitrates: { low: 650, medium: 1000, high: 1600, ultra: 2400 } },
-				{ width: 1280, height: 720, bitrates: { low: 1200, medium: 2000, high: 3200, ultra: 4800 } },
-				{ width: 1920, height: 1080, bitrates: { low: 2200, medium: 4000, high: 6500, ultra: 9500 } },
-				{ width: 2560, height: 1440, bitrates: { low: 4500, medium: 7000, high: 11000, ultra: 16000 } },
-				{ width: 3840, height: 2160, bitrates: { low: 9000, medium: 14000, high: 22000, ultra: 32000 } }
-			]
-		},
-
-		// AV1 - Most efficient, 30-50% better than H.265
-		av1: {
-			resolutions: [
-				{ width: 426, height: 240, bitrates: { low: 150, medium: 250, high: 400, ultra: 600 } },
-				{ width: 640, height: 360, bitrates: { low: 250, medium: 400, high: 650, ultra: 950 } },
-				{ width: 854, height: 480, bitrates: { low: 400, medium: 650, high: 1000, ultra: 1500 } },
-				{ width: 1280, height: 720, bitrates: { low: 750, medium: 1200, high: 2000, ultra: 3000 } },
-				{ width: 1920, height: 1080, bitrates: { low: 1500, medium: 2500, high: 4000, ultra: 6000 } },
-				{ width: 2560, height: 1440, bitrates: { low: 3000, medium: 4500, high: 7000, ultra: 10500 } },
-				{ width: 3840, height: 2160, bitrates: { low: 6000, medium: 9000, high: 14000, ultra: 21000 } }
-			]
-		}
-	};
-
-	// ✅ Usage multipliers for different scenarios
-	const usageMultipliers = {
-		streaming: 1.0,      // Standard for streaming platforms
-		storage: 0.8,        // Lower bitrate for local storage
-		broadcast: 1.3,      // Higher quality for broadcasting
-		archive: 0.6,        // Very compressed for long-term storage
-		mobile: 0.7          // Optimized for mobile viewing
-	};
-
-	// ✅ Frame rate multipliers
-	const fpsMultipliers = {
-		24: 0.9,    // Cinema standard
-		25: 0.92,   // PAL standard  
-		30: 1.0,    // Base multiplier
-		48: 1.4,    // High frame rate cinema
-		50: 1.45,   // High frame rate PAL
-		60: 1.5,    // High frame rate NTSC
-		120: 2.0    // Very high frame rate
-	};
-
-	// Get codec table (fallback to H.264 if not found)
-	const codecData = bitrateTable[codec] || bitrateTable.h264;
-
-	// ✅ Find best matching resolution
-	let selectedBitrate = 1000; // Default fallback
-	let bestMatch = null;
-	let minPixelDiff = Infinity;
-
-	const targetPixels = width * height;
-
-	for (const resolution of codecData.resolutions) {
-		const resPixels = resolution.width * resolution.height;
-		const pixelDiff = Math.abs(targetPixels - resPixels);
-
-		if (pixelDiff < minPixelDiff) {
-			minPixelDiff = pixelDiff;
-			bestMatch = resolution;
-		}
-	}
-
-	// ✅ Get base bitrate from quality level
-	if (bestMatch) {
-		selectedBitrate = bestMatch.bitrates[quality] || bestMatch.bitrates.medium;
-
-		// ✅ Scale bitrate if resolution doesn't exactly match
-		if (targetPixels !== bestMatch.width * bestMatch.height) {
-			const scaleFactor = Math.sqrt(targetPixels / (bestMatch.width * bestMatch.height));
-			selectedBitrate *= scaleFactor;
-		}
-	}
-
-	// ✅ Apply frame rate multiplier
-	const fpsMultiplier = fpsMultipliers[fps] ||
-		(fps <= 30 ? 1.0 : Math.min(2.0, fps / 30));
-	selectedBitrate *= fpsMultiplier;
-
-	// ✅ Apply usage multiplier
-	const usageMultiplier = usageMultipliers[usage] || 1.0;
-	selectedBitrate *= usageMultiplier;
-
-	// ✅ Apply resolution-based fine-tuning
-	const aspectRatio = width / height;
-	if (aspectRatio > 2.0) {
-		// Ultra-wide content needs more bitrate
-		selectedBitrate *= 1.2;
-	} else if (aspectRatio < 0.8) {
-		// Portrait content can use less bitrate
-		selectedBitrate *= 0.9;
-	}
-
-	// ✅ Ensure reasonable bounds
-	const minBitrate = 100;  // 100 kbps minimum
-	const maxBitrate = Math.min(100000, targetPixels * 0.1); // Max based on pixel count
-
-	selectedBitrate = Math.max(minBitrate, Math.min(maxBitrate, selectedBitrate));
-
-	// ✅ Convert to bps and round
-	const bitrateInBps = Math.round(selectedBitrate * 1024);
-
-	// ✅ Debug logging (only if console enabled)
-	if (typeof CONSOLE_ENABLE !== 'undefined' && CONSOLE_ENABLE > 0) {
-		console.log(`🎯 Bitrate Selection:`, {
-			codec,
-			resolution: `${width}x${height}`,
-			quality,
-			fps,
-			usage,
-			selectedBitrate: `${selectedBitrate} kbps`,
-			bitrateInBps: `${bitrateInBps} bps`,
-			bestMatch: bestMatch ? `${bestMatch.width}x${bestMatch.height}` : 'none'
-		});
-	}
-
-	return bitrateInBps;
-}
 
 function get_name_for_worker(file_index, stream_index, is_encoder) {
 	if (is_encoder) {
@@ -736,25 +576,25 @@ function validateObj(obj) {
 
 	// debugger;
 
-	if (!(obj.input_url instanceof File) && !(typeof FileSystemFileHandle !== 'undefined' && obj.input_url instanceof FileSystemFileHandle) && typeof obj.input_url !== 'string' && !(obj.input_url instanceof String)) return 'đầu input_url không hợp lệ';
-	if (!formatNames.includes(obj.format_name)) return 'đầu format_name không hợp lệ';
+	if (!(obj.input_url instanceof File) && !(typeof FileSystemFileHandle !== 'undefined' && obj.input_url instanceof FileSystemFileHandle) && typeof obj.input_url !== 'string' && !(obj.input_url instanceof String)) return 'input_url is invalid';
+	if (!formatNames.includes(obj.format_name)) return 'format is invalid';
 	if (obj.trim !== undefined) {
-		if (typeof obj.trim !== 'object' || typeof obj.trim.startTime !== 'number' || typeof obj.trim.endTime !== 'number') return 'đầu trim không hợp lệ';
-		if (obj.trim.startTime < 0 || obj.trim.endTime <= obj.trim.startTime) return 'đầu trim không hợp lệ';
+		if (typeof obj.trim !== 'object' || typeof obj.trim.startTime !== 'number' || typeof obj.trim.endTime !== 'number') return 'trim is invalid';
+		if (obj.trim.startTime < 0 || obj.trim.endTime <= obj.trim.startTime) return 'trim is invalid';
 	}
 
 	if (obj.crop !== undefined) {
-		if (typeof obj.crop !== 'object' || typeof obj.crop.width !== 'number' || typeof obj.crop.height !== 'number' || typeof obj.crop.x !== 'number' || typeof obj.crop.y !== 'number') return 'đầu crop không hợp lệ';
-		if (obj.crop.width % 2 !== 0 || obj.crop.height % 2 !== 0) return 'đầu crop không hợp lệ';
+		if (typeof obj.crop !== 'object' || typeof obj.crop.width !== 'number' || typeof obj.crop.height !== 'number' || typeof obj.crop.x !== 'number' || typeof obj.crop.y !== 'number') return 'crop is invalid';
+		if (obj.crop.width % 2 !== 0 || obj.crop.height % 2 !== 0) return 'crop is invalid';
 	}
 
 	if (obj.target_size !== undefined) {
-		if (typeof obj.target_size !== 'number' || obj.target_size < 1 || obj.target_size > 1900) return 'đầu target_size không hợp lệ';
+		if (typeof obj.target_size !== 'number' || obj.target_size < 1 || obj.target_size > 1900) return 'target is invalid';
 	}
 
 	if (obj.resolution !== undefined) {
-		if (typeof obj.resolution !== 'object' || typeof obj.resolution.width !== 'number' || typeof obj.resolution.height !== 'number') return 'đầu resolution không hợp lệ';
-		if (obj.resolution.width % 2 !== 0 || obj.resolution.height % 2 !== 0) return 'đầu resolution không hợp lệ';
+		if (typeof obj.resolution !== 'object' || typeof obj.resolution.width !== 'number' || typeof obj.resolution.height !== 'number') return 'resolution is invalid';
+		// if (obj.resolution.width % 2 !== 0 || obj.resolution.height % 2 !== 0) return 'resolution is invalid';
 	}
 
 	//cho phép các biến  hflip, vflip, volume_level, fps, quality có thể là undefined
@@ -763,10 +603,10 @@ function validateObj(obj) {
 	if (obj.volume_level === undefined) obj.volume_level = 1;
 	if (obj.fps === undefined) obj.fps = -1;
 
-	if (obj.hflip !== 0 && obj.hflip !== 1) return 'đầu hflip không hợp lệ';
-	if (obj.vflip !== 0 && obj.vflip !== 1) return 'đầu vflip không hợp lệ';
-	if (typeof obj.volume_level !== 'number' || obj.volume_level < 0 || obj.volume_level > 3) return 'đầu volume_level không hợp lệ';
-	if (obj.fps !== -1 && (typeof obj.fps !== 'number' || obj.fps < 10 || obj.fps > 60)) return 'đầu fps không hợp lệ';
+	if (obj.hflip !== 0 && obj.hflip !== 1) return 'hflip is invalid';
+	if (obj.vflip !== 0 && obj.vflip !== 1) return 'vflip is invalid';
+	if (typeof obj.volume_level !== 'number' || obj.volume_level < 0 || obj.volume_level > 3) return 'volume is invalid';
+	if (obj.fps !== -1 && (typeof obj.fps !== 'number' || obj.fps < 10 || obj.fps > 60)) return 'fps is invalid';
 
 }
 
@@ -787,7 +627,7 @@ function getScaleWidth(device = "DESKTOP") {
 	return scaleWidth;
 }
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 function isSafari() {
 	const ua = navigator.userAgent;
@@ -814,16 +654,7 @@ function isSafari() {
 }
 var is_safari = isSafari();
 
-// ffmpeg -i /Users/hung/video-test/lv_0_20250730144936.mp4 -an \
-//   -filter_complex "
-//     [0:v]trim=start=0:duration=2,setpts=PTS-STARTPTS[v1];
-//     [0:v]trim=start=19:duration=2,setpts=PTS-STARTPTS[v2];
-//     [0:v]trim=start=28:duration=2,setpts=PTS-STARTPTS[v3];
-//     [v1][v2][v3]concat=n=3:v=1[outv]
-//   " \
-//   -map "[outv]" -s 400x400 output.mp4
-
-async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bitrateScale = 1.0) {
+async function convertUserOptionsToCommand(userOptions) {
 
 	userOptions = JSON.parse(JSON.stringify(userOptions || {}));
 	function calculateOutputDimensions(iw, ih, targetW, targetH) {
@@ -842,10 +673,11 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 	fileInfo = JSON.parse(JSON.stringify(fileInfo || {}));//copy
 	var getStartTime = () => userOptions.trim?.startTime ?? -1;
 	var getEndTime = () => userOptions.trim?.endTime ?? -1;
+	var outputDuration = (getEndTime() > 0 ? getEndTime() : fileInfo.duration) - (getStartTime() >= 0 ? getStartTime() : 0);
 	var settings = {};
 	const libNameMap = { h264: 'libx264', h265: 'libx265', av1: 'libaom-av1', vp9: 'libvpx-vp9' };
 
-	var getVF = () => {
+	var getVideoFilters = () => {
 		const filters = [];
 
 		// Crop filter (nếu có)
@@ -863,13 +695,11 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 				filters.push(`pad=${ow}:${oh}:${(ow - iw) / 2}:${(oh - ih) / 2}:black`);
 		}
 
-
-		// Flip filters
 		if (userOptions.vflip) filters.push('vflip');
 		if (userOptions.hflip) filters.push('hflip');
 		return filters.join(',');
 	};
-	var outputDuration = (getEndTime() > 0 ? getEndTime() : fileInfo.duration) - (getStartTime() >= 0 ? getStartTime() : 0);
+
 	userOptions.fps = userOptions.fps || fileInfo.fps;
 	if (userOptions.target_size) {
 		//debugger;
@@ -884,100 +714,40 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 		}
 		var remainingBitrate = fileInfo.bitrateTotal - fileInfo.videoBitRate; // - audioBitrate;
 		var videoBitRateNew = Math.max(bitrateTotalNew - remainingBitrate * 1024, 10);
-		var targetConfig = await findBestVideoEncoderConfigForTargetBitrate(userOptions.format_name, userOptions.crop?.width || fileInfo.width, userOptions.crop?.height || fileInfo.height, videoBitRateNew * bitrateScale);
-		if (!targetConfig) {
+		var maxBitrate = findMaxBitrate(3840, 2160, 30, userOptions.format_name);
+		videoBitRateNew = Math.min(videoBitRateNew, maxBitrate);
+		var targetConfig = await findBestVideoEncoderConfigForTargetSize(userOptions.format_name, userOptions.crop?.width || fileInfo.width, userOptions.crop?.height || fileInfo.height, 0.9 *videoBitRateNew, 24, true);
+
+		if (!targetConfig || !targetConfig.width || !targetConfig.height) {
+			console.error('❌ Failed to find suitable encoder config for target size conversion');
 			return { command: null, settings: null };
 		}
 		userOptions.fps = targetConfig.framerate;
 		userOptions.resolution = { width: targetConfig.width, height: targetConfig.height };
-		userOptions.videoBitrate = (0.9 * targetConfig.bitrate) & ~0; // Giảm 10% để có khoảng trống cho audio và biến động bitrate
+		userOptions.videoBitrate = (0.9 * videoBitRateNew) & ~0; // Giảm 10% để có khoảng trống cho audio và biến động bitrate		
+		userOptions.videoBitrate = Math.max(10000, Math.min(userOptions.videoBitrate, targetConfig.max_bitrate || videoBitRateNew));
 	}
 
-	var cmd_array = ['-loglevel', 'info', '-stats_period', 2, '-progress', '-', '-nostats'];
-	var startTime = getStartTime();
-	var endTime = getEndTime();
+	var control_cmd_array = ['-fflags', '+genpts', '-avoid_negative_ts', '1', '-loglevel', 'info', '-stats_period', 2, '-progress', '-', '-nostats'];
+	var input_cmd_array = [];
+	var video_cmd_array = [];
+	var audio_cmd_array = [];
+	var output_cmd_array = [];
+
+	//var cmd_array = [].concat(header_array, input_cmd_array);
+	//----input_cmd_array------------------------------------------------------------------------------------------
+	getStartTime() > 0 && input_cmd_array.push('-ss', getStartTime());
+	getEndTime() > 0 && input_cmd_array.push('-to', getEndTime());
+	input_cmd_array.push('-r', fileInfo.fps);
+	input_cmd_array.push('-i', userOptions.input_url);
+
+	//----video_cmd_array------------------------------------------------------------------------------------------	
+	var videoFilters = getVideoFilters();
 
 
-	if (checkBitrate == true) {
-		if (outputDuration <= 14) {
-
-			cmd_array.push('-ss', startTime);
-			cmd_array.push('-r', fileInfo.fps);
-			cmd_array.push('-i', userOptions.input_url);
-
-			cmd_array.push('-filter_complex', `[0:v]trim=duration=${outputDuration},setpts=PTS-STARTPTS[outv]`);
-			cmd_array.push('-map', `[outv]`);
-		} else {
-			const segmentDuration = 2;
-			cmd_array.push('-ss', startTime + 2);
-			cmd_array.push('-r', fileInfo.fps);
-			cmd_array.push('-i', userOptions.input_url);
-
-			cmd_array.push('-ss', (startTime + outputDuration / 2 - segmentDuration / 2) & ~0);
-			cmd_array.push('-r', fileInfo.fps);
-			cmd_array.push('-i', userOptions.input_url);
-
-			// cmd_array.push('-ss', (startTime + outputDuration  - segmentDuration - 2) & ~0);
-			// cmd_array.push('-r', fileInfo.fps);
-			// cmd_array.push('-i', userOptions.input_url);
-
-
-			// cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[1:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v2];[2:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v3];[v1][v2][v3]concat=n=3:v=1[outv]`);
-
-			cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[1:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v2];[v1][v2]concat=n=2:v=1[outv]`);
-			cmd_array.push('-map', `[outv]`);
-
-
-			// cmd_array.push('-filter_complex', `[0:v]trim=duration=${segmentDuration},setpts=PTS-STARTPTS[v1];[v1]concat=n=1:v=1[outv]`);
-			// cmd_array.push('-map', `[outv]`);
-		}
-
-	} else {
-		startTime > 0 && cmd_array.push('-ss', startTime);
-		endTime > 0 && cmd_array.push('-to', endTime);
-		cmd_array.push('-r', fileInfo.fps);
-		cmd_array.push('-i', userOptions.input_url);
+	if (videoFilters.length > 0) {
+		video_cmd_array.push('-filter_complex', `[0:v]${videoFilters}[outv]`, '-map', '[outv]');
 	}
-
-	cmd_array.push('-c:v', libNameMap[userOptions.format_name] || 'libx264');
-
-	getVF().length > 0 && cmd_array.push('-vf', getVF());
-
-	//config audio
-
-	const audioStream = fileInfo.streams.find(s => s.type === 'Audio');
-	const isVP9 = userOptions.format_name === 'vp9';
-	const isOpusOutput = isVP9; // VP9 typically uses Opus audio
-
-	if (audioStream) {
-		// ✅ Handle multi-channel audio
-		if (audioStream.channels && audioStream.channels > 2) {
-			console.log(`⚠️ Multi-channel audio detected (${audioStream.channels} channels)`);
-
-			if (isOpusOutput) {
-				// ✅ Opus: Downmix to stereo
-				console.log('→ Downmixing to stereo for Opus compatibility');
-				audioFilters.push('pan=stereo|FL<FC+0.30*FL+0.30*BL|FR<FC+0.30*FR+0.30*BR');
-				cmd_array.push('-ac', '2'); // Force stereo
-			} else {
-				// ✅ Other codecs: Can keep multi-channel
-				// But force channel layout for safety
-				cmd_array.push('-channel_layout', 'stereo');
-				cmd_array.push('-ac', '2');
-			}
-		}
-
-		// ✅ Handle unsupported layouts (5.1(side), etc.)
-		if (isOpusOutput) {
-			// Force stereo for Opus
-			cmd_array.push('-ac', '2');
-		}
-	}
-
-	if (userOptions.volume_level != 1) {
-		cmd_array.push('-af', `volume=${userOptions.volume_level}`);
-	}
-
 
 	var outputWidth = userOptions.resolution?.width || userOptions.crop?.width || fileInfo.width;
 	var outputHeight = userOptions.resolution?.height || userOptions.crop?.height || fileInfo.height;
@@ -985,61 +755,178 @@ async function convertUserOptionsToCommand(userOptions, checkBitrate = false, bi
 	var needReencode = false;
 	needReencode = needReencode || (userOptions.format_name && userOptions.format_name !== fileInfo.videoCodec);
 	needReencode = needReencode || (userOptions.fps != -1 && userOptions.fps !== fileInfo.fps);
-	needReencode = needReencode || (getVF().length > 0);
+	needReencode = needReencode || (getVideoFilters().length > 0);
 	needReencode = needReencode || (fileInfo.width !== outputWidth || fileInfo.height !== outputHeight);
 	needReencode = needReencode || (userOptions.quality != null);
 
-	if (needReencode && !userOptions.target_size) {
-		var outputConfig = await findBestVideoEncoderConfigForTargetBitrate(userOptions.format_name, outputWidth, outputHeight, 0, userOptions.fps > 0 ? userOptions.fps : fileInfo.fps);
-		outputWidth = outputConfig.width;
-		outputHeight = outputConfig.height;
-	}
+	video_cmd_array.push('-c:v', needReencode == true ? libNameMap[userOptions.format_name] || 'libx264' : 'copy');
 
-	if (userOptions.videoBitrate) {
-		cmd_array.push('-b:v', dec(userOptions.videoBitrate, 0));
-	} else if (userOptions.quality) {
-		if ((userOptions.format_name === 'av1' || userOptions.format_name === 'vp9') && is_safari == false) {
-			settings.quantizer = getQuantizerForQuality(userOptions.format_name, userOptions.quality.toLowerCase());
+	if (needReencode && !userOptions.target_size) {
+		var outputConfig = await findBestVideoEncoderConfigForTargetSize(userOptions.format_name, outputWidth, outputHeight, 0, userOptions.fps > 0 ? userOptions.fps : fileInfo.fps);
+
+		if (outputConfig && outputConfig.width && outputConfig.height) {
+			outputWidth = outputConfig.width;
+			outputHeight = outputConfig.height;
 		} else {
-			cmd_array.push('-b:v', selectBitrateByCodec(userOptions.format_name, outputWidth, outputHeight, userOptions.quality.toLowerCase()));
+			// ✅ Nếu không tìm thấy config, kiểm tra lại với resolution gốc
+			console.warn(`⚠️ Could not find optimal encoder config, checking support for original resolution: ${outputWidth}x${outputHeight}`);
+			const isSupported = await isVideoEncoderConfigSupported(userOptions.format_name, outputWidth, outputHeight, userOptions.fps > 0 ? userOptions.fps : fileInfo.fps, 0);
+			if (!isSupported) {
+				console.error(`❌ Codec ${userOptions.format_name} is not supported at resolution ${outputWidth}x${outputHeight}@${userOptions.fps > 0 ? userOptions.fps : fileInfo.fps}fps`);
+				return { command: null, settings: null };
+			}
 		}
 	}
 
+	
 	if (needReencode) {
-		cmd_array.push('-r', userOptions.fps > 0 ? userOptions.fps : fileInfo.fps);
-		cmd_array.push('-vsync', '2'); //always
-	} else {
-		['h265', 'h264'].includes(userOptions.format_name) && cmd_array.push('-bsf:v', userOptions.format_name === 'h265' ? 'hevc_mp4toannexb' : 'h264_mp4toannexb');
-		cmd_array[cmd_array.indexOf('-c:v') + 1] = 'copy'; userOptions.volume_level == 1 && (cmd_array[cmd_array.indexOf('-c:v')] = '-c');
+		if (userOptions.target_size) {
+			video_cmd_array.push('-b:v', userOptions.videoBitrate);
+		}else{
+			video_cmd_array.push('-b:v', selectBitrateByCodec(userOptions.format_name, outputWidth, outputHeight, userOptions.quality || 'medium', userOptions.fps > 0 ? userOptions.fps : fileInfo.fps));
+		}
 	}
-
-	if (userOptions.format_name === 'h265') {
-		cmd_array.push('-tag:v');
-		cmd_array.push('hvc1');
-	} else if (userOptions.format_name === 'h264') {
-		cmd_array.push('-tag:v');
-		cmd_array.push('avc1');
+	if (needReencode) {
+		const targetFps = userOptions.fps > 0 ? userOptions.fps : fileInfo.fps;
+		video_cmd_array.push('-r', targetFps);
+		video_cmd_array.push('-vsync', '2');
+		// video_cmd_array.push('-copyts');
+	} else {
+		// không cần dùng -bsf:v nữa (tested 10/01/26)
+		// ['h265', 'h264'].includes(userOptions.format_name) &&
+		// 	video_cmd_array.push('-bsf:v', userOptions.format_name === 'h265' ? 'hevc_mp4toannexb' : 'h264_mp4toannexb');
+		// video_convert_cmd_array[video_convert_cmd_array.indexOf('-c:v') + 1] = 'copy';
+		//  userOptions.volume_level == 1 && (video_convert_cmd_array[video_convert_cmd_array.indexOf('-c:v')] = '-c');
 	}
 
 	// ← VPS/SPS/PPS mỗi keyframe
 	if (needReencode) {
-		if (userOptions.format_name == 'h265') {
-			cmd_array.push('-preset', 'ultrafast');
+		// if (userOptions.format_name == 'h265') {
+		// 	video_convert_cmd_array.push('-preset', 'ultrafast');
+		// }
+		video_cmd_array.push('-s', `${outputWidth}x${outputHeight}`);
+	}
+
+	if (needReencode == true) {
+		video_cmd_array.push('-pix_fmt', fileInfo.fmt);//rgb0 = AV_PIX_FMT_RGB0, rgb0 nhanh hơn rgba một chút
+	}
+
+	var tagVideo = [];
+	if (userOptions.format_name === 'h265') {
+		tagVideo.push('-tag:v');
+		tagVideo.push('hvc1');
+	} else if (userOptions.format_name === 'h264') {
+		tagVideo.push('-tag:v');
+		tagVideo.push('avc1');
+	}
+
+	//----audio_cmd_array------------------------------------------------------------------------------------------	
+	const isVP9 = userOptions.format_name === 'vp9';
+	const isOpusOutput = isVP9; // VP9 typically uses Opus audio
+	const audioStreams = fileInfo.streams.filter(s => s.type === 'Audio');
+
+	// ✅ Process audio streams
+	if (audioStreams.length > 0) {
+		let needAudioEncode = userOptions.volume_level != 1;
+
+		// ✅ Check if any stream needs encoding (multi-channel)
+		if (!needAudioEncode) {
+			needAudioEncode = audioStreams.some(stream => stream.channels && stream.channels > 2);
 		}
-		cmd_array.push('-s', `${outputWidth}x${outputHeight}`);
+
+		// ✅ Apply audio encoding if needed
+		if (needAudioEncode) {
+			// ✅ Volume adjustment for ALL audio streams using -filter:a
+			if (userOptions.volume_level != 1) {
+				audio_cmd_array.push('-filter:a', `volume=${userOptions.volume_level}`);
+			}
+
+			// Set audio codec
+			audio_cmd_array.push('-c:a', isOpusOutput ? 'libopus' : 'aac');
+			if (audioStreams.some(stream => stream.channels && stream.channels > 2)) {
+				audio_cmd_array.push('-ac', '2');
+			}
+		}
 	}
 
 	if (userOptions.target_size && fileInfo.audioBitRate > 0) {
-		cmd_array.push('-b:a', 1024 * fileInfo.audioBitRate);
+		audio_cmd_array.push('-b:a', 1024 * fileInfo.audioBitRate);
+	}
+	var hasAudio = true;
+	if (userOptions.volume_level == 0 || audioStreams.length == 0) {
+		hasAudio = false;
+	}
+	//----output_cmd_array------------------------------------------------------------------------------------------
+
+	var filename = removeExtension(fileInfo.name) + '_' + getStringTime() + (userOptions.format_name == 'vp9' ? '.indb.webm' : '.indb.mp4');
+	const formatMap = { h264: '.h264', h265: '.h265', vp9: '.ivf', av1: '.ivf' };
+
+	if (needReencode == false) {
+		var cmd_array = [
+			{
+				cmd: [].concat(control_cmd_array, input_cmd_array, video_cmd_array, audio_cmd_array, tagVideo, filename),
+				title: 'Converting...'
+			}
+		]
+	} else {
+
+		if (1 > 0) {
+			const fps = userOptions.fps > 0 ? userOptions.fps : fileInfo.fps;
+			var extension = userOptions.format_name == 'vp9' ? '.webm' : '.mp4';
+			var convert_cmd_array = [...control_cmd_array, ...input_cmd_array];
+			convert_cmd_array = [...convert_cmd_array, ...video_cmd_array, 'outputVideo.indb' + formatMap[userOptions.format_name]];
+
+			if (hasAudio) {
+				convert_cmd_array = [...convert_cmd_array, ...audio_cmd_array, '-vn', 'outputAudio.indb' + extension];
+			}
+
+			var complete_cmd_array = [...control_cmd_array, '-r', fps, '-i', 'outputVideo.indb' + formatMap[userOptions.format_name]];
+			if (hasAudio) {
+				complete_cmd_array = [...complete_cmd_array, '-i', 'outputAudio.indb' + extension];
+			}
+
+			complete_cmd_array = [...complete_cmd_array, ...['-c', 'copy'], ...tagVideo, filename];
+
+			var cmd_array = [
+
+				{
+					cmd: convert_cmd_array,
+					title: 'Converting...'
+				},
+				{
+					cmd: complete_cmd_array,
+					title: 'Completing...'
+				}
+			]
+
+
+
+		} else {
+
+			var input_cmd_array2 = ['-an', ...input_cmd_array];
+			var rawfile = 'tmp.indb' + formatMap[userOptions.format_name];
+			var cmd_array1 = [].concat(control_cmd_array, input_cmd_array2, video_cmd_array, rawfile);
+
+			input_cmd_array2 = ['-vn', ...input_cmd_array, '-i', rawfile];
+			var cmd_array2 = [].concat(control_cmd_array, input_cmd_array2, ['-c:v', 'copy'], tagVideo, audio_cmd_array, filename);
+			var cmd_array = [
+				{
+					cmd: cmd_array1,
+					title: 'Converting...'
+				},
+				{
+					cmd: cmd_array2,
+					title: 'Merging...'
+				}
+			]
+		}
+
+
+
 	}
 
-	var filename = fileInfo.name || 'converted_video';
-	filename = removeExtension(filename) + '-' + getStringTime() + (userOptions.format_name == 'vp9' ? '.webm' : '.mp4');
-	cmd_array.push(filename);
 
-	settings = { ...settings, needReencode: needReencode, format_name: userOptions.format_name, width: outputWidth, height: outputHeight, duration: outputDuration, fps: (userOptions.fps > 0 ? userOptions.fps : fileInfo.fps), target_size: userOptions.target_size, output_filename: filename, input_filename: fileInfo.name, input_size: fileInfo.size, videoBitRate: userOptions.videoBitrate || 0 };
-	return { command: cmd_array, settings: settings };
+
+	settings = { ...settings, needReencode: needReencode, format_name: userOptions.format_name, width: outputWidth, height: outputHeight, duration: outputDuration, fps: (userOptions.fps > 0 ? userOptions.fps : fileInfo.fps), input_fps: fileInfo.fps, target_size: userOptions.target_size, output_filename: filename, input_filename: fileInfo.name, input_size: fileInfo.size, videoBitRate: userOptions.videoBitrate || 0 };
+	return { command_list: cmd_array, settings: settings };
 }
-
-
-

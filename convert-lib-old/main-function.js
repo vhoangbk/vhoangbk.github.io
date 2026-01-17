@@ -364,7 +364,7 @@ async function convertFileWithOptions(inputOptions) {
                 }
 
                 var percent_complete = (out_time / out_duration) * 100;
-                updateProgressDialog(Math.min(percent_complete, 99.9), used_time > 5000 ? timeLeft : 0);
+                updateProgressDialog(Math.min(percent_complete, 99.9), used_time > 5000 ? timeLeft : 0, 'Converting file...');
 
 
 

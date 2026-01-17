@@ -11,8 +11,28 @@ function addControlvideo(elementContainer, videoEl) {
     return `linear-gradient(to right, var(${themeColor}) 0%, var(${themeColor}) ${percent}%, #D9D9D9 ${percent}%, #D9D9D9 100%)`;
   }
 
-  const style = document.createElement("style");
-  style.textContent = `
+  function hasCSSClass(className) {
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try {
+        rules = sheet.cssRules;
+      } catch (e) {
+        continue;
+      }
+
+      for (const rule of rules) {
+        if (rule.selectorText?.includes(`.${className}`)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  let hasStyle = hasCSSClass('input-video-slider');
+  if (!hasStyle) {
+    const style = document.createElement("style");
+    style.textContent = `
     .input-video-slider {
       width: 100%;
       height: 0.16rem;
@@ -20,12 +40,28 @@ function addControlvideo(elementContainer, videoEl) {
       outline: none;
       appearance: none;
       -webkit-appearance: none;
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      accent-color: unset;
       cursor: pointer;
       transition: none;
       background: #D9D9D9;
     }
 
     .input-video-slider::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 1.3rem;
+      height: 1.3rem;
+      background: var(--theme-color);
+      border: 2px solid var(--theme-color-line);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-video-slider::-moz-range-thumb {
       appearance: none;
       -webkit-appearance: none;
       width: 1.3rem;
@@ -69,7 +105,8 @@ function addControlvideo(elementContainer, videoEl) {
       background-image: url('/images/play.svg');
     }
   `;
-  document.head.appendChild(style);
+    document.head.appendChild(style);
+  }
 
   let template = `
     <div class="control-container">

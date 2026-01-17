@@ -428,6 +428,7 @@ function restoreSettings() {
           selectedQualityOptions();
         }
       }
+      handleMissingFileInfo(true);
     }, 600);
   } catch (e) {
     console.error('Error restoring settings:', e);
@@ -462,6 +463,17 @@ function toggleDesktopMenu() {
 }
 
 function policyPage() {
+  const premiumOverlay = document.getElementById('premiumOverlay');
+  if (premiumOverlay && premiumOverlay.classList.contains('is-open')) {
+    premiumOverlay.classList.remove('is-open');
+    premiumOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    
+    if (typeof window.restoreScrollForDialog === 'function') {
+      window.restoreScrollForDialog();
+    }
+  }
+  
   const overlay = document.getElementById('policyOverlay');
   if (overlay) {
     overlay.classList.remove('is-open');
@@ -576,6 +588,17 @@ function closeHistoryOverlay() {
 }
 
 function termsPage() {
+  const premiumOverlay = document.getElementById('premiumOverlay');
+  if (premiumOverlay && premiumOverlay.classList.contains('is-open')) {
+    premiumOverlay.classList.remove('is-open');
+    premiumOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    
+    if (typeof window.restoreScrollForDialog === 'function') {
+      window.restoreScrollForDialog();
+    }
+  }
+  
   const overlay = document.getElementById('termsOverlay');
   if (overlay) {
     overlay.classList.remove('is-open');

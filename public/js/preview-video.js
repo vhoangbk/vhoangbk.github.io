@@ -40,12 +40,13 @@ function showVideoPreview(selected_file_info) {
     videoPreview.classList.add('show');
     videoPreview.style.display = 'flex';
   }
-  
+
   const desktopUI = isDisplayed('.desktop-app-container');
   if (desktopUI) {
     const uploadArea = document.getElementById('uploadFileDesktop');
     if (uploadArea) {
       uploadArea.classList.add('hidden');
+      uploadArea.style.display = '';
     }
   }
 }
@@ -84,20 +85,20 @@ function onCloseVideoPreview() {
   const videoPreview = __getElementByIdByUI('videoPreview');
   const desktopUI = isDisplayed('.desktop-app-container');
   const appUI = isDisplayed('.app--container');
-  
+
   if (videoPreview) {
     videoPreview.classList.remove('show');
     videoPreview.style.display = 'none';
     localStorage.removeItem('convert_settings');
   }
-  
+
   if (desktopUI) {
     const uploadArea = document.getElementById('uploadFileDesktop');
     if (uploadArea) {
       uploadArea.classList.remove('hidden');
       uploadArea.style.display = 'flex';
     }
-    
+
     const inputFile = document.getElementById('inputFileDesktop');
     if (inputFile) inputFile.value = null;
   } else if (appUI) {
@@ -105,16 +106,17 @@ function onCloseVideoPreview() {
     if (uploadArea) {
       uploadArea.style.display = 'flex';
     }
-    
+
     const inputFile = document.getElementById('inputFileApp');
     if (inputFile) inputFile.value = null;
   }
-  
+
   APP_STATE.selectedFileInfo = null;
   APP_STATE.selectedFile = null;
   APP_STATE.modalTrimCrop = null;
   APP_STATE.configConvertVideo = null;
-  set("selectedFile", null);
+  deleteKey("selectedFile");
+  deleteKey("selectedFileHandle"); // ✅ Clear file handle on close
   resetConvertInfo();
   updateConvertButtonState();
   resetTimelineVariables();
@@ -122,6 +124,8 @@ function onCloseVideoPreview() {
   populateFormatOptions();
   updateResolutionOptions();
   renderTargetSize();
+
+  clearRecentFile();
 }
 
 function selectedQualityOptions() {
@@ -142,7 +146,7 @@ function resetConvertInfo() {
 
   if (formatSelect) setCustomSelectValue(formatSelect, "");
   if (targetSizeSelect) setCustomSelectValue(targetSizeSelect, "");
-  
+
   if (resolutionSelect) {
     const optionsBox = resolutionSelect.querySelector('.custom-options');
     const trigger = resolutionSelect.querySelector('.custom-select-trigger');
@@ -158,11 +162,11 @@ function resetConvertInfo() {
     resolutionSelect.dataset.value = "";
     trigger.textContent = "None";
   }
-  
+
   populateQualityOptions('None');
-  
-  if (fpsSelect) setCustomSelectValue(fpsSelect, "original");
-  
+
+  if (fpsSelect) populateFPSOptions();
+
   setCustomSelectValue(__getSelectByKey("volume"), "100%");
 
   APP_STATE.volumeSelect = 100;
@@ -172,7 +176,7 @@ function resetConvertInfo() {
   APP_STATE.selectedFile = null;
   APP_STATE.urlVideo = null;
   APP_STATE.configConvertVideo = null;
-  APP_STATE.ratioOfWeb = 1;  
+  APP_STATE.ratioOfWeb = 1;
   APP_STATE.formatSelect = null;
   APP_STATE.targetSize = null;
   APP_STATE.resolutionSelect = null;
@@ -216,6 +220,11 @@ function resetConvertInfo() {
 
   hideDisableOverlay();
   setTrimCropFlipInfo();
+  // show advance section
+  ['.desktop-advanced-section', '.app-advanced-section'].forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.style.display = 'flex';
+  });
 }
 
 function resetTimelineVariables() {

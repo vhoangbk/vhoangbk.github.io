@@ -62,12 +62,12 @@ class InfoDialog {
         if (this.onClose) this.onClose();
       });
 
-    this.overlay.addEventListener("click", (e) => {
-      if (e.target === this.overlay) {
-        this.close();
-        if (this.onClose) this.onClose();
-      }
-    });
+    // this.overlay.addEventListener("click", (e) => {
+    //   if (e.target === this.overlay) {
+    //     this.close();
+    //     if (this.onClose) this.onClose();
+    //   }
+    // });
 
     document.addEventListener("keydown", (e) => {
       if (this.isOpen && e.key === "Escape") {
@@ -80,12 +80,12 @@ class InfoDialog {
   open() {
     this.overlay.classList.add("active");
     this.isOpen = true;
+    disableHtmlScroll();
   }
 
   close() {
     this.overlay.remove();
     this.isOpen = false;
-    const wheelHandler = createPreventBodyScrollHandler('.dialog-info-overlay', '.dialog-info-box');
-    window.removeEventListener('wheel', wheelHandler, { passive: false });
+    enableOverscroll();
   }
 }

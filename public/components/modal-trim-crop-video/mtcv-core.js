@@ -1739,7 +1739,7 @@ function saveTrimCropModal() {
   if (mtcv_displayedVideo && !mtcv_displayedVideo.paused) {
     mtcv_displayedVideo.pause();
   }
-  
+  releaseVideoMemory();
   // ✅ CRITICAL: Flush UI crop box state to config before closing modal
   // This ensures Advanced panel always shows correct W/H/X/Y values
   if (mtcv_showCropBox && mtcv_box.visible) {
@@ -1776,6 +1776,7 @@ function cancelTrimCropModal() {
   if (mtcv_displayedVideo && !mtcv_displayedVideo.paused) {
     mtcv_displayedVideo.pause();
   }
+  releaseVideoMemory();
   closeModal('.mtcv-container', '.config-advenced-button');
   const backup = localStorage.getItem('APP_STATE');
   const backupRatio = localStorage.getItem('ratio');
@@ -1803,6 +1804,29 @@ function setTrimCropFlipInfo() {
       advancedInfoSection.style.display = 'none';
     }
 
+  }
+}
+
+function releaseVideoMemory() {
+  if (mtcv_displayedVideo) {
+    console.log('releaseVideoMemory');
+    try {
+      mtcv_displayedVideo.pause();
+      mtcv_displayedVideo.currentTime = 0;
+
+      mtcv_displayedVideo.removeAttribute('src');
+      mtcv_displayedVideo.srcObject = null;
+
+      Array.from(mtcv_displayedVideo.querySelectorAll('source')).forEach(source => {
+        source.removeAttribute('src');
+        source.remove();
+      });
+
+      mtcv_displayedVideo.load();
+
+    } catch (error) {
+      console.error('❌ Error cleaning video:', error);
+    }
   }
 }
 
@@ -2210,17 +2234,21 @@ function toggleHorizontal() {
 
 function toggleTrimVideo() {
   const checkbox = document.getElementById('trim-video-toggle-checkbox');
+  const videoDuration = APP_STATE.selectedFileInfo?.duration || mtcv_videoDuration || 0;
   if (checkbox) {
     mtcv_showTrimVideo = checkbox.checked;
     const timelineTrack = document.querySelector('.mtcv-timeline-track');
     if (timelineTrack) {
       if (!checkbox.checked) {
         mtcv_startTime = 0;
-        mtcv_endTime = mtcv_videoDuration || 0;
+        mtcv_endTime = videoDuration;
         updateTimeDisplay();
         updateProgressBar();
         resetCropConfig('trimVideo');
       } else {
+        if (mtcv_endTime === 0) {
+          mtcv_endTime = videoDuration;
+        }
         updateCropConfig('trimVideo');
       }
     }

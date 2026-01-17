@@ -1,9 +1,11 @@
 if (typeof window !== 'undefined' && typeof window.originalVideoSize === 'undefined') {
   window.originalVideoSize = null;
 }
+var lastLayoutMode = null;
+
 
 function updateVolume(value) {
-  if(value) {
+  if (value) {
     const stringValue = String(value);
     let raw = parseInt(stringValue.replace('%', '').trim());
     const numValue = Math.max(0, Math.min(300, raw));
@@ -45,7 +47,7 @@ function lockMobileScroll() {
 // Function để mở scroll background (chỉ trên mobile)
 function unlockMobileScroll() {
   if (window.innerWidth > 768) return; // Chỉ áp dụng trên mobile
-  
+
   if (document.body.classList.contains('mobile-scroll-locked')) {
     const bodyTop = document.body.style.top;
     if (bodyTop && mobileScrollPosition === 0) {
@@ -54,7 +56,7 @@ function unlockMobileScroll() {
         mobileScrollPosition = parsed;
       }
     }
-    
+
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.body.style.top = '';
@@ -62,7 +64,7 @@ function unlockMobileScroll() {
     document.body.style.left = '';
     document.body.style.right = '';
     document.body.style.height = '';
-    
+
     document.documentElement.style.overflow = '';
     document.documentElement.style.position = '';
     document.documentElement.style.width = '';
@@ -70,12 +72,12 @@ function unlockMobileScroll() {
     document.documentElement.style.left = '';
     document.documentElement.style.right = '';
     document.documentElement.style.top = '';
-    
+
     document.body.classList.remove('mobile-scroll-locked');
     document.documentElement.classList.remove('mobile-scroll-locked');
 
     enableOverscroll();
-    
+
     const savedPosition = mobileScrollPosition || 0;
     if (savedPosition > 0) {
       requestAnimationFrame(() => {
@@ -88,7 +90,7 @@ function unlockMobileScroll() {
         }, 50);
       });
     }
-    
+
     mobileScrollPosition = 0;
   }
 }
@@ -121,7 +123,7 @@ function updateResolutionOptions(restore = false) {
     ];
     fillCustomSelect(resolutionSelect, fallbackItems, restore);
 
-    if (resolutionSelect && !restore) {
+    if (resolutionSelect) {
       resolutionSelect.dataset.value = "";
       const trigger = resolutionSelect.querySelector(".custom-select-trigger");
       highlighSelectedOption(resolutionSelect, "");
@@ -135,19 +137,20 @@ function updateResolutionOptions(restore = false) {
   const selectedFormat = formatSelect.dataset?.value;
   APP_STATE.formatSelect = selectedFormat;
 
-  if (!window.app_settings[selectedFormat]) {
+  if (!window.browser_settings[selectedFormat]) {
     // Gen None
-    fillCustomSelect(resolutionSelect, [{ value:"", text:"None" }], restore);
+    fillCustomSelect(resolutionSelect, [{ value: "", text: "None" }], restore);
     resolutionSelect.dataset.value = "";
     resolutionSelect.querySelector(".custom-select-trigger").textContent = "None";
     return;
   }
 
-  const codecData = window.app_settings[selectedFormat];
-  const main = codecData?.Main ?? codecData?.[0];
+  const codecData = window.browser_settings[selectedFormat];
+
+  const main = codecData;
 
   if (!main?.supported_resolution) {
-    fillCustomSelect(resolutionSelect, [{ value:"", text:"None" }], restore, true);
+    fillCustomSelect(resolutionSelect, [{ value: "", text: "None" }], restore, true);
     return;
   }
 
@@ -162,7 +165,7 @@ function updateResolutionOptions(restore = false) {
   }
 
   const items = [];
-  if(!APP_STATE.selectedFile) {
+  if (!APP_STATE.selectedFile) {
     items.push({ value: "", text: "None" });
   }
 
@@ -301,14 +304,32 @@ function selectedQualityOptions() {
 function checkDisable() {
   const targetSize = __getSelectByKey("target-size");
   let targetSizeValue = null;
-  if(targetSize) {
+  if (targetSize) {
     targetSizeValue = targetSize.dataset.value || null;
   }
-  if(!targetSizeValue) {
+  if (!targetSizeValue) {
     hideDisableOverlay();
   }
   else {
     showDisableOverlay();
+  }
+
+  if (APP_STATE.selectedFileInfo) {
+    const isMissFileInfo = (APP_STATE.selectedFileInfo &&
+      (
+        !APP_STATE.selectedFileInfo.duration ||
+        APP_STATE.selectedFileInfo.duration === 0 ||
+        !APP_STATE.selectedFileInfo.displaySize ||
+        APP_STATE.selectedFileInfo.displaySize === "0 MB" ||
+        !APP_STATE.selectedFileInfo.videoCodec ||
+        !APP_STATE.selectedFileInfo.width ||
+        !APP_STATE.selectedFileInfo.height ||
+        APP_STATE.selectedFileInfo.width === 0 ||
+        APP_STATE.selectedFileInfo.height === 0
+      ))
+    if (isMissFileInfo) {
+      handleOverlayTargetSize(true);
+    }
   }
 }
 
@@ -325,23 +346,23 @@ function getCurrentVideoDimensions() {
 function updateConvertButtonState() {
   const appUI = isDisplayed('.app--container');
   const desktopUI = isDisplayed('.desktop-app-container');
-  
+
   let convertBtn = null;
   if (appUI) {
     convertBtn = document.querySelector('.footer-btn-convert');
   } else if (desktopUI) {
     convertBtn = document.querySelector('.desktop-footer-btn-convert');
   } else {
-    convertBtn = document.querySelector('.desktop-footer-btn-convert') || 
-                 document.querySelector('.footer-btn-convert') ||
-                 document.querySelector('.convert-button');
+    convertBtn = document.querySelector('.desktop-footer-btn-convert') ||
+      document.querySelector('.footer-btn-convert') ||
+      document.querySelector('.convert-button');
   }
-  
+
   if (!convertBtn) {
     console.warn('Convert button not found');
     return;
   }
-  
+
   const hasVideo = APP_STATE.selectedFileInfo;
   const formatSelect = __getSelectByKey("format");
 
@@ -384,7 +405,7 @@ function clickSelectVideoUrl() {
 
 function blockDoubleTapZoom() {
   let lastTap = 0;
-    document.querySelector('html').addEventListener('touchend', function(event) {
+  document.querySelector('html').addEventListener('touchend', function (event) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     if (tapLength < 300 && tapLength > 0) {
@@ -393,7 +414,7 @@ function blockDoubleTapZoom() {
     lastTap = currentTime;
   }, { passive: false });
 
-  document.addEventListener('touchstart', function(event) {
+  document.addEventListener('touchstart', function (event) {
     if (event.touches.length > 1) {
       event.preventDefault();
     }
@@ -401,7 +422,7 @@ function blockDoubleTapZoom() {
 }
 
 function handleNavigateMenu(target) {
-  switch(target) {
+  switch (target) {
     case "home":
       window.location.href = "/";
       break;
@@ -449,7 +470,7 @@ function saveSettings() {
   if (isRestoringSettings) {
     return;
   }
-  
+
   const settings = {
     formatSelect: APP_STATE.formatSelect,
     targetSize: APP_STATE.targetSize,
@@ -466,10 +487,10 @@ function saveSettings() {
 function loadBannerImage(imgElement, url) {
   const img = new Image();
   img.crossOrigin = 'anonymous';
-  img.onload = function() {
+  img.onload = function () {
     imgElement.src = url;
   };
-  img.onerror = function() {
+  img.onerror = function () {
     console.warn('Failed to load banner image:', url);
     imgElement.style.display = 'none';
   };
@@ -493,15 +514,15 @@ function setupLogoAndTitleClick() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   setupLogoAndTitleClick();
   const leftBanner = document.getElementById('leftBanner');
   const rightBanner = document.getElementById('rightBanner');
-  
+
   if (leftBanner) {
     loadBannerImage(leftBanner, 'https://nguyencongpc.vn/media/banner/05_Jul16f179b6a4611d58790bb648850ac4af.jpg');
   }
-  
+
   if (rightBanner) {
     loadBannerImage(rightBanner, 'https://nguyencongpc.vn/media/banner/14_Aug6097e242c275340dc87c88b47997d295.jpg');
   }
@@ -509,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const desktopLogos = document.querySelectorAll('.desktop-logo, .desktop-title');
   if (desktopLogos) {
     desktopLogos.forEach(logo => logo.addEventListener('click', function () {
-        window.location.href = '/';
+      window.location.href = '/';
     }));
   }
 
@@ -557,27 +578,63 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  document.querySelectorAll('.desktop-header-nav a').forEach(link => {
-    link.addEventListener('click', function (e) {
-      if (link.getAttribute('href') === window.location.pathname) {
-        e.preventDefault();
+  document.querySelectorAll('.desktop-header-nav .desktop-nav-item')
+    .forEach(link => {
+      const linkPath = new URL(link.href).pathname;
+
+      if (linkPath === window.location.pathname) {
+        link.classList.add('desktop-nav-item-active');
       }
+
+      link.addEventListener('click', e => {
+        if (linkPath === window.location.pathname) {
+          e.preventDefault();
+          return;
+        }
+
+        document
+          .querySelectorAll('.desktop-nav-item-active')
+          .forEach(a => a.classList.remove('desktop-nav-item-active'));
+
+        link.classList.add('desktop-nav-item-active');
+      });
     });
-  });
 
   initCustomSelects();
 
   window.addEventListener('load', function () {
-    renderTargetSize();
-    populateFormatOptions(true);
-    updateResolutionOptions(true);
-    populateQualityOptions();
-    populateFPSOptions(true);
-    populateVolumeOptions(true);
+    const path = window.location.pathname || '/';
+    if (path === '/' || path === '/m' || path === '/index.html' || path === '/m-index.html') {
+      renderTargetSize();
+      populateFormatOptions(true);
+      updateResolutionOptions(true);
+      populateQualityOptions();
+      populateFPSOptions(true);
+      populateVolumeOptions(true);
+    }
+
+
+
   });
+
+  lastLayoutMode = window.innerWidth <= 768 ? 'MOBILE' : 'DESKTOP';
 
   window.addEventListener('resize', function () {
     limitSelectHeight();
+
+    const currentLayoutMode = window.innerWidth <= 768 ? 'MOBILE' : 'DESKTOP';
+    if (currentLayoutMode !== lastLayoutMode) {
+      lastLayoutMode = currentLayoutMode;
+
+      closeAllCustomSelects();
+
+      renderTargetSize(true);
+      populateFormatOptions(true);
+      updateResolutionOptions(true);
+      populateQualityOptions(true);
+      populateFPSOptions(true);
+      populateVolumeOptions(true);
+    }
   });
 });
 
@@ -608,6 +665,21 @@ function initCustomSelects() {
     // mở/đóng khi click trigger
     select.addEventListener("click", (e) => {
       e.stopPropagation();
+
+      // Check responsivity on click (Lazy check)
+      const currentMode = window.innerWidth <= 768 ? 'MOBILE' : 'DESKTOP';
+      if (lastLayoutMode && currentMode !== lastLayoutMode) {
+        lastLayoutMode = currentMode;
+        closeAllCustomSelects();
+
+        renderTargetSize(true);
+        populateFormatOptions(true);
+        updateResolutionOptions(true);
+        populateQualityOptions(true);
+        populateFPSOptions(true);
+        populateVolumeOptions(true);
+      }
+
       limitSelectHeight();
       const wasOpen = select.classList.contains("open");
       const anotherOpen = document.body.classList.contains("custom-options-open") && !wasOpen;
@@ -618,7 +690,7 @@ function initCustomSelects() {
       if (isOpen) select.classList.add("open");
       else select.classList.remove("open");
       toggleOptionsDisplay(optionsBox, isOpen);
-      
+
       // Hiển thị overlay nếu mở
       if (isOpen) {
         if (window.innerWidth <= 768) {
@@ -666,7 +738,7 @@ function initCustomSelects() {
           globalOverlay.classList.remove("open");
         }
       }
-      
+
       if (window.innerWidth <= 768) { // Mobile: thêm class cho body để sync CSS
         document.body.classList.toggle("mobile-sheet-open", isOpen);
       } else {
@@ -685,47 +757,47 @@ function initCustomSelects() {
       const opt = e.target.closest(".custom-option");
       if (!opt || opt.classList.contains("disabled")) return;
 
-    const value = opt.dataset.value ?? "";
-    const text = opt.textContent.trim();
+      const value = opt.dataset.value ?? "";
+      const text = opt.textContent.trim();
 
-    // Set dataset value TRƯỚC để đảm bảo các logic khác đọc đúng giá trị
-    select.dataset.value = value;
-    
-    // Đảm bảo cập nhật trigger text chắc chắn - set ngay và giữ nguyên
-    const trigger = select.querySelector(".custom-select-trigger");
-    if (trigger) {
-      trigger.textContent = text;
-      // Lưu vào dataset để có thể restore sau nếu bị override
-      trigger.dataset.lastSelectedText = text;
-    }
+      // Set dataset value TRƯỚC để đảm bảo các logic khác đọc đúng giá trị
+      select.dataset.value = value;
+
+      // Đảm bảo cập nhật trigger text chắc chắn - set ngay và giữ nguyên
+      const trigger = select.querySelector(".custom-select-trigger");
+      if (trigger) {
+        trigger.textContent = text;
+        // Lưu vào dataset để có thể restore sau nếu bị override
+        trigger.dataset.lastSelectedText = text;
+      }
 
       optionsBox.querySelectorAll(".custom-option")
-                .forEach(o => o.classList.remove("selected"));
+        .forEach(o => o.classList.remove("selected"));
       opt.classList.add("selected");
 
-    // Đóng select và overlay - đảm bảo đóng hoàn toàn
-    select.classList.remove("open");
-    toggleOptionsDisplay(optionsBox, false);
-    
-    // Đóng overlay (cả global và local) và unlock scroll
-    const globalOverlay = document.getElementById("mobileBottomsheetOverlay");
-    if (window.innerWidth <= 768) {
-      unlockMobileScroll();
-    }
-    if (overlay) {
-      overlay.style.display = "none";
-      overlay.classList.remove("open");
-    }
-    if (globalOverlay && globalOverlay !== overlay) {
-      globalOverlay.style.display = "none";
-      globalOverlay.classList.remove("open");
-    }
+      // Đóng select và overlay - đảm bảo đóng hoàn toàn
+      select.classList.remove("open");
+      toggleOptionsDisplay(optionsBox, false);
 
-    if (window.innerWidth <= 768) {
-      document.body.classList.remove("mobile-sheet-open");
-    } else {
-      document.body.classList.remove("desktop-select-open");
-    }
+      // Đóng overlay (cả global và local) và unlock scroll
+      const globalOverlay = document.getElementById("mobileBottomsheetOverlay");
+      if (window.innerWidth <= 768) {
+        unlockMobileScroll();
+      }
+      if (overlay) {
+        overlay.style.display = "none";
+        overlay.classList.remove("open");
+      }
+      if (globalOverlay && globalOverlay !== overlay) {
+        globalOverlay.style.display = "none";
+        globalOverlay.classList.remove("open");
+      }
+
+      if (window.innerWidth <= 768) {
+        document.body.classList.remove("mobile-sheet-open");
+      } else {
+        document.body.classList.remove("desktop-select-open");
+      }
 
       document.body.classList.remove("custom-options-open");
       toggleOptionsDisplay(optionsBox, false);
@@ -814,7 +886,7 @@ function initCustomSelects() {
     if (document.body.classList.contains("custom-options-open")) {
       const isInsideSelect = e.target.closest(".custom-select") || e.target.closest(".custom-options");
       touchStartInsideSelect = !!isInsideSelect;
-      
+
       const touch = e.touches[0];
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
@@ -827,7 +899,7 @@ function initCustomSelects() {
       const touch = e.touches[0];
       const deltaX = Math.abs(touch.clientX - touchStartX);
       const deltaY = Math.abs(touch.clientY - touchStartY);
-      
+
       // Nếu di chuyển quá threshold, coi như đang scroll
       if (deltaX > TOUCH_MOVE_THRESHOLD || deltaY > TOUCH_MOVE_THRESHOLD) {
         touchMoved = true;
@@ -846,10 +918,10 @@ function initCustomSelects() {
       return;
     }
   });
-  
+
   document.addEventListener("touchend", (e) => {
     const isInsideSelect = e.target.closest(".custom-select") || e.target.closest(".custom-options");
-    
+
     if (document.body.classList.contains("custom-options-open")) {
       // Không đóng nếu:
       // 1. Touch bắt đầu hoặc kết thúc trong select
@@ -862,14 +934,14 @@ function initCustomSelects() {
         touchStartInsideSelect = false;
         return;
       }
-      
+
       // Chỉ đóng nếu tap bên ngoài (không có movement, không bắt đầu trong select)
       if (!touchMoved && touchStartX !== null && touchStartY !== null) {
         e.preventDefault();
         e.stopPropagation();
         closeAllCustomSelects();
       }
-      
+
       // Reset sau khi xử lý
       touchStartX = null;
       touchStartY = null;
@@ -877,7 +949,7 @@ function initCustomSelects() {
       touchStartInsideSelect = false;
       return;
     }
-    
+
     // Reset nếu không có custom-options-open
     touchStartX = null;
     touchStartY = null;
@@ -923,15 +995,17 @@ function initCustomSelects() {
 
 function highlighSelectedOption(select, value) {
   const optionsBox = select.querySelector(".custom-options");
-  if (optionsBox) {
-    optionsBox.querySelectorAll(".custom-option").forEach(o => {
-      o.classList.remove("selected");
-      if (o.dataset.value === value) {
-        o.classList.add("selected");
-      }
-    });
+  if (!optionsBox) return;
+  const options = optionsBox.querySelectorAll(".custom-option");
+  options.forEach(o => o.classList.remove("selected"));
+  for (const o of options) {
+    if (String(o.dataset.value) === String(value)) {
+      o.classList.add("selected");
+      break;
+    }
   }
 }
+
 
 function closeAllCustomSelects() {
   document.querySelectorAll(".custom-select").forEach(select => {
@@ -987,25 +1061,25 @@ function preventScrollWhenSelectOpen(evt) {
         const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5; // 5px threshold
         const isAtTop = scrollTop <= 5; // 5px threshold
         const deltaY = evt.deltaY;
-        
+
         // Nếu đã scroll tới cuối và đang scroll xuống (deltaY > 0), cho phép scroll lan ra background
         if (isAtBottom && deltaY > 0) {
           // Không preventDefault và stopPropagation để cho phép scroll background
           return;
         }
-        
+
         // Nếu đã scroll tới đầu và đang scroll lên (deltaY < 0), cũng cho phép scroll lan ra background
         if (isAtTop && deltaY < 0) {
           // Không preventDefault và stopPropagation để cho phép scroll background
           return;
         }
       }
-      
+
       // Nếu chưa tới cuối hoặc đang scroll lên, chặn lan ra background
       evt.stopPropagation();
       return;
     }
-    
+
     // Với các custom-options khác, chỉ stopPropagation để không ảnh hưởng background
     evt.stopPropagation();
     return;
@@ -1019,18 +1093,19 @@ function preventScrollWhenSelectOpen(evt) {
 }
 
 function limitSelectHeight() {
-  if( window.innerWidth > 768) {
-    const footer = document.querySelector("footer");
-    if (!footer) return;
+  document.querySelectorAll(".custom-select").forEach(select => {
+    const options = select.querySelector(".custom-options");
+    if (!options) return;
 
-    const footerRect = footer.getBoundingClientRect();
-    const gap = 50;
+    if (window.innerWidth > 768) {
+      const footer = document.querySelector("footer");
+      if (!footer) return;
 
-    document.querySelectorAll(".custom-select").forEach(select => {
+      const footerRect = footer.getBoundingClientRect();
+      const gap = 50;
       const trigger = select.querySelector(".custom-select-trigger");
-      const options = select.querySelector(".custom-options");
 
-      if (!trigger || !options) return;
+      if (!trigger) return;
 
       const triggerRect = trigger.getBoundingClientRect();
       let bottomLimit;
@@ -1045,8 +1120,10 @@ function limitSelectHeight() {
       const maxHeight = bottomLimit - triggerRect.bottom - gap;
 
       options.style.maxHeight = `${Math.max(120, maxHeight)}px`;
-    });
-  }
+    } else {
+      options.style.maxHeight = '';
+    }
+  });
 }
 
 // khởi tạo ngay nếu DOM đã load, hoặc khi bạn load script đặt sau body
@@ -1060,8 +1137,8 @@ function fillCustomSelect(elOrId, items, restore = false, isInit = false) {
   const isMobile = window.innerWidth <= 768;
 
   const root = typeof elOrId === "string"
-      ? document.getElementById(elOrId) || document.querySelector(`.custom-select[data-key="${elOrId}"]`)
-      : elOrId;
+    ? document.getElementById(elOrId) || document.querySelector(`.custom-select[data-key="${elOrId}"]`)
+    : elOrId;
 
   if (!root) return;
 
@@ -1221,19 +1298,19 @@ function fillCustomSelect(elOrId, items, restore = false, isInit = false) {
     });
 
     // Default - chỉ set nếu chưa có giá trị được chọn hoặc đang restore
-    if(!restore) {
+    if (!restore) {
       const saved = root.dataset.value ?? "";
       const toShow = items.find(i => i.value === saved) || items[0] || { text: "None", value: "" };
-      
+
       // Chỉ auto-select Cropped nếu chưa có giá trị nào được chọn (saved rỗng)
       // và user chưa chọn option nào (không có lastSelectedText)
       const trigger = resolutionSelect?.querySelector(".custom-select-trigger");
       const hasUserSelection = trigger?.dataset.lastSelectedText;
-      
+
       if (!saved && !hasUserSelection) {
         // Chưa có selection, có thể auto-select Cropped nếu có
         const cropItem = items.find(e => e.text.includes("Cropped"));
-        if(cropItem) {
+        if (cropItem) {
           root.dataset.value = cropItem.value;
           if (trigger) {
             trigger.textContent = cropItem.text;
@@ -1366,7 +1443,7 @@ function fillCustomSelect(elOrId, items, restore = false, isInit = false) {
   const saved = root.dataset.value ?? "";
   const toShow = items.find(i => i.value === saved) || items[0] || { text: "None", value: "" };
   root.dataset.value = toShow.value;
-  
+
   // Respect lastSelectedText nếu có (user đã chọn option)
   // Điều này tránh override trigger text khi user đã chọn một option
   if (trigger.dataset.lastSelectedText) {
@@ -1425,13 +1502,35 @@ function renderTargetSize() {
 
   const isMobile = window.innerWidth <= 768;
 
-  if (isMobile) {
-    renderMobileSelect(root, TARGET_SIZE_ITEMS);
-  } else {
-    renderDesktopSelect(root, TARGET_SIZE_ITEMS);
+  // Use a copy of items to avoid mutating the global array
+  let items = [...TARGET_SIZE_ITEMS];
+
+  // Check for custom value
+  const currentValue = APP_STATE.targetSize || root.dataset.value;
+  if (currentValue && currentValue !== "custom" && !items.some(i => i.value == currentValue)) {
+    // If current value is custom (not in list), add it
+    items.splice(2, 0, { value: currentValue, text: currentValue + "MB" });
   }
+
+  if (isMobile) {
+    renderMobileSelect(root, items);
+  } else {
+    renderDesktopSelect(root, items);
+  }
+
   const taregrSizeSelect = __getSelectByKey("target-size");
-  highlighSelectedOption(taregrSizeSelect, taregrSizeSelect.dataset.value || "");
+  if (taregrSizeSelect) {
+    // Restore value
+    if (currentValue) {
+      taregrSizeSelect.dataset.value = currentValue;
+      const trigger = taregrSizeSelect.querySelector('.custom-select-trigger');
+      const selectedOption = items.find(i => i.value == currentValue);
+      if (trigger && selectedOption) {
+        trigger.textContent = selectedOption.text;
+      }
+    }
+    highlighSelectedOption(taregrSizeSelect, taregrSizeSelect.dataset.value || "");
+  }
 }
 
 function renderMobileSelect(root, items) {
@@ -1495,6 +1594,78 @@ function enableOverscroll() {
   document.documentElement.style.overscrollBehavior = '';
   document.body.style.overscrollBehavior = '';
 }
+
+(function setupAutoReloadWhenIdle() {
+  const IDLE_LIMIT_MS = 1000 * 60 * 60 * 24; // 24 hours
+  if (window.__autoReloadWhenIdleInitialized) {
+    return;
+  }
+  window.__autoReloadWhenIdleInitialized = true;
+
+  let lastActivityAt = Date.now();
+  let wasBusy = false;
+
+  const isBusy = () => typeof window.isConverting !== 'undefined' && window.isConverting === true;
+
+  const triggerReload = () => {
+    console.warn('[AutoReload] Reloading page after idle timeout.');
+    location.reload();
+  };
+
+  const markActivity = () => {
+    if (isBusy()) {
+      return;
+    }
+    lastActivityAt = Date.now();
+  };
+
+  const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'touchstart', 'mousedown', 'scroll'];
+  ACTIVITY_EVENTS.forEach(evtName => {
+    window.addEventListener(evtName, markActivity, { passive: true });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !isBusy()) {
+      const idleDuration = Date.now() - lastActivityAt;
+      if (idleDuration >= IDLE_LIMIT_MS || shouldReloadOnVisible) {
+        shouldReloadOnVisible = false;
+        triggerReload();
+      }
+    }
+  });
+
+  let shouldReloadOnVisible = false;
+
+  const idleWatcher = setInterval(() => {
+    const busy = isBusy();
+    if (busy) {
+      if (!wasBusy) {
+        wasBusy = true;
+      }
+      lastActivityAt = Date.now();
+      return;
+    }
+
+    if (wasBusy && !busy) {
+      wasBusy = false;
+      lastActivityAt = Date.now();
+      return;
+    }
+
+    const idleDuration = Date.now() - lastActivityAt;
+    if (idleDuration >= IDLE_LIMIT_MS) {
+      if (document.hidden) {
+        shouldReloadOnVisible = true;
+      } else {
+        triggerReload();
+      }
+    }
+  }, 1000);
+
+  window.addEventListener('beforeunload', () => {
+    clearInterval(idleWatcher);
+  });
+})();
 
 
 

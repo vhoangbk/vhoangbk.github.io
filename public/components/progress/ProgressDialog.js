@@ -29,6 +29,9 @@ class ProgressDialog {
           </div>
         </div>
         <div class="dialog-progress-content">
+          <div class="dialog-progress-title" style="font-size: 1.3em; color: rgba(99, 98, 98, 1); font-weight: 600; display: flex; justify-content: center; margin-bottom: -10px">
+            Converting file...
+          </div>
           <div class="dialog-progress-body">
             <div class="dialog-progress-text progress__text">${value}%</div>
             <div class="dialog-progress-message progress__message">${message}</div>
@@ -114,14 +117,18 @@ class ProgressDialog {
     this.overlay.remove();
   }
 
-  update(value, timeLeft = 0) {
+  update(value, timeLeft = 0, title) {
     const progressText = this.overlay.querySelector(".progress__text");
     const progressBar = this.overlay.querySelector(".progress-bar__value");
     const progressMessage = this.overlay.querySelector(".progress__message");
-    if (progressText) progressText.textContent = `${Math.round(value)}%`;
+    const progressTitle = this.overlay.querySelector(".dialog-progress-title");
+    if (progressText) progressText.textContent = isNaN(value) ? `0%` : `${Math.round(value)}%`;
     if (progressBar) progressBar.value = Math.round(value);
     if (progressMessage) progressMessage.textContent =  timeLeft > 0 ? `${this.formatTimeLeft(parseInt(timeLeft))} remaining`  : this.message;
-
+    if (progressTitle && title) {
+      progressTitle.style.display = 'flex';
+      progressTitle.textContent = title;
+    }
   }
 
   formatTimeLeft(seconds) {

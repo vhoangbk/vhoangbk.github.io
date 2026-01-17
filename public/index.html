@@ -94,9 +94,20 @@
         <h1 class="desktop-title">Bee Convert</h1>
       </div>
       <nav class="desktop-header-nav">
-        <a href="/" class="desktop-nav-item">Home</a>
-        <a href="/about.html" class="desktop-nav-item">About</a>
-        <a href="/blog-page/blog-1.html" class="desktop-nav-item">Blog</a>
+        <a href="/" class="desktop-nav-item" data-tooltip="Home">
+          <img src="/images/home.svg" alt="Logo home">
+          Home
+        </a>
+
+        <a href="/about.html" class="desktop-nav-item" data-tooltip="About">
+          <img src="/images/about.svg" alt="Logo about">
+          About
+        </a>
+
+        <a href="/blog-page/blog-1.html" class="desktop-nav-item" data-tooltip="Blog">
+          <img src="/images/blog.svg" alt="Logo blog">
+          Blog
+        </a>
       </nav>
     </header>
 
@@ -113,7 +124,7 @@
       <main class="desktop-main">
         <section class="desktop-upload-section">
           <div class="desktop-upload-area" onclick="uploadFile('inputFileDesktop')" id="uploadFileDesktop">
-            <input type="file" id="inputFileDesktop" accept="video/*"
+            <input type="file" id="inputFileDesktop" accept="video/*, .flv, .mkv"
               onchange="handleFileChange(this, 'uploadFileDesktop')" style="display: none;">
             <div class="desktop-upload-area-icon">
               <img src="/images/cloud-arrow-up.svg" alt="Upload Icon" loading="lazy">
@@ -149,7 +160,7 @@
                 <img src="/images/m/format.svg" alt="Format">
                 <label class="desktop-config-title-field" for="format">Format</label>
               </div>
-               <div class="desktop-resolution-wrapper">
+               <div class="desktop-format-wrapper">
                 <div id="formatSelectDesktop" class="custom-select" data-ui="desktop" data-key="format">
                   <div class="custom-select-trigger">Select Format...</div>
                   <div class="custom-options"></div>
@@ -161,12 +172,13 @@
                 <img src="/images/m/target-size.svg" alt="Target size">
                 <label class="desktop-config-title-field">Target size</label>
               </div>
-              <div class="desktop-resolution-wrapper">
-                <div class="custom-select" data-ui="desktop" data-key="target-size">
+              <div class="desktop-target-size-wrapper">
+                <div class="custom-select" id="targetSizeSelectDesktop" data-ui="desktop" data-key="target-size">
                   <div class="custom-select-trigger">None</div>
                   <div class="custom-options">
                   </div>
                 </div>
+                <div class="desktop-overlay" id="overlayTargetSize"></div>
               </div>
             </div>
             <div class="desktop-form-group">
@@ -390,12 +402,16 @@
   <div id="premiumOverlay" class="premium-overlay" aria-hidden="true">
   </div>
 
+  <script src="js/blob-utils.js?v=7fe5c22ff227"></script>
+
+
   <!-- Bee Lib -->
+  <script src="libs/indexed-db-file-storage.js?v=0"></script>
   <script src="libs/app_settings.js"></script>
   <script src="libs/common-utils.js?v=f44ab3b85ecb"></script>
   <script src="libs/bee-api.js?v=317fd7c6c691"></script>
   <script src="libs/coder-config-utils.js?v=05f529551c6e"></script>
-  <script src="libs/init-browser.js?v=c2d56ef52622"></script>
+  
   <script src="libs/file-system-api.js?v=17b67e9ef444"></script>
 
   <!-- Scripts -->
@@ -410,7 +426,7 @@
   <script src="js/save-file.js?v=1e68ec20a1fb"></script>
   <script src="js/toast.js?v=6b58c255d7d3"></script>
   <script src="js/dialog-prevent-scroll.js?v=af8920572d4f"></script>
-  <script src="js/blob-utils.js?v=7fe5c22ff227"></script>
+  <script src="js/browser-detect.js?v=0"></script>
 
 
   <script src="components/dialog/dialog.js?v=af51475a2213"></script>

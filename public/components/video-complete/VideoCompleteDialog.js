@@ -78,13 +78,13 @@ class VideoCompleteDialog {
     }
 
     const elementsInfo = this.overlay.querySelectorAll(".dialog-video-info-right")
-      this.overlay
-        .querySelector(".dialog-video-player").addEventListener('loadedmetadata', function () {
-          elementsInfo[0].textContent = this.videoWidth + ' x ' + this.videoHeight;
-          elementsInfo[1].textContent = formatDuration(this.duration);
-          elementsInfo[2].textContent = file_info.displaySize;
-          elementsInfo[3].textContent = file_info.videoCodec;  
-    });
+    this.overlay
+      .querySelector(".dialog-video-player").addEventListener('loadedmetadata', function () {
+        elementsInfo[0].textContent = this.videoWidth + ' x ' + this.videoHeight;
+        elementsInfo[1].textContent = formatDuration(this.duration);
+        elementsInfo[2].textContent = file_info.displaySize;
+        elementsInfo[3].textContent = file_info.videoCodec;
+      });
 
     this._bindEvents();
   }
@@ -122,7 +122,7 @@ class VideoCompleteDialog {
   open() {
     this.overlay.classList.add("active");
     this.isOpen = true;
-    
+
     // ✅ Đảm bảo scroll bị lock ngay khi dialog mở
     // Gọi preventScroll trực tiếp để không bị miss trong race condition
     if (typeof window.restoreScrollForDialog === 'function') {
@@ -131,9 +131,9 @@ class VideoCompleteDialog {
         if (document.querySelector('.dialog-video-overlay.active')) {
           // Dialog vẫn đang mở, đảm bảo scroll bị lock
           const hasDialog = document.querySelector('.dialog-video-overlay.active') ||
-                          document.querySelector('.dialog-progress-overlay.active') ||
-                          document.querySelector('.dialog-loading-overlay.active') ||
-                          document.querySelector('.mtcv-container.mtcv-show');
+            document.querySelector('.dialog-progress-overlay.active') ||
+            document.querySelector('.dialog-loading-overlay.active') ||
+            document.querySelector('.mtcv-container.mtcv-show');
           if (hasDialog && !document.body.classList.contains('dialog-open')) {
             // Nếu có dialog nhưng scroll chưa bị lock, lock ngay
             const scrollPos = window.pageYOffset || document.documentElement.scrollTop || 0;
@@ -160,13 +160,12 @@ class VideoCompleteDialog {
   }
 
   close() {
-    console.log(this.file_info)
     this.stopVideo();
-    
+
     if (typeof window.restoreScrollForDialog === 'function') {
       window.restoreScrollForDialog();
     }
-    
+
     this.overlay.remove();
     this.isOpen = false;
     const wheelHandler = createPreventBodyScrollHandler('.dialog-video-overlay', '.dialog-video-box');
@@ -175,9 +174,36 @@ class VideoCompleteDialog {
 
   stopVideo() {
     const video = this.overlay.querySelector(".dialog-video-player");
-    if (video) {
+    if (!video) {
+      return;
+    }
+    try {
+      // 1. Stop playback
       video.pause();
       video.currentTime = 0;
+
+      // 2. Clear sources
+      video.removeAttribute('src');
+      video.srcObject = null;
+
+      // 3. Remove source elements
+      Array.from(video.querySelectorAll('source')).forEach(source => {
+        source.removeAttribute('src');
+        source.remove();
+      });
+
+
+
+      // 6. Load empty to flush buffers
+      video.load();
+
+
+
+    } catch (error) {
+      console.error('❌ Error cleaning video:', error);
     }
   }
 }
+
+
+

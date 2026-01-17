@@ -1,5 +1,6 @@
 let loadingDialog = null;
 let progressDialog = null;
+let infoDialog = null;
 
 let isLoaded = false;
 window.addEventListener('load', function () {
@@ -76,19 +77,23 @@ function hideLoadingDialog() {
   if (loadingDialog) loadingDialog.close()
 }
 
-function showAppError(message, type) {
+function showAppError(message, type, onClose) {
+  if (infoDialog != null) return
   const { containerElement, element } = getCurrentContainerInfo();
   const el = containerElement || document.body;
   const elContent = element || document.body;
-  const dialog = new InfoDialog({
+  infoDialog = new InfoDialog({
     element: el,
     elementContent: elContent,
     message: message || 'An unknown error occurred.',
     cancelText: 'Close',
-    onClose: () => {},
+    onClose: () => {
+      infoDialog = null;
+      if (onClose) onClose();
+    },
     type: type || 'error',
   });
-  dialog.open();
+  infoDialog.open();
 }
 
 function showNumberInputDialog(title, onSubmit, onCancel) {
@@ -120,9 +125,9 @@ function showProgressDialog(onCancel) {
   progressDialog.open();
 }
 
-function updateProgressDialog(percent, timeLeft) {
+function updateProgressDialog(percent, timeLeft, title) {
   if (progressDialog != null && progressDialog.isOpen) {
-    progressDialog.update(percent, timeLeft);
+    progressDialog.update(percent, timeLeft, title);
   };
 }
 

@@ -37,7 +37,7 @@
     <main class="app-main">
       <section class="app-upload-section">
         <div class="app-upload-area" onclick="uploadFile('inputFileApp')" id="upload-trigger-app">
-          <input type="file" id="inputFileApp" accept="video/*" onchange="handleFileChange(this, 'upload-trigger-app')"
+          <input type="file" id="inputFileApp" accept="video/*, .flv, .mkv" onchange="handleFileChange(this, 'upload-trigger-app')"
             style="display: none;">
           <div class="app-upload-area__icon">
             <img src="images/cloud-arrow-up.svg" alt="Upload Icon" loading="lazy">
@@ -87,11 +87,12 @@
               <label class="app-config-title-field">Target size</label>
             </div>
             <div class="app-resolution-wrapper">
-              <div class="custom-select" data-ui="app" data-key="target-size">
+              <div class="custom-select" id="targetSizeSelectApp" data-ui="app" data-key="target-size">
                 <div class="custom-select-trigger">None</div>
                 <div class="custom-options">
                 </div>
               </div>
+              <div class="overlay" id="overlayTargetSize"></div>
             </div>
           </div>
           <div class="app-form-group">
@@ -135,7 +136,7 @@
               <div class="overlay" id="overlayFps"></div>
             </div>
           </div>
-          <div class="app-form-group app-volume-control-group">
+          <div class="app-form-group">
             <div class="app-form-label">
               <img src="images/m/volume.svg" alt="Format">
               <label class="app-config-title-field">Volume</label>
@@ -214,6 +215,19 @@
               <img src="images/about-icon.svg" alt="icon About Bee Convert">
               <span>About</span>
             </span>
+
+            <!-- feedback -->
+            <span class="menu-modal__item" onclick="event.preventDefault(); event.stopPropagation(); handleFeedback(); closeMobileMenu();" >
+              <img src="images/feedback-app.svg" alt="">
+              <span>Feedback</span>
+            </span>
+
+            <!-- rating -->
+            <span class="menu-modal__item" onclick="event.preventDefault(); event.stopPropagation(); handleRateApp(); closeMobileMenu();" >
+              <img src="images/rate.svg" alt="icon About Bee Convert">
+              <span>Rate</span>
+            </span>
+
           </nav>
         </div>
       </div>
@@ -677,7 +691,9 @@
     </section>
   </div>
 
-
+  <script src="js/blob-utils.js?v=7fe5c22ff227"></script>
+  
+  <script src="libs/indexed-db-file-storage.js?v=0"></script>
   <script src="libs/app_settings.js"></script>
   <!-- Bắt đầu khai báo script cho toàn bộ ứng dụng -->
   <script src="js/main.js?v=2a3e21e0d4bd"></script>
@@ -690,7 +706,7 @@
   <script src="js/save-file.js?v=1e68ec20a1fb"></script>
   <script src="js/toast.js?v=6b58c255d7d3"></script>
   <script src="js/dialog-prevent-scroll.js?v=af8920572d4f"></script>
-  <script src="js/blob-utils.js?v=7fe5c22ff227"></script>
+  <script src="js/browser-detect.js?v=0"></script>
   <script src="js/m/m-history.js?v=c15a1e88da21"></script>
 
 
@@ -698,7 +714,6 @@
   <script src="libs/common-utils.js?v=f44ab3b85ecb"></script>
   <script src="libs/bee-api.js?v=317fd7c6c691"></script>
   <script src="libs/coder-config-utils.js?v=05f529551c6e"></script>
-  <script src="libs/init-browser.js?v=c2d56ef52622"></script>
   <script src="libs/file-system-api.js?v=17b67e9ef444"></script>
 
   <script src="components/dialog/dialog.js?v=af51475a2213"></script>
@@ -717,6 +732,7 @@
   <script src="components/action-sheet/ActionSheet.js?v=29e73af0b94d"></script>
   <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js?v=0"></script>
   <script src="components/dual-range.js?v=8165556ae97b"></script>
+  <script src="js/m/feedback.js?v=0"></script>
 
 </body>
 </html>

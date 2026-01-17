@@ -262,24 +262,25 @@ function setupVideoEventListeners(video, eventHandlers) {
 }
 
 function handleVideoLoaded() {
-  mtcv_videoDuration = APP_STATE.selectedFileInfo?.duration || mtcv_displayedVideo.duration;
-  
-  // SỬA: Chỉ reset timeline nếu chưa có config được restore
+  // mtcv_videoDuration = APP_STATE.selectedFileInfo?.duration || mtcv_displayedVideo.duration;
+  //
+  // // SỬA: Chỉ reset timeline nếu chưa có config được restore
   if (!APP_STATE.configConvertVideo || !APP_STATE.configConvertVideo.trimCheck) {
-    mtcv_endTime = APP_STATE.selectedFileInfo?.duration || mtcv_videoDuration || 0;
+    //50: không check Trim video ==> Save ==> Mở lại ==> Giá trị endTime sai
+    mtcv_endTime = APP_STATE.configConvertVideo.endTime || APP_STATE.selectedFileInfo?.duration || mtcv_videoDuration || 0;
+    mtcv_startTime = APP_STATE.configConvertVideo.startTime || 0;
     if (mtcv_startHandleByID) {
       updateElementStyle(mtcv_startHandleByID, { left: '0%' });
     }
     if (mtcv_endHandleByID) {
       updateElementStyle(mtcv_endHandleByID, { left: '100%' });
     }
-  } else if (APP_STATE.configConvertVideo.trimCheck && 
-             APP_STATE.configConvertVideo.startTime !== undefined && 
+  } else if (APP_STATE.configConvertVideo.trimCheck &&
+             APP_STATE.configConvertVideo.startTime !== undefined &&
              APP_STATE.configConvertVideo.endTime !== undefined) {
     // Nếu có config, populate lại timeline sau khi có duration
     populateTimeline(APP_STATE.configConvertVideo.startTime, APP_STATE.configConvertVideo.endTime);
   }
-  
   updateTimeDisplay();
   updateProgressBar();
 }

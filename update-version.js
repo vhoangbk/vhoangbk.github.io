@@ -49,27 +49,27 @@ function getFileHashFast(filePath) {
 
     try {
       // 1️⃣ First 1KB (or entire file if smaller)
-      const firstSize = Math.min(sampleSize, fileSize);
-      const firstBuffer = Buffer.alloc(firstSize);
-      fs.readSync(fd, firstBuffer, 0, firstSize, 0);
+      // const firstSize = Math.min(sampleSize, fileSize);
+      const firstBuffer = Buffer.alloc(fileSize);
+      fs.readSync(fd, firstBuffer, 0, fileSize, 0);
       hash.update(firstBuffer);
 
       // 2️⃣ Middle 1KB (if file is large enough)
-      if (fileSize > sampleSize * 2) {
-        const middlePos = Math.floor((fileSize - sampleSize) / 2);
-        const middleBuffer = Buffer.alloc(sampleSize);
-        fs.readSync(fd, middleBuffer, 0, sampleSize, middlePos);
-        hash.update(middleBuffer);
-      }
+      // if (fileSize > sampleSize * 2) {
+      //   const middlePos = Math.floor((fileSize - sampleSize) / 2);
+      //   const middleBuffer = Buffer.alloc(sampleSize);
+      //   fs.readSync(fd, middleBuffer, 0, sampleSize, middlePos);
+      //   hash.update(middleBuffer);
+      // }
 
       // 3️⃣ Last 1KB (if file is large enough and different from start)
-      if (fileSize > sampleSize) {
-        const lastPos = fileSize - sampleSize;
-        const lastSize = Math.min(sampleSize, fileSize);
-        const lastBuffer = Buffer.alloc(lastSize);
-        fs.readSync(fd, lastBuffer, 0, lastSize, lastPos);
-        hash.update(lastBuffer);
-      }
+      // if (fileSize > sampleSize) {
+      //   const lastPos = fileSize - sampleSize;
+      //   const lastSize = Math.min(sampleSize, fileSize);
+      //   const lastBuffer = Buffer.alloc(lastSize);
+      //   fs.readSync(fd, lastBuffer, 0, lastSize, lastPos);
+      //   hash.update(lastBuffer);
+      // }
     } finally {
       fs.closeSync(fd);
     }
@@ -94,7 +94,8 @@ function addVersionToFile(filePath) {
   if (fs.existsSync(filePath)) {
     let textContent = fs.readFileSync(filePath, 'utf8');
     let hasChanged = false;
-    textContent = textContent.replace(/[^"\s']*(?:\.js|\.css|\.wasm)[^"\s']*\?v=[^"\s']+/g, (match) => {
+    // Match all static assets: js, css, wasm, images (with or without ?v=...)
+    textContent = textContent.replace(/[^"\s']*(?:\.js|\.css|\.wasm|\.jpg|\.jpeg|\.png|\.gif|\.svg|\.webp)(?:\?v=[^"\s']*)?/g, (match) => {
 
       var subFilePath = match.split('?v=')[0];
 
@@ -111,21 +112,24 @@ function addVersionToFile(filePath) {
         fullFilePath = path.join(path.dirname(filePath), subFilePath);
       }
 
-      //đường dẫn mẹ là: /Users/hung/Git/beeconvert/public/blog-page/blog-1.html
-      //đường dẫn con là: /js/main.js
-      //nối lại thành: /Users/hung/Git/beeconvert/public/blog-page/js/main.js bị sai  
+      // ✅ Skip files in ffmpeg-wasm folder
+      if (fullFilePath.includes('libs/ffmpeg-wasm') || fullFilePath.includes('libs\\ffmpeg-wasm')) {
+        return match;
+      }
 
       if (fs.existsSync(fullFilePath)) {
-
-        // console.log('Updating version for:', subFilePath, fullFilePath, filePath);
         const fileVersion = getFileHashFast(fullFilePath);
+        console.log('addVersionToFile', fullFilePath, fileVersion);
         hasChanged = true;
         return `${subFilePath}?v=${fileVersion}`;
       } else {
         console.error('File does not exist:', subFilePath, fullFilePath, filePath);
       }
+      
       return match;
     });
+
+
     if (hasChanged) {
       fs.writeFileSync(filePath, textContent);
     }

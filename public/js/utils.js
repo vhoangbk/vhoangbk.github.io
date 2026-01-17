@@ -25,7 +25,7 @@ function populateFormatOptions(restore = false) {
 
   const isMobile = window.innerWidth <= 768;
   let displayName = '';
-  const formatOptions = window.app_settings ? Object.keys(window.app_settings) : [];
+  const formatOptions = window.browser_settings ? Object.keys(window.browser_settings) : [];
 
   /* ===== MOBILE HEADER (LUÔN CÓ, KỂ CẢ KHI NONE) ===== */
   if (isMobile) {
@@ -92,13 +92,19 @@ function populateFormatOptions(restore = false) {
     container.appendChild(option);
   });
 
-  if (formatOptions.length > 0 && APP_STATE.selectedFile && !restore) {
-    const defaultFormat = formatOptions.includes('h264') ? 'h264' : formatOptions[0];
-    formatSelect.value = defaultFormat;
-    setCustomSelectValue(formatSelect, defaultFormat);
-    APP_STATE.formatSelect = defaultFormat;
-    populateQualityOptions(defaultFormat);
-    highlighSelectedOption(formatSelect, defaultFormat);
+  if (formatOptions.length > 0) {
+    let currentFormat = APP_STATE.formatSelect;
+    if (!currentFormat && APP_STATE.selectedFile && !restore) {
+      currentFormat = formatOptions.includes('h264') ? 'h264' : formatOptions[0];
+      APP_STATE.formatSelect = currentFormat;
+    }
+
+    if (currentFormat) {
+      formatSelect.value = currentFormat;
+      setCustomSelectValue(formatSelect, currentFormat);
+      if (!isPopulating) populateQualityOptions(currentFormat); // Avoid double call if we are just init
+      highlighSelectedOption(formatSelect, currentFormat);
+    }
   }
 
   isPopulating = false;
@@ -178,7 +184,7 @@ function populateQualityOptions(selectedFormat) {
       opt.dataset.value = "None";
       opt.textContent = "None";
       container.appendChild(opt);
-    } 
+    }
     else {
       // DESKTOP → CHỈ 1 OPTION None
       const opt = document.createElement("div");
@@ -247,21 +253,25 @@ function populateFPSOptions(restore = false) {
 
   // Reset nội dung
   optionsContainer.innerHTML = '';
-  trigger.textContent = 'Original';
+  trigger.textContent = APP_STATE.selectedFileInfo && APP_STATE.selectedFileInfo.fps ? `Original (${APP_STATE.selectedFileInfo.fps})` : 'Original';
 
-  const FPS_LIST = ["original", "15", "24", "25", "30", "60"];
+  let FPS_LIST = ["original", "15", "24", "25", "30", "60"];
+  if (APP_STATE.selectedFileInfo && APP_STATE.selectedFileInfo.fps) {
+    FPS_LIST = [`original (${APP_STATE.selectedFileInfo.fps})`, "15", "24", "25", "30", "60"];
+  }
   const isMobile = window.innerWidth <= 768;
 
   if (!isMobile) {
     FPS_LIST.forEach(v => {
       const option = document.createElement('div');
       option.className = 'custom-option';
-      option.dataset.value = v;
+      option.dataset.value = v.toLowerCase().includes("original") ? "original" : v;
       option.dataset.codecFormat = "true";
-      option.textContent = v === "original" ? "Original" : v;
+      const text = String(v);
+      option.textContent = text.charAt(0).toUpperCase() + text.slice(1);
       optionsContainer.appendChild(option);
     });
-  } 
+  }
   else {
     const header = document.createElement('div');
     header.className = 'custom-options-header';
@@ -279,13 +289,16 @@ function populateFPSOptions(restore = false) {
     FPS_LIST.forEach(v => {
       const option = document.createElement('div');
       option.className = 'custom-option';
-      option.dataset.value = v;
+      option.dataset.value = v.toLowerCase().includes("original") ? "original" : v;
       option.dataset.codecFormat = "true";
-      option.textContent = v === "original" ? "Original" : v;
+      const text = String(v);
+      option.textContent = text.charAt(0).toUpperCase() + text.slice(1);
       container.appendChild(option);
     });
   }
-  highlighSelectedOption(selectWrapper, "original");
+
+  const savedFps = APP_STATE.fpsSelect || "original";
+  highlighSelectedOption(selectWrapper, savedFps);
 }
 
 function populateVolumeOptions(restore = false) {
@@ -311,7 +324,7 @@ function populateVolumeOptions(restore = false) {
       option.textContent = v;
       optionsContainer.appendChild(option);
     });
-  } 
+  }
   else {
     const header = document.createElement('div');
     header.className = 'custom-options-header';
@@ -326,7 +339,7 @@ function populateVolumeOptions(restore = false) {
     container.className = 'custom-options-container';
     list.appendChild(container);
 
-      VOLUME_LIST.forEach(v => {
+    VOLUME_LIST.forEach(v => {
       const option = document.createElement('div');
       option.className = 'custom-option';
       option.dataset.value = v;
@@ -335,7 +348,9 @@ function populateVolumeOptions(restore = false) {
       container.appendChild(option);
     });
   }
-  highlighSelectedOption(selectWrapper, "100%");
+
+  const savedVol = APP_STATE.volumeSelect ? APP_STATE.volumeSelect + '%' : "100%";
+  highlighSelectedOption(selectWrapper, savedVol);
 }
 
 function cleanupBlobUrlMap() {
@@ -372,15 +387,15 @@ function getOptimalResolutions(availableResolutions, videoDimensions) {
 
 function parseRatio(ratioString) {
   if (ratioString === 'custom') return null;
-  
+
   const [width, height] = ratioString.split(':').map(Number);
   return { width, height };
 }
 
 function showNotification(message) {
   const notification = Object.assign(document.createElement('div'), {
-      textContent: message,
-      className: 'bee-notification'
+    textContent: message,
+    className: 'bee-notification'
   });
 
   document.body.appendChild(notification);
@@ -390,13 +405,13 @@ function showNotification(message) {
   setTimeout(() => notification.classList.add('show'), 100);
 
   setTimeout(() => {
-      notification.classList.remove('show');
-      notification.classList.add('hide');
-      setTimeout(() => {
-        if (notification.parentNode) {
-          document.body.removeChild(notification);
-        }
-      }, 300);
+    notification.classList.remove('show');
+    notification.classList.add('hide');
+    setTimeout(() => {
+      if (notification.parentNode) {
+        document.body.removeChild(notification);
+      }
+    }, 300);
   }, 3000);
 }
 
@@ -411,10 +426,10 @@ function showNotification(message) {
 function __getElementByIdByUI(baseId, options = {}) {
   const appUI = isDisplayed('.app--container');
   const desktopUI = isDisplayed('.desktop-app-container');
-  
+
   const appSuffix = options.app !== undefined ? options.app : 'App';
   const desktopSuffix = options.desktop !== undefined ? options.desktop : 'Desktop';
-  
+
   let elementId;
   if (appUI) {
     elementId = baseId + appSuffix;
@@ -427,7 +442,7 @@ function __getElementByIdByUI(baseId, options = {}) {
     const desktopEl = document.getElementById(desktopId);
     elementId = desktopEl ? desktopId : appId;
   }
-  
+
   return document.getElementById(elementId);
 }
 
@@ -461,7 +476,7 @@ function __getSelectByKey(key) {
 function getElementBySelectorByUI(selectors) {
   const appUI = isDisplayed('.app--container');
   const desktopUI = isDisplayed('.desktop-app-container');
-  
+
   let selector;
   if (appUI && selectors.app) {
     selector = selectors.app;
@@ -474,12 +489,12 @@ function getElementBySelectorByUI(selectors) {
     // Fallback: thử app
     selector = selectors.app;
   }
-  
+
   return selector ? document.querySelector(selector) : null;
 }
 
 if (typeof handler === 'undefined') {
-  window.handler = async function(payload) {
+  window.handler = async function (payload) {
     console.warn('Default handler called with:', payload);
     return null;
   };

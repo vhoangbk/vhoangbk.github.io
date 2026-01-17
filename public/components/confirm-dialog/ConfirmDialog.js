@@ -118,7 +118,10 @@ class ConfirmDialog {
       color: #504F4F;
     }
   `;
-    document.head.appendChild(style);
+
+    if (!this.hasCSSClass('dialog-confirm-overlay')) {
+      document.head.appendChild(style);
+    }
 
     this.overlay = document.createElement("div");
     this.overlay.className = "dialog-confirm-overlay";
@@ -151,6 +154,24 @@ class ConfirmDialog {
     this._bindEvents();
 
     document.body.appendChild(this.overlay);
+  }
+
+  hasCSSClass(className) {
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try {
+        rules = sheet.cssRules;
+      } catch (e) {
+        continue;
+      }
+
+      for (const rule of rules) {
+        if (rule.selectorText?.includes(`.${className}`)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   _bindEvents() {

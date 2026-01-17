@@ -292,8 +292,18 @@ function openModalAdvancedConfig() {
     const videoDuration = APP_STATE.selectedFileInfo?.duration || mtcv_videoDuration || 0;
     const duration =  (videoDuration * 1000).toFixed(3);
     dualRange = new DualRange('dual-range-container', {gap: 1000, max: duration, onChangeValue: (data) => {
-      mtcv_startTime = data.min;
-      mtcv_endTime = data.max;
+      if (data.type === 'min') {
+        mtcv_startTime = data.min;
+        if (Math.floor(data.min) >= mtcv_endTime) {
+          mtcv_startTime = Math.floor(mtcv_endTime) - 1;
+        } 
+      } else if (data.type === 'max') {
+        mtcv_endTime = data.max;
+        if (Math.floor(data.max) <= mtcv_startTime) {
+          mtcv_endTime = Math.floor(mtcv_startTime) + 1;
+        }
+      }
+
       updateTimeDisplay();
       updateCropConfig('trimVideo');
       if (mtcvDisplayedVideo && !mtcvDisplayedVideo.paused) {
@@ -340,4 +350,5 @@ function showDisableOverlay() {
 
 function hideDisableOverlay() {
   toggleOverlayState(false);
+  handleOverlayTargetSize(false);
 }

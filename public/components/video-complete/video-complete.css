@@ -45,6 +45,7 @@
 .dialog-video-player {
   width: 100%;
   height: 50%;
+  background-color: white;
 }
 .dialog-video-close {
   background: none;

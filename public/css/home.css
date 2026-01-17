@@ -305,18 +305,19 @@ aside .aside-left__banner, aside .aside-right__banner {
   text-decoration: none;
   color: var(--gray-700);
   transition: all 0.3s ease;
-  padding: 0.4rem 0.5rem;
+  padding: var(--common-padding);
 }
 .section-blog-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   border-color: #F7AF1A33;
-  color: var(--primary-color);
+  color: var(--theme-color);
 }
 .section-blog-icon {
-  color: var(--primary-color);
+  color: var(--theme-color);
   font-weight: bold;
   font-size: 1.2rem;
+  min-width: 20px;
 }
 .section-blog-title {
   font-size: 1rem;
@@ -919,8 +920,8 @@ aside {
   margin-top: 5px;
   background-color: var(--white);
   border-radius: 10px;
-  border: 2px solid #F7AF1A33;
-  box-shadow: 0 20px 40px rgba(92, 91, 96, 0.35);
+  border: 2px solid var(--theme-color);
+  box-shadow: 0 20px 80px rgb(0 0 0 / 50%);
   max-height: 400px;
   overflow-y: auto;
   z-index: 999;
@@ -1099,7 +1100,6 @@ aside {
 
   .custom-groups-wrapper {
     border-radius: 10px;
-    background: #f9f9f9;
     display: flex;
     flex-direction: column;
     gap: var(--common-padding);

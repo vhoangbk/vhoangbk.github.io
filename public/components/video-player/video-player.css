@@ -22,6 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: white;
 }
 
 .dialog-video-player-player {
@@ -35,7 +36,7 @@
   top: clamp(0.5rem, 1vh, 0.8rem);
   right: clamp(0.5rem, 1vh, 0.8rem);
   background: rgba(255, 255, 255, 0.9);
-  border: none;
+  border: 1px dotted var(--theme-color);
   border-radius: 50%;
   /* width: clamp(1.5rem, 2vh, 2rem);
   height: clamp(1.5rem, 2vh, 2rem); */
