@@ -63,6 +63,7 @@ router.get('/total-clicks', async (req, res) => {
 });
 
 router.post('/track-convert', async (req, res) => {
+  console.log('call api track-convert');
   try {
     const data = req.body;
     const userAgent = req.headers['user-agent'] || '';
