@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Link Mở Trình Duyệt Ngoài</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .open-link-btn {
+            display: block;
+            text-align: center;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+
+        .open-link-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Màu riêng cho STG (Môi trường test) và Honban (Môi trường thật) */
+        .btn-stg {
+            background-color: #f39c12; /* Màu cam */
+            box-shadow: 0 4px 6px rgba(243, 156, 18, 0.2);
+        }
+
+        .btn-honban {
+            background-color: #27ae60; /* Màu xanh lá */
+            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Nhóm KyuunWeb -->
+        <h2>KyuunWeb</h2>
+        <div class="btn-group">
+            <a href="https://staging.webchat-maintain2.kyuun-kyuun.com" target="_blank" class="open-link-btn btn-stg">
+                Mở STG
+            </a>
+            <a href="https://web.kyuun-kyuun.com" target="_blank" class="open-link-btn btn-honban">
+                Mở Honban
+            </a>
+        </div>
+
+        <!-- Nhóm KyunCallweb 男性 -->
+        <h2>KyunCallweb 男性</h2>
+        <div class="btn-group" style="margin-bottom: 0;">
+            <a href="https://staging.uat.webchat-male.kyuncall.com" target="_blank" class="open-link-btn btn-stg">
+                Mở STG
+            </a>
+            <a href="https://web.kyuncall.com" target="_blank" class="open-link-btn btn-honban">
+                Mở Honban
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
