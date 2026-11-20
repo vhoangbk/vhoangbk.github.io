@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giao diện App</title>
+    <title>App</title>
     <style>
         body {
             display: flex;
@@ -18,10 +18,6 @@
         .phone-container {
             width: 260px;
             height: 320px;
-            background-color: #ffffff;
-            border: 4px solid #1f2e45;
-            border-radius: 20px;
-            box-shadow: 4px 4px 0px 0px #e0e5ea;
             padding: 12px 15px;
             display: flex;
             flex-direction: column;
@@ -29,28 +25,7 @@
             box-sizing: border-box;
             position: relative;
         }
-
-        .notch {
-            width: 50px;
-            height: 4px;
-            background-color: #1f2e45;
-            border-radius: 4px;
-            margin-bottom: 12px;
-        }
-
-        .header-webview {
-            background-color: #f3f6f9;
-            color: #6b7a90;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            width: 100%;
-            padding: 10px 0;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            letter-spacing: 0.5px;
-        }
-
+        
         .icon-a {
             width: 45px;
             height: 45px;
@@ -103,16 +78,48 @@
         .btn-continue:hover {
             background-color: #27725f;
         }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .musashi {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .musashi-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #dbe8f7;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .musashi-name {
+            color: #1f2e45;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="phone-container">
-        <div class="notch"></div>
-        
-        <div class="header-webview">
-            WEBVIEW
+    <div id="musashi" class="musashi hidden">
+        <div class="musashi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#4a90d9">
+                <path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+            </svg>
         </div>
+        <div class="musashi-name">MUSASHI</div>
+    </div>
+
+    <div id="default-ui" class="phone-container hidden">
 
         <div class="icon-a">A</div>
 
@@ -127,6 +134,32 @@
     </div>
 
     <script>
+        // Kiểm tra IP: JP/VN -> giao diện MUSASHI, ngược lại -> giao diện mặc định
+        (async function () {
+            let showMusashi = true;
+            // Thử lần lượt các dịch vụ, mỗi dịch vụ trả về mã quốc gia theo cách riêng
+            const providers = [
+                { url: 'https://api.country.is/', get: d => d.country },
+                { url: 'https://ipwho.is/', get: d => d.success === false ? null : d.country_code },
+                { url: 'https://ipapi.co/json/', get: d => d.error ? null : d.country_code }
+            ];
+            for (const p of providers) {
+                try {
+                    const res = await fetch(p.url);
+                    if (!res.ok) continue;
+                    const code = p.get(await res.json());
+                    console.log(code)
+                    if (code) {
+                        showMusashi = ['JP', 'VN'].includes(code);
+                        break;
+                    }
+                } catch (e) {
+                    // thử dịch vụ tiếp theo
+                }
+            }
+            document.getElementById(showMusashi ? 'musashi' : 'default-ui').classList.remove('hidden');
+        })();
+
         document.querySelector('.btn-continue').addEventListener('click', function () {
             window.webkit.messageHandlers.nativeBridge.postMessage({
                 action: "open-native",
