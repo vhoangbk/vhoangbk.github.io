@@ -3,98 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách Link Mở Trình Duyệt Ngoài</title>
+    <title>Giao diện App</title>
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            background-color: #f4f4f9;
-            font-family: Arial, sans-serif;
-        }
-        
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        h2 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 5px;
-        }
-
-        .btn-group {
+        .phone-container {
+            width: 260px;
+            height: 320px;
+            background-color: #ffffff;
+            border: 4px solid #1f2e45;
+            border-radius: 20px;
+            box-shadow: 4px 4px 0px 0px #e0e5ea;
+            padding: 12px 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 25px;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
         }
-        
-        .open-link-btn {
-            display: block;
+
+        .notch {
+            width: 50px;
+            height: 4px;
+            background-color: #1f2e45;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .header-webview {
+            background-color: #f3f6f9;
+            color: #6b7a90;
+            font-size: 11px;
+            font-weight: 700;
             text-align: center;
-            color: white;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
+            width: 100%;
+            padding: 10px 0;
             border-radius: 8px;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
+        }
+
+        .icon-a {
+            width: 45px;
+            height: 45px;
+            background-color: #e0f2e9;
+            color: #1a6b54;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            color: #1a6b54;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .description {
+            text-align: center;
+            color: #6b7a90;
+            font-size: 12px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .description span {
+            display: block;
+            color: #8896a6;
+        }
+
+        .btn-continue {
+            background-color: #318e77;
+            color: white;
             border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
-            transition: opacity 0.3s, transform 0.2s;
+            transition: background-color 0.2s;
         }
 
-        .open-link-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        /* Màu riêng cho STG (Môi trường test) và Honban (Môi trường thật) */
-        .btn-stg {
-            background-color: #f39c12; /* Màu cam */
-            box-shadow: 0 4px 6px rgba(243, 156, 18, 0.2);
-        }
-
-        .btn-honban {
-            background-color: #27ae60; /* Màu xanh lá */
-            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+        .btn-continue:hover {
+            background-color: #27725f;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Nhóm KyuunWeb -->
-        <h2>KyuunWeb</h2>
-        <div class="btn-group">
-            <a href="https://staging.webchat-maintain2.kyuun-kyuun.com" target="_blank" class="open-link-btn btn-stg">
-                Mở STG
-            </a>
-            <a href="https://web.kyuun-kyuun.com" target="_blank" class="open-link-btn btn-honban">
-                Mở Honban
-            </a>
+    <div class="phone-container">
+        <div class="notch"></div>
+        
+        <div class="header-webview">
+            WEBVIEW
         </div>
 
-        <!-- Nhóm KyunCallweb 男性 -->
-        <h2>KyunCallweb 男性</h2>
-        <div class="btn-group" style="margin-bottom: 0;">
-            <a href="https://staging.uat.webchat-male.kyuncall.com" target="_blank" class="open-link-btn btn-stg">
-                Mở STG
-            </a>
-            <a href="https://web.kyuncall.com" target="_blank" class="open-link-btn btn-honban">
-                Mở Honban
-            </a>
+        <div class="icon-a">A</div>
+
+        <div class="title">HỌC TIẾNG ANH</div>
+
+        <div class="description">
+            Trang giới thiệu
+            <span>Bạn muốn tiếp tục sử dụng?</span>
         </div>
+
+        <button class="btn-continue">Tiếp tục</button>
     </div>
+
+    <script>
+        document.querySelector('.btn-continue').addEventListener('click', function () {
+            window.webkit.messageHandlers.nativeBridge.postMessage({
+                action: "open-native",
+                data: {}
+            });
+        });
+    </script>
 
 </body>
 </html>
